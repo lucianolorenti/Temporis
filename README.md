@@ -6,7 +6,7 @@
 -----------------
 
 [![Coverage Status](https://coveralls.io/repos/github/lucianolorenti/Temporis/badge.svg?branch=main)](https://coveralls.io/github/lucianolorenti/Temporis?branch=main)
-[![Documentation](https://img.shields.io/badge/documentation-dev-brightgreen)](https://lucianolorenti.github.io/rul_pm/)
+[![Documentation](https://img.shields.io/badge/documentation-dev-brightgreen)](https://lucianolorenti.github.io/Temporis/)
 
 ## What is it?
 
