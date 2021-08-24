@@ -13,8 +13,8 @@ BASEPATH = Path(__file__).resolve().parent
 setup(
     name="temporis",
     packages=find_packages(),
-    version="0.1.0",
-    description="Remaining useful life estimation utilities",
+    version="0.2.0",
+    description="Time series utilities for machine learning",
     author="",
     install_requires=[
         "pandas",
