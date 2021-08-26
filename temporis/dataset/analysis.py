@@ -3,13 +3,13 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_numeric_dtype
-from temporis.graphics.control_charts import plot_ewma_
+from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
+
 
 logger = logging.getLogger(__name__)
 
 
-def common_features_null_proportion_below(dataset, t):
+def common_features_null_proportion_below(dataset: AbstractTimeSeriesDataset, t: float):
     """
     Return the list of features such that each feature in each
     life have a null proportion smaller than the threshold
@@ -27,13 +27,13 @@ def common_features_null_proportion_below(dataset, t):
     ]
 
 
-def null_proportion(dataset):
+def null_proportion(dataset: AbstractTimeSeriesDataset):
     """
     Return mean and max null proportion for each column of each life of the dataset
 
     Parameters
     ----------
-    dataset: AbstractLivesDataset
+    dataset: AbstractTimeSeriesDataset
 
     Return
     ------
@@ -44,13 +44,12 @@ def null_proportion(dataset):
           The key is the column name and the value is the list of null proportion
           for each life
     """
-    comon_features = [set(life.columns.tolist()) for life in dataset]
-    comon_features = comon_features[0].intersection(*comon_features)
+    common_features = dataset.common_features()
 
     null_proportion_per_life = {}
     for life in dataset:
         d = life.isnull().mean().to_dict()
-        for column in comon_features:
+        for column in common_features:
             null_proportion_list = null_proportion_per_life.setdefault(column, [])
             null_proportion_list.append(d[column])
 
@@ -70,7 +69,7 @@ def null_proportion(dataset):
     return df, null_proportion_per_life
 
 
-def null_proportion_per_life(dataset):
+def null_proportion_per_life(dataset: AbstractTimeSeriesDataset):
     """"""
     data = []
     for i, life in enumerate(dataset):
@@ -106,13 +105,24 @@ def null_proportion_per_life(dataset):
     return df
 
 
-def variance_information(dataset, features:Optional[List[str]]=None, transformer= None):
+def variance_information(
+    dataset: AbstractTimeSeriesDataset,
+    features: Optional[List[str]] = None,
+    transformer=None,
+):
     """
     Return mean and max null proportion for each column of each life of the dataset
 
     Parameters
     ----------
-    dataset: AbstractLivesDataset
+    dataset: AbstractTimeSeriesDataset
+             The dataset
+
+    features: Optional[List[str]]=None
+              Features to select
+
+    transformer:
+        Transformer
 
     Return
     ------
@@ -123,12 +133,14 @@ def variance_information(dataset, features:Optional[List[str]]=None, transformer
           The key is the column name and the value is the list of null proportion
           for each life
     """
-    common_features = []
-    for life in dataset:
-        if transformer is not None:
+    if transformer is not None:
+        common_features = []
+        for life in dataset:
             life = transformer.transform(life)
-        common_features.append(set(life.columns.tolist()))
-    common_features = common_features[0].intersection(*common_features)
+            common_features.append(set(life.columns.tolist()))
+        common_features = common_features[0].intersection(*common_features)
+    else:
+        common_features = dataset.common_features()
     if features:
         common_features = set(common_features).intersection(set(features))
 
@@ -146,12 +158,23 @@ def variance_information(dataset, features:Optional[List[str]]=None, transformer
             std_list.append(d[column])
 
     data = [
-        (column, np.min(std_per_life[column]), np.mean(std_per_life[column]), np.max(std_per_life[column]))
+        (
+            column,
+            np.min(std_per_life[column]),
+            np.mean(std_per_life[column]),
+            np.max(std_per_life[column]),
+        )
         for column in std_per_life.keys()
     ]
 
     df = pd.DataFrame(
-        data, columns=["Feature", "Min std Proportion", "Mean std Proportion", "Max std Proportion"]
+        data,
+        columns=[
+            "Feature",
+            "Min std Proportion",
+            "Mean std Proportion",
+            "Max std Proportion",
+        ],
     )
     df.sort_values(by="Min std Proportion", inplace=True, ascending=True)
     return df, std_per_life
