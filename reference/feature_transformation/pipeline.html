@@ -201,47 +201,8 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="module-temporis.transformation.pipeline">
-<span id="id1"></span><span id="transformer-pipeline"></span><h1>Transformer pipeline<a class="headerlink" href="#module-temporis.transformation.pipeline" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.pipeline.LivesPipeline">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.pipeline.</span></span><span class="sig-name descname"><span class="pre">LivesPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.pipeline.LivesPipeline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transformer pipeline</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>Pipeline</strong> (<em>[</em><em>type</em><em>]</em>) – [description]</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.pipeline.LivesPipeline.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_before</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.pipeline.LivesPipeline.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit the pipeline given a dataset</p>
-<p>The fitting procedure works by traversing the
-graph by levels, fitting all of the lives in the level i,
-before fitting the level i+1</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>Dataset</em>) – Dataset in which fit the data</p></li>
-<li><p><strong>y</strong> (<em>[</em><em>type</em><em>]</em><em>, </em><em>optional</em>) – [description], by default None</p></li>
-<li><p><strong>apply_before</strong> (<em>[</em><em>type</em><em>]</em><em>, </em><em>optional</em>) – [description], by default None</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="temporis.transformation.pipeline.LivesPipeline.steps">
-<span class="sig-name descname"><span class="pre">steps</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#temporis.transformation.pipeline.LivesPipeline.steps" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="temporis.transformation.pipeline.transform_given_list">
-<span class="sig-prename descclassname"><span class="pre">temporis.transformation.pipeline.</span></span><span class="sig-name descname"><span class="pre">transform_given_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.pipeline.transform_given_list" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="transformer-pipeline">
+<span id="id1"></span><h1>Transformer pipeline<a class="headerlink" href="#transformer-pipeline" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
