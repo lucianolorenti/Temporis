@@ -6,7 +6,7 @@ import pandas as pd
 from numpy.lib.arraysetops import isin
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.iterators.iterators import WindowedDatasetIterator
-from temporis.transformation.transformers import Transformer
+from temporis.transformation import Transformer
 
 
 class Batcher:

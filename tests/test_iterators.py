@@ -7,7 +7,7 @@ from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.iterators.batcher import Batcher
 from temporis.transformation.features.scalers import PandasMinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
-from temporis.transformation.transformers import (LivesPipeline, Transformer)
+from temporis.transformation import (TemporisPipeline, Transformer)
 
 
 class SimpleDataset(AbstractTimeSeriesDataset):
@@ -67,14 +67,11 @@ class MockDataset(AbstractTimeSeriesDataset):
 class TestIterators():
     def test_iterators(self):
         features = ['feature1', 'feature2']
-        transformer = Transformer(
-            LivesPipeline(
-                    steps=[
-                        ('ss', ByNameFeatureSelector(features)),
-                        ('scaler', PandasMinMaxScaler((-1, 1)))
-                    ]),
-            ByNameFeatureSelector(['RUL']).build()
-        )
+        x = ByNameFeatureSelector(features)
+        x = PandasMinMaxScaler((-1, 1))(x)
+
+        y = ByNameFeatureSelector(['RUL'])
+        transformer = Transformer(x, y)
         batch_size = 15
         window_size = 5
         ds = MockDataset(5)
@@ -92,9 +89,8 @@ class TestIterators():
         pipe = ByNameFeatureSelector(['feature1'])
         y_pipe = ByNameFeatureSelector(['RUL'])
         transformer_raw = Transformer(
-            transformerX=pipe.build(),    
-            transformerY=y_pipe.build(),
-
+            transformerX=pipe,    
+            transformerY=y_pipe
         )
         transformer_raw.fit(dataset)
         it  = WindowedDatasetIterator(dataset, 5, transformer_raw)

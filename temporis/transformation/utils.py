@@ -16,7 +16,15 @@ class PandasToNumpy(TransformerStep):
     def transform(self, X):
         return X.values
 
+class TransformerLambda(TransformerStep):
+    def __init__(self, f, name: str):
+        super().__init__(name)
+        self.f = f
 
+    def transform(self, X, y=None):
+        return self.f(X)
+
+        
 class IdentityTransformer(TransformerStep):
 
     def fit(self, input_array, y=None):

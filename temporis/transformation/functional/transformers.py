@@ -10,17 +10,20 @@ dataset iterators to transform the data before feeding it to the model.
 import copy
 import logging
 from pathlib import Path
-from typing import List, Optional
+
+from pandas.core.algorithms import isin
+from temporis.transformation.functional.transformerstep import TransformerStep
+from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from temporis.transformation.featureunion import PandasFeatureUnion
-from temporis.transformation.pipeline import LivesPipeline
+from temporis.transformation.functional.concatenate import Concatenate
+from temporis.transformation.functional.pipeline import TemporisPipeline
 from sklearn.utils.validation import check_is_fitted
 
 logger = logging.getLogger(__name__)
 
-RESAMPLER_STEP_NAME = 'resampler'
+RESAMPLER_STEP_NAME = "resampler"
 
 
 def transformer_info(transformer):
@@ -41,34 +44,38 @@ def transformer_info(transformer):
         If the transformer passed as an argument doesn't have
         the get_params method.
     """
-    if isinstance(transformer, LivesPipeline):
-        return [(name, transformer_info(step))
-                for name, step in transformer.steps]
+    if isinstance(transformer, TemporisPipeline):
+        return [(name, transformer_info(step)) for name, step in transformer.steps]
     elif isinstance(transformer, PandasFeatureUnion):
-        return [('name', 'FeatureUnion'),
-                ('steps', [(name, transformer_info(step))
-                           for name, step in transformer.transformer_list]),
-                ('transformer_weights', transformer.transformer_weights)]
+        return [
+            ("name", "FeatureUnion"),
+            (
+                "steps",
+                [
+                    (name, transformer_info(step))
+                    for name, step in transformer.transformer_list
+                ],
+            ),
+            ("transformer_weights", transformer.transformer_weights),
+        ]
 
-    elif hasattr(transformer, 'get_params'):
+    elif hasattr(transformer, "get_params"):
         d = transformer.get_params()
-        d.update({'name': type(transformer).__name__})
+        d.update({"name": type(transformer).__name__})
         return [(k, d[k]) for k in sorted(d.keys())]
-    elif isinstance(transformer, str) and transformer == 'passthrough':
+    elif isinstance(transformer, str) and transformer == "passthrough":
         return transformer
     else:
         logger.error(type(transformer))
 
-        raise ValueError('Pipeline elements must have the get_params method')
-
-
+        raise ValueError("Pipeline elements must have the get_params method")
 
 
 class Transformer:
     """Transform each life
 
     The transformer class is the highest level class of the transformer API.
-    It contains Transformation Pipelines for the input data and the target, 
+    It contains Transformation Pipelines for the input data and the target,
     and provides mechanism to inspect the structure of the transformed data.
 
     Parameters
@@ -81,21 +88,31 @@ class Transformer:
         Transformer that will be used to extract additional
         data from the lives information, by default None
     """
-    def __init__(self,
-                 transformerX: LivesPipeline,
-                 transformerY: LivesPipeline,
-                 transformerMetadata: Optional[LivesPipeline] = None):
 
-        self.transformerX = transformerX
-        self.transformerY = transformerY
-        self.transformerMetadata = transformerMetadata
+    def __init__(
+        self,
+        transformerX: Union[TemporisPipeline, TransformerStep],
+        transformerY: Union[TemporisPipeline, TransformerStep],
+        transformerMetadata: Optional[Union[TemporisPipeline, TransformerStep]] = None,
+    ):
+        def ensure_pipeline(x):
+            if isinstance(x, TemporisPipeline):
+                return x
+            return TemporisPipeline(x)
+
+        self.transformerX = ensure_pipeline(transformerX)
+        self.transformerY = ensure_pipeline(transformerY)
+        self.transformerMetadata = (
+            ensure_pipeline(transformerMetadata)
+            if transformerMetadata is not None
+            else None
+        )
         self.features = None
         self.fitted_ = False
 
     def _process_selected_features(self):
-        if self.transformerX['selector'] is not None:
-            selected_columns = (self.transformerX['selector'].get_support(
-                indices=True))
+        if self.transformerX["selector"] is not None:
+            selected_columns = self.transformerX["selector"].get_support(indices=True)
             self.features = [self.features[i] for i in selected_columns]
 
     def clone(self):
@@ -114,9 +131,9 @@ class Transformer:
 
         Returns
         -------
-        self            
+        self
         """
-        logger.debug('Fitting Transformer')
+        logger.debug("Fitting Transformer")
         self.transformerX.fit(dataset)
         self.transformerY.fit(dataset)
         if self.transformerMetadata is not None:
@@ -144,9 +161,12 @@ class Transformer:
             * The second element consits of the target transformed
             * The third element consists of the metadata
         """
-        check_is_fitted(self, 'fitted_')
-        return (self.transformX(life), self.transformY(life),
-                self.transformMetadata(life))
+        check_is_fitted(self, "fitted_")
+        return (
+            self.transformX(life),
+            self.transformY(life),
+            self.transformMetadata(life),
+        )
 
     def transformMetadata(self, df: pd.DataFrame) -> Optional[any]:
         if self.transformerMetadata is not None:
@@ -199,23 +219,20 @@ class Transformer:
 
         Returns
         -------
-        int            
+        int
         """
         return self.number_of_features_
 
-    def _compute_column_names(self):
-        temp = self.transformerX.steps[-1]
-        cnames = self.transformerX.transform(self.minimal_df).columns.values
-        self.transformerX.steps[-1] = temp
-        return cnames
+    def _compute_column_names(self):        
+        return self.transformerX.column_names
+        
 
     def description(self):
         return {
-            'features': self.features,
-            'transformerX': transformer_info(self.transformerX),
-            'transformerY': transformer_info(self.transformerY),
+            "features": self.features,
+            "transformerX": transformer_info(self.transformerX),
+            "transformerY": transformer_info(self.transformerY),
         }
 
     def __str__(self):
         return str(self.description())
-

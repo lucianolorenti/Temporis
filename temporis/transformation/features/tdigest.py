@@ -109,7 +109,7 @@ class TDigest:
         ]
         return t.merge(digests)
 
-    def estimateQuantile(self, q: float) -> float:
+    def estimate_quantile(self, q: float) -> float:
         """Estimates the value of the given quantile.
 
         Parameters

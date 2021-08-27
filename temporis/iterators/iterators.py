@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_is_fitted
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-from temporis.transformation.transformers import Transformer
+from temporis.transformation import Transformer
 from temporis.utils.lrucache import LRUDataCache
 
 CACHE_SIZE = 30
@@ -26,7 +26,7 @@ VALID_SAMPLE_WEIGHTS = [SAMPLE_WEIGHT_PROPORTIONAL_TO_LENGTH,
 class DatasetIterator:
     """
 
-    Each life is stored in a LRU cache in-memory and should have
+    Each tiem series is stored in a LRU cache in-memory and should have
     an unique identifier. A unique number is sufficient.
 
 
@@ -35,7 +35,7 @@ class DatasetIterator:
     dataset     : AbstractTimeSeriesDataset
                   Dataset with the time-series data
     transformer : Transformer
-                  Transformer to apply to each life
+                  Transformer to apply to each times series
     shuffle     : Union[bool, str] default: False
                   If the data returned for the iterator should be shuffle.
                   The possible values depends on the iterator
@@ -60,33 +60,33 @@ class DatasetIterator:
         except NotFittedError:
             self.transformer.fit(dataset)
 
-    def _load_data(self, life) -> pd.DataFrame:
+    def _load_data(self, ts) -> pd.DataFrame:
         """
-        Return a DataFrame with the contents of the life
+        Return a DataFrame with the contents of the time series
 
         Parameters
         ----------
-        life : any
-               The life identifiers
+        ts : any
+               The time series identifiers
         """
-        if life not in self.cache.data:
-            data = self.dataset[life]
+        if ts not in self.cache.data:
+            data = self.dataset[ts]
             X, y, metadata = self.transformer.transform(data)
-            self.cache.add(life, (X.values, y.values, metadata))
-        return self.cache.get(life)
+            self.cache.add(ts, (X.values, y.values, metadata))
+        return self.cache.get(ts)
 
 
-class LifeDatasetIterator(DatasetIterator):
+class TimeSeriesDatasetIterator(DatasetIterator):
     """
-    Iterates over the whole set of lives.
-    Each element returned by the iterator is the complete life of the equipment
+    Iterates over the whole set of time series.
+    
 
     Parameters
     ----------
     dataset     : AbstractTimeSeriesDataset
                   Dataset with the lives data
     transformer : Transformer
-                  Transformer to apply to each life
+                  Transformer to apply to each time-series
     shuffle     : default: False
                   If the data returned for the iterator should be shuffle.
                   The possible values depends on the iterator

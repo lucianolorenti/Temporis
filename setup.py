@@ -4,9 +4,8 @@ import shutil
 import os 
 from pathlib import Path
 from setuptools import setup, find_packages
-from setuptools.command.install import install as InstallCommandBase
-from setuptools.command.develop import develop as DevelopCommmandBase
-from setuptools.command.build_ext import build_ext as build_ext_orig
+from Cython.Build import cythonize
+
 BASEPATH = Path(__file__).resolve().parent
 
 
@@ -32,5 +31,6 @@ setup(
     license="MIT",
     include_package_data=True,
     package_data={"": ["RUL*.txt", "train*.txt", "test*.txt"]},
+
 
 )

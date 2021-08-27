@@ -14,7 +14,7 @@ from temporis.transformation.features.extraction_numba import (compute,
                                                                roll_matrix,
                                                                stats_order)
 from temporis.transformation.features.hurst import hurst_exponent
-from temporis.transformation.transformerstep import TransformerStep
+from temporis.transformation import TransformerStep
 
 logger = logging.getLogger(__name__)
 
@@ -987,7 +987,17 @@ class ExpandingStatistics(TransformerStep):
         )
 
     def transform(self, X):
-        X_new = pd.DataFrame(index=X.index)
+        
+        X_new_n_columns = len(X.columns)*len(self.to_compute)
+        i = 0
+        columns = np.empty((X_new_n_columns,), dtype=object)
+        for c in X.columns:
+            for stats in self.to_compute:
+                columns[i] = f"{c}_{stats}"
+                i += 1
+
+        X_new = pd.DataFrame(index=X.index,
+                             columns=columns)
         expanding = X.expanding(self.min_points)
         s_abs = X.abs().expanding(self.min_points)
         s_abs_sqrt = X.abs().pow(1.0 / 2).expanding(self.min_points)
@@ -997,7 +1007,6 @@ class ExpandingStatistics(TransformerStep):
                 X_new[f"{c}_{stats}"] = getattr(self, f"_{stats}")(
                     X[c], expanding[c], s_abs[c], s_abs_sqrt[c], s_sq[c]
                 )
-
         X_new[np.isinf(X_new) | np.isnan(X_new)] = np.nan
         return X_new
 

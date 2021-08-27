@@ -6,7 +6,7 @@ from temporis.dataset.CMAPSS import CMAPSSDataset, sensor_indices
 
 class MockDataset(AbstractTimeSeriesDataset):
     def __init__(self, nlives: int):
-
+        super().__init__()
         self.lives = [
             pd.DataFrame(
                 {
@@ -53,9 +53,9 @@ class TestDataset:
             assert set(life.columns) == columns
         assert ds.n_time_series == 5
 
-        p = ds.toPandas()
+        p = ds.to_pandas()
         assert p.shape[0] == 50 * 5
-        assert set(ds.commonFeatures()) == set(["feature1", "feature2", "RUL", "life"])
+        assert set(ds.common_features()) == set(["feature1", "feature2", "RUL", "life"])
 
         folded = ds[[3, 2, 1]]
         assert isinstance(folded, FoldedDataset)
@@ -76,8 +76,8 @@ class TestDataset:
 class TestAnalysis:
     def test_analysis(self):
         class MockCorruptedDataset(AbstractTimeSeriesDataset):
-            def __init__(self,):
-
+            def __init__(self):
+                super().__init__()
                 self.lives = [
                     pd.DataFrame(
                         {

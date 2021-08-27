@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pandas as pd
-from temporis.transformation.transformerstep import TransformerStep
+from temporis.transformation import TransformerStep
 import numpy as np
 
 
@@ -27,6 +27,7 @@ class PandasMinMaxScaler(TransformerStep):
         self.upper_quantile = upper_quantile
 
     def partial_fit(self, df, y=None):
+        import time 
         if self.robust:
             partial_data_min = df.quantile(self.lower_quantile)
             partial_data_max = df.quantile(self.upper_quantile)

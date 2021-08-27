@@ -3,14 +3,14 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from temporis.transformation.transformerstep import TransformerStep, TransformerStepMixin
-from sklearn.base import BaseEstimator, TransformerMixin
+from temporis.transformation import TransformerStep
+
 from temporis.transformation.features.tdigest import TDigest
 
 logger = logging.getLogger(__name__)
 
 
-class PerColumnImputer(TransformerStepMixin, BaseEstimator, TransformerMixin):
+class PerColumnImputer(TransformerStep):
     """Impute the values of each column following a simple rule
 
     The imputing is made following this rule:

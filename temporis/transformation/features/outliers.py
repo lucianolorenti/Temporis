@@ -2,7 +2,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from temporis.transformation.transformerstep import TransformerStep
+from temporis.transformation import TransformerStep
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
@@ -53,18 +53,18 @@ class IQROutlierRemover(TransformerStep):
         if self.tdigest_dict is None:
             self.tdigest_dict = {c: TDigest(100) for c in X.columns}
         for c in X.columns:
-            self.tdigest_dict[c].batch_update(X[c].values)
+            self.tdigest_dict[c].merge_unsorted(X[c].values)
 
         self.Q1 = {
-            c: self.tdigest_dict[c].estimateQuantile(self.lower_quantile) for c in self.tdigest_dict.keys()
+            c: self.tdigest_dict[c].estimate_quantile(self.lower_quantile) for c in self.tdigest_dict.keys()
         }
 
         self.Q3 = {
-            c: self.tdigest_dict[c].estimateQuantile(self.upper_quantile) for c in self.tdigest_dict.keys()
+            c: self.tdigest_dict[c].estimate_quantile(self.upper_quantile) for c in self.tdigest_dict.keys()
         }
 
         self.IQR = {c: self.Q3[c] - self.Q1[c] for c in self.Q1.keys()}
-
+        print(self.IQR)
         return self
 
     def fit(self, X):

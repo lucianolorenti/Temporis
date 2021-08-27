@@ -4,15 +4,15 @@ from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation.features.scalers import PandasMinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
 from temporis.transformation.features.transformation import MeanCentering
-from temporis.transformation.transformers import Transformer
-from temporis.transformation.transformerstep import (
+from temporis.transformation import Transformer
+from temporis.transformation import (
     Concatenate as TransformationConcatenate,
 )
 
 
 class MockDataset(AbstractTimeSeriesDataset):
     def __init__(self):
-
+        super().__init__()
         self.lives = [
             pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 4, 6, 8], "RUL": [4, 3, 2, 1]}),
             pd.DataFrame(
@@ -34,7 +34,7 @@ class MockDataset(AbstractTimeSeriesDataset):
 
 class MockDataset1(AbstractTimeSeriesDataset):
     def __init__(self):
-
+        super().__init__()
         self.lives = [
             pd.DataFrame({"a": [1, 2, 3, 4], "b": [1, 2, 3, 4], "RUL": [4, 3, 2, 1]}),
             pd.DataFrame({"a": [2, 4, 6, 8], "b": [2, 4, 6, 8], "RUL": [4, 3, 2, 1]}),
@@ -59,22 +59,21 @@ class TestPipeline:
 
         pipe = ByNameFeatureSelector(["a", "b"])
         pipe = MeanCentering()(pipe)
-        pipe = PandasMinMaxScaler((-1, 1))(pipe)
+        pipe = PandasMinMaxScaler((-1, 1), name='Scaler')(pipe)
 
         target_pipe = ByNameFeatureSelector(["RUL"])
 
-        test_transformer = Transformer(
-            transformerX=pipe.build(), transformerY=target_pipe.build()
-        )
+        test_transformer = Transformer(transformerX=pipe, transformerY=target_pipe)
+        
         test_transformer.fit(dataset)
 
         X, y, sw = test_transformer.transform(dataset[0])
 
         assert X.shape[1] == 2
-        df_dataset = dataset.toPandas()
+        df_dataset = dataset.to_pandas()
 
         centered_df = df_dataset[["a", "b"]] - df_dataset[["a", "b"]].mean()
-        scaler = test_transformer.transformerX.steps[2][1]
+        scaler = test_transformer.transformerX.find_node('Scaler')
         assert scaler.data_min.equals(centered_df.min(axis=0))
         assert scaler.data_max.equals(centered_df.max(axis=0))
 
@@ -97,14 +96,14 @@ class TestPipeline:
         target_pipe = ByNameFeatureSelector(["RUL"])
 
         test_transformer = Transformer(
-            transformerX=pipe.build(), transformerY=target_pipe.build()
-        )
+            transformerX=pipe, transformerY=target_pipe)
+    
         test_transformer.fit(dataset)
 
         X, y, sw = test_transformer.transform(dataset[0])
 
         assert X.shape[1] == 2
-        df_dataset = dataset.toPandas()
+        df_dataset = dataset.to_pandas()
         centered_df = df_dataset[["a", "b"]] - df_dataset[["a", "b"]].mean()
 
         assert scaler_a.data_min.equals(centered_df.min(axis=0)[['a']])
@@ -125,11 +124,11 @@ class TestPipeline:
         target_pipe = ByNameFeatureSelector(["RUL"])
 
         test_transformer = Transformer(
-            transformerX=pipe.build(), transformerY=target_pipe.build()
-        )
+            transformerX=pipe, transformerY=target_pipe)
+
         test_transformer.fit(dataset)
 
-        df = dataset.toPandas()[["a", "b"]]
+        df = dataset.to_pandas()[["a", "b"]]
 
         data_min = df.min()
         data_max = df.max()

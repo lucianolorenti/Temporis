@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 
 import pandas as pd
-from temporis.transformation.transformerstep import TransformerStep
+from temporis.transformation import TransformerStep
 
 logger = logging.getLogger(__name__)
 

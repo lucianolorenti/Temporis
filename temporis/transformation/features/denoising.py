@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from temporis.transformation.features.extraction import (compute, roll_matrix,
                                                        stats_order)
-from temporis.transformation.transformerstep import TransformerStep
+from temporis.transformation import TransformerStep
 from scipy.signal import savgol_filter
 from sklearn.cluster import MiniBatchKMeans
 

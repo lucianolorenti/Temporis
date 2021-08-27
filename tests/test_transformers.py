@@ -1,4 +1,5 @@
 
+from temporis.transformation.functional.pipeline import TemporisPipeline
 from typing import List
 
 import numpy as np
@@ -18,7 +19,7 @@ from temporis.transformation.features.outliers import (EWMAOutlierRemover,
 from temporis.transformation.features.resamplers import SubSampleTransformer
 from temporis.transformation.features.selection import (ByNameFeatureSelector,
                                                       NullProportionSelector)
-from temporis.transformation.target import PicewiseRUL
+
 
 
 def manual_expanding(df: pd.DataFrame, min_points:int= 1):
@@ -187,15 +188,7 @@ class MockDataset2(AbstractTimeSeriesDataset):
         return len(self.lives)
 
 
-class TestTargetTransformers():
-    def test_PicewiseRUL(self):
-        t = PicewiseRUL(26)
-        d = np.vstack(
-            (np.linspace(0, 30, 50),
-             np.linspace(0, 30, 50)))
 
-        d1 = t.fit_transform(d)
-        assert d1.max() == 26
 
 
 class TestTransformers():
@@ -361,7 +354,7 @@ class TestGenerators:
         transformer = ByNameFeatureSelector(['a', 'b'])
         transformer = EWMAOutOfRange()(transformer)
         transformer = Accumulate()(transformer)
-        df_new = transformer.build().fit_transform(df)
+        df_new = TemporisPipeline(transformer).fit_transform(df)
         assert df_new['a'].iloc[-1] == 2
         assert df_new['b'].iloc[-1] == 3
 

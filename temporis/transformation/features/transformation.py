@@ -7,15 +7,15 @@ import numpy as np
 import pandas as pd
 from temporis.transformation.features.extraction import (compute, roll_matrix,
                                                        stats_order)
-from temporis.transformation.transformerstep import TransformerStep
+from temporis.transformation import TransformerStep
 
 
 
 class MeanCentering(TransformerStep):
     """Center the data with respect to the mean
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.N = 0
         self.sum = None
 
