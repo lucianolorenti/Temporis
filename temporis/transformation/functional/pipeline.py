@@ -1,8 +1,13 @@
+from temporis.transformation.functional.graph_utils import (
+    dfs_iterator,
+    root_nodes,
+    topological_sort_iterator,
+)
 from pandas.core.frame import DataFrame
 from sklearn.base import TransformerMixin
 from temporis.transformation.functional.concatenate import Concatenate
 from temporis.transformation.functional.transformerstep import TransformerStep
-from typing import Dict, List, Optional, Union
+from typing import Dict, Iterable, List, Optional, Union, final
 
 from numpy.lib.arraysetops import isin
 
@@ -13,41 +18,173 @@ import pandas as pd
 from copy import copy
 
 
-def root_nodes(final_step):
-    visited = set([final_step])
-    to_process = copy(final_step.previous)
+class GraphTraversalCache:
+    def __init__(self, root_nodes, dataset):
+        """[summary]
 
-    while len(to_process) > 0:
-        t = to_process.pop()
-        if t not in visited:
-            visited.add(t)
-            to_process.extend(t.previous)
 
-    return [n for n in visited if len(n.previous) == 0]
+        The cache data structures has the following form
+        Current Node -> Previous Nodes -> [Transformed Dataset]
+
+        * cache[n]:
+            contains a dict with one key for each previous node
+        * cache[n][n.previous[0]]
+            A list with each element of the dataset transformed in
+            up to n.previous[0]
+
+
+        Parameters
+        ----------
+        root_nodes : [type]
+            [description]
+        dataset : [type]
+            [description]
+        """
+        self.transformed_cache = {}
+        for r in root_nodes:
+            self.transformed_cache[r] = {None: {i: df for i, df in enumerate(dataset)}}
+
+    def clear_cache(self):
+        self.transformed_cache = {}
+
+    def state_up_to(self, current_node: TransformerStep, dataset_element: int):
+
+        previous_node = current_node.previous
+
+        if len(previous_node) > 1:
+            return [
+                self.transformed_cache[current_node][p][dataset_element]
+                for p in previous_node
+            ]
+        else:
+            if len(previous_node) == 1:
+                previous_node = previous_node[0]
+            else:
+                previous_node = None
+            return self.transformed_cache[current_node][previous_node][dataset_element]
+
+    def clean_state_up_to(self, current_node: TransformerStep, dataset_element: int):
+
+        previous_node = current_node.previous
+
+        for p in previous_node:
+            self.transformed_cache[current_node][p][dataset_element] = None
+
+    def store(
+        self,
+        next_node: Optional[TransformerStep],
+        node: TransformerStep,
+        dataset_element: int,
+        new_element: pd.DataFrame,
+    ):
+        if next_node not in self.transformed_cache:
+            self.transformed_cache[next_node] = {}
+
+        if next_node is not None:
+            previous_node = next_node.previous
+        else:
+            previous_node = [None]
+
+        if node not in self.transformed_cache[next_node]:
+            self.transformed_cache[next_node][node] = {}
+        self.transformed_cache[next_node][node][dataset_element] = new_element
+
+    def remove_state(self, nodes: Union[TransformerStep, List[TransformerStep]]):
+        if not isinstance(nodes, list):
+            nodes = [nodes]
+        for n in nodes:
+            self.transformed_cache.pop(n)
+
+    def advance_state_to(self, node):
+        if node.next not in self.transformed_cache:
+            self.transformed_cache[node.next] = {}
+        prev_key = self.previous_state_key(node)
+        assert prev_key == node.previous
+        self.transformed_cache[node.next][node] = self.transformed_cache.pop(node)[
+            node.previous
+        ]
+
+
+class CachedPipelineRunner:
+    """Performs an execution of the transformation graph caching the intermediate results
+
+
+
+        Parameters
+        ----------
+        final_step : TransformerStep
+            Last step of the graph
+    """
+    def __init__(self, final_step:TransformerStep):
+        
+        self.final_step = final_step
+        self.root_nodes = root_nodes(final_step)
+
+    def _run(self, dataset: Iterable[pd.DataFrame], fit: bool = True):
+        dataset_size = len(dataset)
+        cache = GraphTraversalCache(self.root_nodes, dataset)
+        for node in topological_sort_iterator(self.final_step):
+            if isinstance(node, TransformerStep) and fit:
+                for dataset_element in range(dataset_size):
+                    node.partial_fit(cache.state_up_to(node, dataset_element))
+            for dataset_element in range(dataset_size):
+                new_element = node.transform(cache.state_up_to(node, dataset_element))
+
+                cache.clean_state_up_to(node, dataset_element)
+                cache.store(node.next, node, dataset_element, new_element)
+            cache.remove_state(node)
+
+        last_state = cache.transformed_cache[None]
+        last_graph_node = list(last_state.keys())[0]
+
+        return last_state[last_graph_node][0]
+
+    def fit(self, dataset: Iterable[pd.DataFrame]):
+        return self._run(dataset, fit=True)
+
+    def transform(self, df: pd.DataFrame):
+        return self._run([df], fit=False)
+
+
+class NonCachedPipelineRunner:
+    """Performs an execution of the transformation graph recomputing on each path
+
+        
+
+        Parameters
+        ----------
+        final_step : TransformerStep
+            Last step of the graph
+    """
+    def __init__(self, final_step:TransformerStep):        
+        self.final_step = final_step
+        self.root_nodes = root_nodes(final_step)
+
+    def _run(self, dataset: Iterable[pd.DataFrame], fit: bool = True):        
+        raise NotImplementedError
+
+        
+
+    def fit(self, dataset: Iterable[pd.DataFrame]):
+        return self._run(dataset, fit=True)
+
+    def transform(self, df: pd.DataFrame):
+        return self._run([df], fit=False)
 
 
 class TemporisPipeline(TransformerMixin):
     def __init__(self, final_step):
-        self.root_nodes = root_nodes(final_step)
+        self.final_step = final_step
         self.fitted_ = False
+        self.runner = CachedPipelineRunner(final_step)
 
-    def find_node(self, name:str) -> Union[List[TransformerStep], TransformerStep, None]:
-        visited = set([])
+    def find_node(
+        self, name: str
+    ) -> Union[List[TransformerStep], TransformerStep, None]:
         matches = []
-        Q = copy(self.root_nodes)
-        while len(Q) > 0:
-            node = Q.pop()
-            print(node)
+        for node in dfs_iterator(self.final_step):
             if node.name == name:
                 matches.append(node)
-
-            if node in visited:
-                continue
-
-            visited.add(node)
-            if node.next is None:
-                continue            
-            Q.append(node.next)
 
         if len(matches) == 1:
             return matches[0]
@@ -55,102 +192,15 @@ class TemporisPipeline(TransformerMixin):
             return matches
         else:
             return None
-                
 
     def fit(self, dataset: Union[AbstractTimeSeriesDataset, pd.DataFrame]):
         if isinstance(dataset, pd.DataFrame):
             dataset = [dataset]
-        dataset_size = len(dataset)
-        visited = set()
-
-        transformed_cache = {}
-        for r in self.root_nodes:
-            # Cache for each node their inmediate previous state.
-            # The lenght of the array must be 1 for the regular nodes
-            # And a number greater than 1 for the concatenate node
-            transformed_cache[r] = [[life for life in dataset]]
-
-        Q = copy(self.root_nodes)
-
-        while len(Q) > 0:
-            node = Q.pop(0)
-            if node in visited:
-                continue
-
-            if isinstance(node, TransformerStep):
-                assert(len(transformed_cache[node])==1)
-                previous_path_state = transformed_cache[node][0]
-                for life in previous_path_state:
-                    node.partial_fit(life)
-                
-                
-                
-                for i, life in enumerate(previous_path_state):
-                    previous_path_state[i] = node.transform(previous_path_state[i])
-                if node.next not in transformed_cache:
-                     transformed_cache[node.next] = []
-                transformed_cache[node.next].append(
-                    transformed_cache.pop(node)[0]
-                )
-
-            elif isinstance(node, Concatenate):               
-                previous_paths_states = transformed_cache[node]
-                transformed_cache[node.next] = [[None] * dataset_size]
-                for i in range(dataset_size):
-                    life_in_previous_paths = [previous_paths_states[j][i] for j in range(len(previous_paths_states))]
-                    transformed_cache[node.next][0][i] = node.transform(life_in_previous_paths)
-                transformed_cache.pop(node)
-
-            visited.add(node)
-            if node.next is not None:
-                Q.append(node.next)
+        c = self.runner.fit(dataset)
+        self.column_names = c.columns
         self.fitted_ = True
-        self.column_names = transformed_cache[None][0][0].columns
+
         return self
 
     def transform(self, df: pd.DataFrame):
-
-
-        visited = set()
-        transformed_cache = {}
-        for r in self.root_nodes:
-            # Cache for each node their inmediate previous state.
-            # The lenght of the array must be 1 for the regular nodes
-            # And a number greater than 1 for the concatenate node
-            transformed_cache[r] = [df]
-        Q = copy(self.root_nodes)
-
-        while len(Q) > 0:
-            node = Q.pop(0)
-            if node in visited:
-                continue
-
-            if isinstance(node, TransformerStep):
-                assert(len(transformed_cache[node])==1)
-                previous_path_state = transformed_cache[node]
-                
-                
-                previous_path_state[0] = node.transform(previous_path_state[0])
-                if node.next not in transformed_cache:
-                     transformed_cache[node.next] = []
-                transformed_cache[node.next].append(
-                    transformed_cache.pop(node)[0]
-                )
-
-
-            elif isinstance(node, Concatenate):                
-                previous_paths_states = transformed_cache[node]
-                transformed_cache[node.next] =[None]
-                
-                life_in_previous_paths = [previous_paths_states[j] for j in range(len(previous_paths_states))]
-                transformed_cache[node.next][0] = node.transform(life_in_previous_paths)
-                transformed_cache.pop(node)
-
-
-
-            visited.add(node)
-            if node.next is not None:
-                Q.append(node.next)
-        self.fitted_ = True
-        
-        return transformed_cache[None][0]
+        return self.runner.transform(df)
