@@ -2,7 +2,7 @@
   <img src="doc/images/logo.png"><br>
 </div>
 
-# Temporis : Time-series utilities for machine learning 
+# Temporis : Time-series utilities for predictive maintenance
 -----------------
 
 [![Coverage Status](https://coveralls.io/repos/github/lucianolorenti/Temporis/badge.svg?branch=main)](https://coveralls.io/github/lucianolorenti/Temporis?branch=main)
@@ -10,11 +10,12 @@
 
 ## What is it?
 
-**Temporis** is a Python package that provides a flexible environment designed to make working with time-series both easy and intuitive. (Yes, I stole that from pandas readme)
+**Temporis** is a Python package that provides a set of tool for handling time-series datasets in the context of predictive maintenance.
+
 
 ## Main Features
 
-* Time series dataset handling
+* PM Time series dataset handling
 * Feature extraction in a time-series-wise approach
 
 The main part of the library if the transformation graph that can be define in order to select, extract and transform features of each of the time series.
@@ -46,7 +47,6 @@ transformer = Transformer(
 transformer.fit(train_dataset)
 ```
 
-The generated Pipeline is a modified version of `sklearn.pipeline.Pipeline`.
 
 
 ## Where to get it
