@@ -26,7 +26,8 @@ setup(
         "emd",
         "numba",
         "dill",
-        "mmh3"
+        "mmh3",
+        "pyinform"
     ],
     license="MIT",
     include_package_data=True,
