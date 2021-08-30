@@ -53,17 +53,27 @@ def null_proportion(dataset: AbstractTimeSeriesDataset):
             null_proportion_list = null_proportion_per_life.setdefault(column, [])
             null_proportion_list.append(d[column])
 
+    for column in null_proportion_per_life.keys():
+        null_proportion_per_life[column] = np.array(null_proportion_per_life[column])
+
     data = [
         (
             column,
             np.max(null_proportion_per_life[column]),
             np.mean(null_proportion_per_life[column]),
+            np.sum(null_proportion_per_life[column] > 0.8),
         )
         for column in null_proportion_per_life.keys()
     ]
 
     df = pd.DataFrame(
-        data, columns=["Feature", "Max Null Proportion", "Mean Null Proportion"]
+        data,
+        columns=[
+            "Feature",
+            "Max Null Proportion",
+            "Mean Null Proportion",
+            "Number of lives with more than 80% missing",
+        ],
     )
     df.sort_values(by="Max Null Proportion", inplace=True, ascending=False)
     return df, null_proportion_per_life
