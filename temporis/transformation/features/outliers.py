@@ -45,6 +45,7 @@ class IQROutlierRemover(TransformerStep):
         self.upper_quantile = upper_quantile
 
     def partial_fit(self, X):
+
         if self.proportion_to_sample < 1:
             sampled_points = np.random.choice(
                 X.shape[0], int(X.shape[0] * self.proportion_to_sample), replace=False
@@ -53,7 +54,7 @@ class IQROutlierRemover(TransformerStep):
         if self.tdigest_dict is None:
             self.tdigest_dict = {c: TDigest(100) for c in X.columns}
         for c in X.columns:
-            self.tdigest_dict[c].merge_unsorted(X[c].values)
+             self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
 
         self.Q1 = {
             c: self.tdigest_dict[c].estimate_quantile(self.lower_quantile) for c in self.tdigest_dict.keys()
@@ -63,8 +64,8 @@ class IQROutlierRemover(TransformerStep):
             c: self.tdigest_dict[c].estimate_quantile(self.upper_quantile) for c in self.tdigest_dict.keys()
         }
 
+
         self.IQR = {c: self.Q3[c] - self.Q1[c] for c in self.Q1.keys()}
-        print(self.IQR)
         return self
 
     def fit(self, X):
