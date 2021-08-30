@@ -3,7 +3,7 @@ from typing import Union
 import numpy as np
 from temporis.iterators.batcher import Batcher
 from temporis.iterators.iterators import WindowedDatasetIterator
-from temporis.transformation.pipeline import LivesPipeline
+
 
 
 def true_values(dataset_iterator: Union[WindowedDatasetIterator, Batcher]) -> np.array:
