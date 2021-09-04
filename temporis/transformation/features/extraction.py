@@ -836,6 +836,8 @@ class ExpandingStatistics(TransformerStep):
                     raise ValueError(
                         f"Invalid feature to compute {f}. Valids are {valid_stats}"
                     )
+            if len(set(to_compute)) != len(to_compute):
+                raise ValueError("to_compute has repetead elements")
             self.to_compute = to_compute
 
     def partial_fit(self, X, y=None):
