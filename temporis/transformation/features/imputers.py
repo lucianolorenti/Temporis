@@ -23,6 +23,7 @@ class PerColumnImputer(TransformerStep):
         name : Optional[str], optional
             Step name, by default None
     """
+
     def __init__(self, name: Optional[str] = None):
         super().__init__(name)
         self.data_min = None
@@ -39,12 +40,11 @@ class PerColumnImputer(TransformerStep):
             self.data_max = col_to_max
             self.data_median = col_to_median
         else:
-            self.data_min = pd.concat([self.data_min, col_to_min],
-                                      axis=1).min(axis=1)
-            self.data_max = pd.concat([self.data_max, col_to_max],
-                                      axis=1).max(axis=1)
-            self.data_median = pd.concat([self.data_max, col_to_median],
-                                         axis=1).median(axis=1)
+            self.data_min = pd.concat([self.data_min, col_to_min], axis=1).min(axis=1)
+            self.data_max = pd.concat([self.data_max, col_to_max], axis=1).max(axis=1)
+            self.data_median = pd.concat([self.data_max, col_to_median], axis=1).median(
+                axis=1
+            )
         self._remove_na()
 
     def _remove_na(self):
@@ -75,8 +75,8 @@ class PerColumnImputer(TransformerStep):
 
 
 class PandasRemoveInf(TransformerStep):
-    """Replace NaN for inf
-    """
+    """Replace NaN for inf"""
+
     def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
         """Transform the input life replacing Nan for inf
 
@@ -101,6 +101,7 @@ class PandasMedianImputer(TransformerStep):
     name : Optional[str]
         The name of the step
     """
+
     def __init__(self, name: Optional[str] = None):
         super().__init__(name)
         self.tdigest_dict = None
@@ -130,8 +131,7 @@ class PandasMedianImputer(TransformerStep):
             self.tdigest_dict[c].batch_update(X[c].values)
 
         self.median = {
-            c: self.tdigest_dict[c].percentile(50)
-            for c in self.tdigest_dict.keys()
+            c: self.tdigest_dict[c].percentile(50) for c in self.tdigest_dict.keys()
         }
 
     def transform(self, X, y=None):
@@ -159,6 +159,7 @@ class PandasMeanImputer(TransformerStep):
     name : Optional[str]
         The name of the step
     """
+
     def __init__(self, name: Optional[str] = None):
         super().__init__(name)
         self.sum = None
@@ -191,7 +192,7 @@ class PandasMeanImputer(TransformerStep):
         self.mean = X.mean(axis=0).to_dict()
         return self
 
-    def transform(self, X:pd.DataFrame, y=None) -> pd.DataFrame:
+    def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
         """Return a new dataframe with the missing values replaced by the fitted mean
 
         Parameters
@@ -220,13 +221,14 @@ class RollingImputer(TransformerStep):
     func: Callable
         The function to call in each window
     """
+
     def __init__(self, window_size: int, func):
         self.window_size = window_size
         self.function = func
         self.mean_value_list = []
         self.sum = None
 
-    def partial_fit(self, X:pd.DataFrame, y=None):
+    def partial_fit(self, X: pd.DataFrame, y=None):
         """Compute incrementally the mean value to use as default value to impute
 
         Parameters
@@ -243,7 +245,7 @@ class RollingImputer(TransformerStep):
         self.default_value = (self.sum / self.counts).to_dict()
         return self
 
-    def fit(self, X:pd.DataFrame, y=None):
+    def fit(self, X: pd.DataFrame, y=None):
         """Compute a default value in case there are not valid values in the rolling window
 
         Parameters
@@ -292,6 +294,7 @@ class RollingMedianImputer(RollingImputer):
     window_size : int
         Window size of the rolling window
     """
+
     def __init__(self, window_size: int):
         super().__init__(window_size, np.median)
 
@@ -305,13 +308,14 @@ class RollingMeanImputer(RollingImputer):
     window_size : int
         Window size of the rolling window
     """
+
     def __init__(self, window_size: int):
         super().__init__(window_size, np.mean)
 
 
 class ForwardFillImputer(TransformerStep):
-    """Impute forward filling the values
-    """
+    """Impute forward filling the values"""
+
     def transform(self, X):
         if not isinstance(X, pd.DataFrame):
             raise ValueError("Input array must be a data frame")
@@ -319,10 +323,12 @@ class ForwardFillImputer(TransformerStep):
 
 
 class FillImputer(TransformerStep):
-    def __init__(self, value, name:Optional[str]=None):
+    def __init__(self, value, name: Optional[str] = None):
         super().__init__(name)
         self.value = value
+
     """Impute forward filling the values
     """
+
     def transform(self, X):
         return X.fillna(value=self.value)

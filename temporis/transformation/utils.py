@@ -2,7 +2,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from temporis.transformation.transformerstep import TransformerStep
+from temporis.transformation import TransformerStep
 from sklearn.pipeline import FeatureUnion, _transform_one
 
 
@@ -17,7 +17,7 @@ class PandasToNumpy(TransformerStep):
         return X.values
 
 class TransformerLambda(TransformerStep):
-    def __init__(self, f, name: str):
+    def __init__(self, f, name: Optional[str]=None):
         super().__init__(name)
         self.f = f
 

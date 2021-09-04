@@ -313,7 +313,7 @@ class TDigest:
         it_centroids = 0
         it_sortedValues = 0
 
-        cur = None        
+        cur = None
 
         if (it_centroids < len(self.centroids) - 1) and (
             self.centroids[it_centroids].mean < sortedValues[it_sortedValues]
@@ -335,9 +335,10 @@ class TDigest:
         ):
             next = None
 
-            if ((it_centroids <  len(self.centroids) - 1) and
-                ((it_sortedValues == len(sortedValues) - 1) or 
-                (self.centroids[it_centroids].mean < sortedValues[it_sortedValues]))):
+            if (it_centroids < len(self.centroids) - 1) and (
+                (it_sortedValues == len(sortedValues) - 1)
+                or (self.centroids[it_centroids].mean < sortedValues[it_sortedValues])
+            ):
                 next = self.centroids[it_centroids]
                 it_centroids += 1
             else:
@@ -367,4 +368,3 @@ class TDigest:
 
         result.centroids = compressed
         return result
-
