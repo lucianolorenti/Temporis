@@ -12,7 +12,7 @@ BASEPATH = Path(__file__).resolve().parent
 setup(
     name="temporis",
     packages=find_packages(),
-    version="0.3.0",
+    version="0.3.1",
     description="Time-series utilities for predictive maintenance",
     author="",
     install_requires=[
@@ -27,7 +27,8 @@ setup(
         "numba",
         "dill",
         "mmh3",
-        "pyinform"
+        "pyinform",
+        "antropy"
     ],
     license="MIT",
     include_package_data=True,
