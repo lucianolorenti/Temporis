@@ -63,18 +63,19 @@ class PerColumnImputer(TransformerStep):
         self.data_median = col_to_median
 
         self._remove_na()
+        return self
 
     def transform(self, X, y=None):
         X_new = X.copy()
         for c in X_new.columns:
-            X_new[c] = X_new[c].replace([np.inf], self.data_max[c])
-            X_new[c] = X_new[c].replace([-np.inf], self.data_min[c])
-            X_new[c] = X_new[c].replace([np.nan], self.data_median[c])
+            X_new[c].replace([np.inf], self.data_max[c], inplace=True)
+            X_new[c].replace([-np.inf], self.data_min[c], inplace=True)
+            X_new[c].replace([np.nan], self.data_median[c], inplace=True)
         return X_new
 
 
 class PandasRemoveInf(TransformerStep):
-    """Replace NaN for inf    
+    """Replace NaN for inf
     """
     def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
         """Transform the input life replacing Nan for inf
@@ -105,7 +106,7 @@ class PandasMedianImputer(TransformerStep):
         self.tdigest_dict = None
 
     def fit(self, X, y=None):
-        """Compute the median value 
+        """Compute the median value
 
         Parameters
         ----------
@@ -140,7 +141,7 @@ class PandasMedianImputer(TransformerStep):
         ----------
         X : pd.DataFrame
             Life
-        
+
 
         Returns
         -------
@@ -180,7 +181,7 @@ class PandasMeanImputer(TransformerStep):
         return self
 
     def fit(self, X, y=None):
-        """Compute the mean value 
+        """Compute the mean value
 
         Parameters
         ----------
@@ -197,7 +198,7 @@ class PandasMeanImputer(TransformerStep):
         ----------
         X : pd.DataFrame
             Life
-        
+
 
         Returns
         -------
@@ -212,10 +213,10 @@ class RollingImputer(TransformerStep):
 
     Parameters
     ----------
-    
+
     window_size : int
         Window size of the rolling window
-    
+
     func: Callable
         The function to call in each window
     """
@@ -287,7 +288,7 @@ class RollingMedianImputer(RollingImputer):
 
     Parameters
     ----------
-    
+
     window_size : int
         Window size of the rolling window
     """
