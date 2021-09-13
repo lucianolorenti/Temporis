@@ -25,7 +25,7 @@ class TransformerLambda(TransformerStep):
         return self.f(X)
 
         
-class IdentityTransformer(TransformerStep):
+class IdentityTransformerStep(TransformerStep):
 
     def fit(self, input_array, y=None):
         return self
