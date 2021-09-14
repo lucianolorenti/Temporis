@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from typing import List, Tuple, Union
 
 import numpy as np
+from numpy.lib.arraysetops import isin
 import pandas as pd
 
 
@@ -63,6 +64,12 @@ class AbstractTimeSeriesDataset:
             pd.DataFrame: the i-th time-series
             FoldedDataset: The dataset with the lives specified by the list
         """
+        if isinstance(i, slice):
+            i = range(
+                0 if i.start is None else i.start,
+                len(self) if i.stop is None else i.stop,
+                1 if i.step is None else i.step,
+            )
 
         if isinstance(i, Iterable):
             if not all(isinstance(item, (int, np.integer)) for item in i):

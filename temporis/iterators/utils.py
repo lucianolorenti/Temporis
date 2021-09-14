@@ -1,5 +1,5 @@
 
-from temporis.transformation.functional.transformers import TransformerIdentity
+
 from numpy.lib.arraysetops import isin
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from typing import Union
@@ -24,6 +24,7 @@ def true_values(
     np.array
          target values after the transformation
     """
+    from temporis.transformation.functional.transformers import TransformerIdentity
     if isinstance(dataset_iterator, Batcher):
         dataset_iterator = dataset_iterator.iterator
     if isinstance(dataset_iterator, AbstractTimeSeriesDataset):
@@ -31,7 +32,7 @@ def true_values(
         t.fit(dataset_iterator)
 
         dataset_iterator = WindowedDatasetIterator(
-            dataset_iterator, window_size=1, transformer=t
+            dataset_iterator, window_size=1, transformer=t, shuffle=False
         )
     d = np.concatenate([y for _, y, _ in dataset_iterator])
     return d
