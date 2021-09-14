@@ -1,21 +1,15 @@
-from temporis.transformation.functional.graph_utils import (
-    dfs_iterator,
-    root_nodes,
-    topological_sort_iterator,
-)
-from pandas.core.frame import DataFrame
-from sklearn.base import TransformerMixin
-from temporis.transformation.functional.concatenate import Concatenate
-from temporis.transformation.functional.transformerstep import TransformerStep
+from copy import copy
 from typing import Dict, Iterable, List, Optional, Union, final
 
-from numpy.lib.arraysetops import isin
-
-
-from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-
 import pandas as pd
-from copy import copy
+from numpy.lib.arraysetops import isin
+from pandas.core.frame import DataFrame
+from sklearn.base import TransformerMixin
+from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
+from temporis.transformation.functional.concatenate import Concatenate
+from temporis.transformation.functional.graph_utils import (
+    dfs_iterator, root_nodes, topological_sort_iterator)
+from temporis.transformation.functional.transformerstep import TransformerStep
 
 
 class GraphTraversalCache:
@@ -80,11 +74,6 @@ class GraphTraversalCache:
         if next_node not in self.transformed_cache:
             self.transformed_cache[next_node] = {}
 
-        if next_node is not None:
-            previous_node = next_node.previous
-        else:
-            previous_node = [None]
-
         if node not in self.transformed_cache[next_node]:
             self.transformed_cache[next_node][node] = {}
         self.transformed_cache[next_node][node][dataset_element] = new_element
@@ -120,14 +109,27 @@ class CachedPipelineRunner:
         self.final_step = final_step
         self.root_nodes = root_nodes(final_step)
 
-    def _run(self, dataset: Iterable[pd.DataFrame], fit: bool = True):
+
+    def _run(self, dataset: Iterable[pd.DataFrame], fit: bool = True, show_progress:bool = False):
         dataset_size = len(dataset)
         cache = GraphTraversalCache(self.root_nodes, dataset)
+        from tqdm.auto import tqdm
+
+        
+ 
+
         for node in topological_sort_iterator(self.final_step):
+
             if isinstance(node, TransformerStep) and fit:
                 for dataset_element in range(dataset_size):
                     node.partial_fit(cache.state_up_to(node, dataset_element))
-            for dataset_element in range(dataset_size):
+            if show_progress:
+                bar = tqdm(range(dataset_size))
+            else:
+                bar = range(dataset_size)
+            for dataset_element in bar:
+                if show_progress:
+                    bar.set_description(node.name)
                 new_element = node.transform(cache.state_up_to(node, dataset_element))
 
                 cache.clean_state_up_to(node, dataset_element)
@@ -139,8 +141,8 @@ class CachedPipelineRunner:
 
         return last_state[last_graph_node][0]
 
-    def fit(self, dataset: Iterable[pd.DataFrame]):
-        return self._run(dataset, fit=True)
+    def fit(self, dataset: Iterable[pd.DataFrame], show_progress:bool=False):
+        return self._run(dataset, fit=True, show_progress=show_progress)
 
     def transform(self, df: pd.DataFrame):
         return self._run([df], fit=False)
@@ -165,8 +167,8 @@ class NonCachedPipelineRunner:
 
         
 
-    def fit(self, dataset: Iterable[pd.DataFrame]):
-        return self._run(dataset, fit=True)
+    def fit(self, dataset: Iterable[pd.DataFrame], show_progress:bool=False):
+        return self._run(dataset, fit=True, show_progress=show_progress)
 
     def transform(self, df: pd.DataFrame):
         return self._run([df], fit=False)
@@ -193,10 +195,10 @@ class TemporisPipeline(TransformerMixin):
         else:
             return None
 
-    def fit(self, dataset: Union[AbstractTimeSeriesDataset, pd.DataFrame]):
+    def fit(self, dataset: Union[AbstractTimeSeriesDataset, pd.DataFrame], show_progress:bool=False):
         if isinstance(dataset, pd.DataFrame):
             dataset = [dataset]
-        c = self.runner.fit(dataset)
+        c = self.runner.fit(dataset, show_progress=show_progress)
         self.column_names = c.columns
         self.fitted_ = True
 

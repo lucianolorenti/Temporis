@@ -10,16 +10,16 @@ dataset iterators to transform the data before feeding it to the model.
 import copy
 import logging
 from pathlib import Path
-
-from pandas.core.algorithms import isin
-from temporis.transformation.functional.transformerstep import TransformerStep
 from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
+from pandas.core.algorithms import isin
+from sklearn.utils.validation import check_is_fitted
 from temporis.transformation.functional.concatenate import Concatenate
 from temporis.transformation.functional.pipeline import TemporisPipeline
-from sklearn.utils.validation import check_is_fitted
+from temporis.transformation.functional.transformerstep import TransformerStep
+
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +118,7 @@ class Transformer:
     def clone(self):
         return copy.deepcopy(self)
 
-    def fit(self, dataset):
+    def fit(self, dataset, show_progress: bool = False):
         """Fit the transformer with a given dataset.
 
         The transformer will fit the X transformer,
@@ -134,8 +134,9 @@ class Transformer:
         self
         """
         logger.debug("Fitting Transformer")
-        self.transformerX.fit(dataset)
-        self.transformerY.fit(dataset)
+
+        self.transformerX.fit(dataset, show_progress=show_progress)
+        self.transformerY.fit(dataset, show_progress=show_progress)
         if self.transformerMetadata is not None:
             self.transformerMetadata.fit(dataset)
 
@@ -223,9 +224,8 @@ class Transformer:
         """
         return self.number_of_features_
 
-    def _compute_column_names(self):        
+    def _compute_column_names(self):
         return self.transformerX.column_names
-        
 
     def description(self):
         return {
@@ -236,3 +236,22 @@ class Transformer:
 
     def __str__(self):
         return str(self.description())
+
+
+def TransformerIdentity(rul_column: str = "RUL") -> Transformer:
+    """Return the Transformer
+
+    Parameters
+    ----------
+    rul_column : str, default, RUL
+        Name of the RUL Column
+
+    Returns
+    -------
+    Transformer
+        [description]
+    """
+    from temporis.transformation.features.selection import ByNameFeatureSelector
+    from temporis.transformation.utils import IdentityTransformerStep
+
+    return Transformer(IdentityTransformerStep(), ByNameFeatureSelector([rul_column]))
