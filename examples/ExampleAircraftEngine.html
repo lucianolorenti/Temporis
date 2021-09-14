@@ -1,36 +1,16 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Getting Started &mdash; Temporis  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
@@ -38,38 +18,19 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="Target transformation" href="../reference/feature_transformation/target.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Temporis
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,18 +38,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/installation.html">Description</a></li>
@@ -175,71 +125,30 @@
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Temporis</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Getting Started</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/examples/ExampleAircraftEngine.ipynb.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   
 <style>
 /* CSS for nbsphinx extension */
@@ -510,8 +419,8 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<div class="section" id="Getting-Started">
-<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this headline">¶</a></h1>
+<section id="Getting-Started">
+<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this headline"></a></h1>
 <p>This guide will make use of the dataset generated with the Commercial Modular Aero-Propulsion System Simulation (C-MAPSS) dynamical model. The dataset consists of multiple multivariate time series. Each data set is further divided into training and test subsets. Each time series is from a different engine - i.e., the data can be considered to be from a fleet of engines of the same type. Each engine starts with different degrees of initial wear and manufacturing variation which is unknown to the
 user. This wear and variation are considered normal, i.e., it is not considered a fault condition. There are three operational settings that have a substantial effect on engine performance. These settings are also included in the data. The data are contaminated with sensor noise.</p>
 <p>The engine is operating normally at the start of each time series and starts to degrade at some point during the series. In the training set, the degradation grows in magnitude until a predefined threshold is reached beyond which it is not preferable to operate the engine. In the test set, the time series ends some time prior to complete degradation. The objective of the competition is to predict the number of operational cycles after the last cycle that the engine will continue to operate
@@ -530,8 +439,8 @@ properly.</p>
 </ul>
 <p>In the first set of data, there are 100 train trajectories and 100 test trajectories.</p>
 <p>[1] A. Saxena, M. Ieee, K. Goebel, D. Simon, and N. Eklund, “Damage Propagation Modeling for Aircraft Engine Prognostics,” Response, 2008.</p>
-<div class="section" id="Import">
-<h2>Import<a class="headerlink" href="#Import" title="Permalink to this headline">¶</a></h2>
+<section id="Import">
+<h2>Import<a class="headerlink" href="#Import" title="Permalink to this headline"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -592,9 +501,9 @@ properly.</p>
 </pre></div>
 </div>
 </div>
-</div>
-<div class="section" id="Dataset">
-<h2>Dataset<a class="headerlink" href="#Dataset" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Dataset">
+<h2>Dataset<a class="headerlink" href="#Dataset" title="Permalink to this headline"></a></h2>
 <p>The Dataset comes in a space separated tabular file. The functions <code class="docutils literal notranslate"><span class="pre">process_file_train</span></code> and <code class="docutils literal notranslate"><span class="pre">process_file_test</span></code> receive the filename of the dataset file and return a <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> with the pre-processed data. The <code class="docutils literal notranslate"><span class="pre">UnitNumber</span></code> column is a life identifier.</p>
 <p>In order to define a dataset you should subclass <code class="docutils literal notranslate"><span class="pre">AbstractLivesDataset</span></code> and define three methods:</p>
 <ul class="simple">
@@ -647,8 +556,8 @@ properly.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="Number-of-lives-in-the-training-set">
-<h3>Number of lives in the training set<a class="headerlink" href="#Number-of-lives-in-the-training-set" title="Permalink to this headline">¶</a></h3>
+<section id="Number-of-lives-in-the-training-set">
+<h3>Number of lives in the training set<a class="headerlink" href="#Number-of-lives-in-the-training-set" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -667,9 +576,9 @@ properly.</p>
 100
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Number-of-lives-in-the-validation-set">
-<h3>Number of lives in the validation set<a class="headerlink" href="#Number-of-lives-in-the-validation-set" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Number-of-lives-in-the-validation-set">
+<h3>Number of lives in the validation set<a class="headerlink" href="#Number-of-lives-in-the-validation-set" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -688,10 +597,10 @@ properly.</p>
 100
 </pre></div></div>
 </div>
-</div>
-</div>
-<div class="section" id="Visualization">
-<h2>Visualization<a class="headerlink" href="#Visualization" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="Visualization">
+<h2>Visualization<a class="headerlink" href="#Visualization" title="Permalink to this headline"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -780,11 +689,11 @@ properly.</p>
 <img alt="../_images/examples_ExampleAircraftEngine_16_0.png" src="../_images/examples_ExampleAircraftEngine_16_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Dataset-analysis">
-<h2>Dataset analysis<a class="headerlink" href="#Dataset-analysis" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="Missing-values">
-<h3>Missing values<a class="headerlink" href="#Missing-values" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Dataset-analysis">
+<h2>Dataset analysis<a class="headerlink" href="#Dataset-analysis" title="Permalink to this headline"></a></h2>
+<section id="Missing-values">
+<h3>Missing values<a class="headerlink" href="#Missing-values" title="Permalink to this headline"></a></h3>
 <p>Usually, the information of sensors is incomplete and this causes numerous missing values in the features. This library provides some useful functions to analyse the proportion of the missing values for each feature for each life. In some cases, if the feature values are missing in multiple lives, that feature can be discarded.</p>
 <p>Luckily in the NASA dataset, we don’t have any missing values:</p>
 <div class="nbinput docutils container">
@@ -1137,9 +1046,9 @@ properly.</p>
 <p>100 rows × 6 columns</p>
 </div></div>
 </div>
-</div>
-<div class="section" id="Variance">
-<h3>Variance<a class="headerlink" href="#Variance" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Variance">
+<h3>Variance<a class="headerlink" href="#Variance" title="Permalink to this headline"></a></h3>
 <p>Another possibility is that sensors do not vary equally in a diverse set of lives. Another function obtains information about the variance of each feature per each life. If a feature variance is zero in many lives, maybe it is a good idea to remove it.</p>
 <p>In the NASA dataset, we can see that some of the features have a zero variance in some of the lives.</p>
 <div class="nbinput docutils container">
@@ -1347,14 +1256,14 @@ properly.</p>
 </table>
 </div></div>
 </div>
-</div>
-</div>
-<div class="section" id="Transformers">
-<h2>Transformers<a class="headerlink" href="#Transformers" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="Transformers">
+<h2>Transformers<a class="headerlink" href="#Transformers" title="Permalink to this headline"></a></h2>
 <p>There are two ways of defining a transformer. The first way is more similar to the scikit-learn Pipeline API, and the other one is similar to the tensorflow functional API. Two pipelines have to be defined: * How the data is going to be transformed * This transformer invovles selecting and transforming and generating features * How the target is going to be transformed * This transformer involves selecting and transforming the target</p>
 <p>The base class of the pipeline is the <code class="docutils literal notranslate"><span class="pre">LivesPipeline</span></code> class. This class is an extension of <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code> and change the way the data is fitted. Each transformer class inherit from the <code class="docutils literal notranslate"><span class="pre">TransformerStep</span></code>. This class implements the method <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> which receives the data belonging to the whole life and update its internal state accordingly.</p>
-<div class="section" id="Functional-API">
-<h3>Functional API<a class="headerlink" href="#Functional-API" title="Permalink to this headline">¶</a></h3>
+<section id="Functional-API">
+<h3>Functional API<a class="headerlink" href="#Functional-API" title="Permalink to this headline"></a></h3>
 <p>Following the literature, the future that addresses this dataset, only a subset of the feature are going to be used to fit our model.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -1425,9 +1334,9 @@ properly.</p>
 </pre></div>
 </div>
 </div>
-</div>
-<div class="section" id="Scikit-learn-API">
-<h3>Scikit-learn API<a class="headerlink" href="#Scikit-learn-API" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Scikit-learn-API">
+<h3>Scikit-learn API<a class="headerlink" href="#Scikit-learn-API" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
@@ -1463,9 +1372,9 @@ properly.</p>
 &lt;rul_pm.transformation.transformers.Transformer at 0x7f9f4bb2f940&gt;
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Fitting-the-transformer">
-<h3>Fitting the transformer<a class="headerlink" href="#Fitting-the-transformer" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Fitting-the-transformer">
+<h3>Fitting the transformer<a class="headerlink" href="#Fitting-the-transformer" title="Permalink to this headline"></a></h3>
 <p>The transformer must be fitted on the dataset.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
@@ -1485,9 +1394,9 @@ properly.</p>
 &lt;rul_pm.transformation.transformers.Transformer at 0x7f9f4bb76640&gt;
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Transforming-a-life">
-<h3>Transforming a life<a class="headerlink" href="#Transforming-a-life" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Transforming-a-life">
+<h3>Transforming a life<a class="headerlink" href="#Transforming-a-life" title="Permalink to this headline"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
@@ -1532,9 +1441,9 @@ properly.</p>
 <img alt="../_images/examples_ExampleAircraftEngine_40_0.png" src="../_images/examples_ExampleAircraftEngine_40_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="More-complex-transformers">
-<h3>More complex transformers<a class="headerlink" href="#More-complex-transformers" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="More-complex-transformers">
+<h3>More complex transformers<a class="headerlink" href="#More-complex-transformers" title="Permalink to this headline"></a></h3>
 <p>More complex transformers can also be constructed. For example, we may want to use the raw features but also extract some statistics from a subset of features. In this case, we are going to obtain the kurtosis and the peak coefficient using a rolling window for 3 features. There are a lot of different feature extraction and transformation steps that can be applied. I encourage you to check the documentation to discover more.</p>
 <p>The number of features we are going to obtain at the end will be the 14 coming from the raw features and 6=2*3 coming for the two statistics computed from the selected subset of size 3.</p>
 <div class="nbinput docutils container">
@@ -1649,12 +1558,12 @@ array([&#39;raw_scaled_0_SensorMeasure2&#39;, &#39;raw_scaled_0_SensorMeasure3&#
        &#39;transformed_scaled_1_SensorMeasure4_peak&#39;], dtype=object)
 </pre></div></div>
 </div>
-</div>
-</div>
-<div class="section" id="Iterators">
-<h2>Iterators<a class="headerlink" href="#Iterators" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="Lives-iterator">
-<h3>Lives iterator<a class="headerlink" href="#Lives-iterator" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="Iterators">
+<h2>Iterators<a class="headerlink" href="#Iterators" title="Permalink to this headline"></a></h2>
+<section id="Lives-iterator">
+<h3>Lives iterator<a class="headerlink" href="#Lives-iterator" title="Permalink to this headline"></a></h3>
 <p>The dataset can be iterated. Each element of the iteration is life in stored in <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> which contains all the features</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
@@ -1700,9 +1609,9 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 <img alt="../_images/examples_ExampleAircraftEngine_52_0.png" src="../_images/examples_ExampleAircraftEngine_52_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="WindowedDatasetIterator">
-<h3>WindowedDatasetIterator<a class="headerlink" href="#WindowedDatasetIterator" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="WindowedDatasetIterator">
+<h3>WindowedDatasetIterator<a class="headerlink" href="#WindowedDatasetIterator" title="Permalink to this headline"></a></h3>
 <p>The windowed dataset iterator provides a way of iterating the transformed dataset trough an sliding window. The sample for the i-th element, provides the (window-1) elements of the window. It also provides capabilities to shuffle in diverse ways the how the samples are delivered by the iterator.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
@@ -1741,10 +1650,10 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 (7, 14)
 </pre></div></div>
 </div>
-</div>
-</div>
-<div class="section" id="Batcher">
-<h2>Batcher<a class="headerlink" href="#Batcher" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="Batcher">
+<h2>Batcher<a class="headerlink" href="#Batcher" title="Permalink to this headline"></a></h2>
 <p>The batcher class make use of the <code class="docutils literal notranslate"><span class="pre">WindowedDatasetIterator</span></code> to generate batches of samples.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
@@ -1801,8 +1710,8 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 (66, 1, 1)
 </pre></div></div>
 </div>
-<div class="section" id="How-dos-a-sample-looks-like?">
-<h3>How dos a sample looks like?<a class="headerlink" href="#How-dos-a-sample-looks-like?" title="Permalink to this headline">¶</a></h3>
+<section id="How-dos-a-sample-looks-like?">
+<h3>How dos a sample looks like?<a class="headerlink" href="#How-dos-a-sample-looks-like?" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
@@ -1834,12 +1743,12 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 <img alt="../_images/examples_ExampleAircraftEngine_64_1.png" src="../_images/examples_ExampleAircraftEngine_64_1.png" />
 </div>
 </div>
-</div>
-</div>
-<div class="section" id="Model">
-<h2>Model<a class="headerlink" href="#Model" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="Keras-models">
-<h3>Keras models<a class="headerlink" href="#Keras-models" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="Model">
+<h2>Model<a class="headerlink" href="#Model" title="Permalink to this headline"></a></h2>
+<section id="Keras-models">
+<h3>Keras models<a class="headerlink" href="#Keras-models" title="Permalink to this headline"></a></h3>
 <p>Let’s create a simple model in keras with some FC layers.</p>
 <p>First of all we need to create two batchers for feeding the model.</p>
 <div class="nbinput nblast docutils container">
@@ -1961,9 +1870,9 @@ Epoch 22/25
 896/896 [==============================] - 3s 3ms/step - loss: 191.0560 - root_mean_squared_error: 10.1786 - val_loss: 180.4669 - val_root_mean_squared_error: 10.3446
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Saving-the-model">
-<h3>Saving the model<a class="headerlink" href="#Saving-the-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Saving-the-model">
+<h3>Saving the model<a class="headerlink" href="#Saving-the-model" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
@@ -1981,8 +1890,8 @@ Epoch 22/25
 INFO:tensorflow:Assets written to: /home/luciano/fuentes/lru_gcd/doc/examples/FC_example/assets
 </pre></div></div>
 </div>
-<div class="section" id="Loading-the-model">
-<h4>Loading the model<a class="headerlink" href="#Loading-the-model" title="Permalink to this headline">¶</a></h4>
+<section id="Loading-the-model">
+<h4>Loading the model<a class="headerlink" href="#Loading-the-model" title="Permalink to this headline"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
@@ -1992,9 +1901,9 @@ INFO:tensorflow:Assets written to: /home/luciano/fuentes/lru_gcd/doc/examples/FC
 </pre></div>
 </div>
 </div>
-</div>
-<div class="section" id="Learning-curves">
-<h4>Learning curves<a class="headerlink" href="#Learning-curves" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="Learning-curves">
+<h4>Learning curves<a class="headerlink" href="#Learning-curves" title="Permalink to this headline"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
@@ -2025,9 +1934,9 @@ INFO:tensorflow:Assets written to: /home/luciano/fuentes/lru_gcd/doc/examples/FC
 <img alt="../_images/examples_ExampleAircraftEngine_75_1.png" src="../_images/examples_ExampleAircraftEngine_75_1.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Prediction-on-the-training-set">
-<h4>Prediction on the training set<a class="headerlink" href="#Prediction-on-the-training-set" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="Prediction-on-the-training-set">
+<h4>Prediction on the training set<a class="headerlink" href="#Prediction-on-the-training-set" title="Permalink to this headline"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
@@ -2070,9 +1979,9 @@ INFO:tensorflow:Assets written to: /home/luciano/fuentes/lru_gcd/doc/examples/FC
 <img alt="../_images/examples_ExampleAircraftEngine_77_0.png" src="../_images/examples_ExampleAircraftEngine_77_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Prediction-on-the-validation-set">
-<h4>Prediction on the validation set<a class="headerlink" href="#Prediction-on-the-validation-set" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="Prediction-on-the-validation-set">
+<h4>Prediction on the validation set<a class="headerlink" href="#Prediction-on-the-validation-set" title="Permalink to this headline"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
@@ -2230,11 +2139,11 @@ INFO:tensorflow:Assets written to: /home/luciano/fuentes/lru_gcd/doc/examples/FC
 </table>
 </div></div>
 </div>
-</div>
-</div>
-</div>
-<div class="section" id="A-more-complex-model">
-<h2>A more complex model<a class="headerlink" href="#A-more-complex-model" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+</section>
+<section id="A-more-complex-model">
+<h2>A more complex model<a class="headerlink" href="#A-more-complex-model" title="Permalink to this headline"></a></h2>
 <p>We can use the model defined in the article “Remaining useful life estimation in prognostics using deep convolution neural networks” by Xiang Lia, Qian Ding and Jian-Qiao Sun already defined in the library.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
@@ -2618,9 +2527,9 @@ Epoch 00025: LearningRateScheduler reducing learning rate to 0.0001.
 </table>
 </div></div>
 </div>
-</div>
-<div class="section" id="A-custom-model">
-<h2>A custom model<a class="headerlink" href="#A-custom-model" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="A-custom-model">
+<h2>A custom model<a class="headerlink" href="#A-custom-model" title="Permalink to this headline"></a></h2>
 <p>Also the library allows the creation of custom Keras and Pytorch models.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
@@ -2872,8 +2781,8 @@ Epoch 25/25
 <img alt="../_images/examples_ExampleAircraftEngine_100_1.png" src="../_images/examples_ExampleAircraftEngine_100_1.png" />
 </div>
 </div>
-<div class="section" id="Scikit-learn-and-gradient-boosting-models">
-<h3>Scikit-learn and gradient boosting models<a class="headerlink" href="#Scikit-learn-and-gradient-boosting-models" title="Permalink to this headline">¶</a></h3>
+<section id="Scikit-learn-and-gradient-boosting-models">
+<h3>Scikit-learn and gradient boosting models<a class="headerlink" href="#Scikit-learn-and-gradient-boosting-models" title="Permalink to this headline"></a></h3>
 <p>Following the same API we can create scikit-learn and XGBoost models for regressing our data.</p>
 <p>In the following example we are going to create a RandomForestRegressor to predict the RUL of the same dataset</p>
 <div class="nbinput docutils container">
@@ -3151,10 +3060,10 @@ Epoch 25/25
 <img alt="../_images/examples_ExampleAircraftEngine_109_2.png" src="../_images/examples_ExampleAircraftEngine_109_2.png" />
 </div>
 </div>
-</div>
-</div>
-<div class="section" id="Model-comparison-and-evaluation">
-<h2>Model comparison and evaluation<a class="headerlink" href="#Model-comparison-and-evaluation" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="Model-comparison-and-evaluation">
+<h2>Model comparison and evaluation<a class="headerlink" href="#Model-comparison-and-evaluation" title="Permalink to this headline"></a></h2>
 <p>One of the most important issues regarding PM is the ability to compare and evaluate different methods.</p>
 <p>The main data structure used in the results module is a dictionary in which each of the keys is the model name, and the elements are a list of dictionaries. Each of the dictionaries contains two keys: true, predicted. Each element of the model array is interpreted as a Fold in CV settings. If the array contains only one element it can be considered that the evaluation has been made on a hold-out set.</p>
 <p>For this poropouse there are function for visualizing the results on a hold-out set:</p>
@@ -3234,8 +3143,8 @@ Epoch 25/25
 </pre></div>
 </div>
 </div>
-<div class="section" id="Bar-Plot">
-<h3>Bar Plot<a class="headerlink" href="#Bar-Plot" title="Permalink to this headline">¶</a></h3>
+<section id="Bar-Plot">
+<h3>Bar Plot<a class="headerlink" href="#Bar-Plot" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[113]:
 </pre></div>
@@ -3252,9 +3161,9 @@ Epoch 25/25
 <img alt="../_images/examples_ExampleAircraftEngine_115_0.png" src="../_images/examples_ExampleAircraftEngine_115_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Box-Plot">
-<h3>Box Plot<a class="headerlink" href="#Box-Plot" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Box-Plot">
+<h3>Box Plot<a class="headerlink" href="#Box-Plot" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[114]:
 </pre></div>
@@ -3311,12 +3220,12 @@ Epoch 25/25
 <img alt="../_images/examples_ExampleAircraftEngine_119_1.png" src="../_images/examples_ExampleAircraftEngine_119_1.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Comparison-with-baseline-models">
-<h3>Comparison with baseline models<a class="headerlink" href="#Comparison-with-baseline-models" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="Comparison-with-baseline-models">
+<h3>Comparison with baseline models<a class="headerlink" href="#Comparison-with-baseline-models" title="Permalink to this headline"></a></h3>
 <p>Another important issue to consider when comparing models is to evaluate the models with respect to preventive maintenance approaches. RUL-PM provides <code class="docutils literal notranslate"><span class="pre">BaselineModel</span></code> that computes the mean and the median duration from the true targets of the data. <code class="docutils literal notranslate"><span class="pre">BaselineModel</span></code> uses a <code class="docutils literal notranslate"><span class="pre">LifeDatasetIterator</span></code>, that as its names indicate, iterate over each life, transforming it.</p>
-<div class="section" id="Baseline-models-creation">
-<h4>Baseline models creation<a class="headerlink" href="#Baseline-models-creation" title="Permalink to this headline">¶</a></h4>
+<section id="Baseline-models-creation">
+<h4>Baseline models creation<a class="headerlink" href="#Baseline-models-creation" title="Permalink to this headline"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[92]:
 </pre></div>
@@ -3327,9 +3236,9 @@ Epoch 25/25
 </pre></div>
 </div>
 </div>
-</div>
-<div class="section" id="Fitting-baseline-models">
-<h4>Fitting baseline models<a class="headerlink" href="#Fitting-baseline-models" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="Fitting-baseline-models">
+<h4>Fitting baseline models<a class="headerlink" href="#Fitting-baseline-models" title="Permalink to this headline"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[126]:
 </pre></div>
@@ -3479,12 +3388,12 @@ Epoch 25/25
 <img alt="../_images/examples_ExampleAircraftEngine_128_1.png" src="../_images/examples_ExampleAircraftEngine_128_1.png" />
 </div>
 </div>
-</div>
-</div>
-<div class="section" id="Comparison-with-the-full-set-of-models">
-<h3>Comparison with the full set of models<a class="headerlink" href="#Comparison-with-the-full-set-of-models" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="Regression-metrics">
-<h4>Regression metrics<a class="headerlink" href="#Regression-metrics" title="Permalink to this headline">¶</a></h4>
+</section>
+</section>
+<section id="Comparison-with-the-full-set-of-models">
+<h3>Comparison with the full set of models<a class="headerlink" href="#Comparison-with-the-full-set-of-models" title="Permalink to this headline"></a></h3>
+<section id="Regression-metrics">
+<h4>Regression metrics<a class="headerlink" href="#Regression-metrics" title="Permalink to this headline"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[147]:
 </pre></div>
@@ -3553,9 +3462,9 @@ Epoch 25/25
 </table>
 </div></div>
 </div>
-</div>
-<div class="section" id="Maintenance-metrics">
-<h4>Maintenance metrics<a class="headerlink" href="#Maintenance-metrics" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="Maintenance-metrics">
+<h4>Maintenance metrics<a class="headerlink" href="#Maintenance-metrics" title="Permalink to this headline"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[149]:
 </pre></div>
@@ -3585,56 +3494,39 @@ Epoch 25/25
 </pre></div>
 </div>
 </div>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../reference/feature_transformation/target.html" class="btn btn-neutral float-left" title="Target transformation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright .
-
-    </p>
+    <p>&#169; Copyright .</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
