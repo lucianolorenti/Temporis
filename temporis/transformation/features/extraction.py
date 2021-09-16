@@ -253,7 +253,6 @@ class SimpleEncodingCategorical(TransformerStep):
         """
         if self.feature is None:
             self.feature = X.columns[0]
-            print(self.feature)
 
         self.categories.update(set(X[self.feature].unique()))
         return self

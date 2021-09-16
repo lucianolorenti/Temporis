@@ -4,7 +4,6 @@ import shutil
 import os 
 from pathlib import Path
 from setuptools import setup, find_packages
-from Cython.Build import cythonize
 
 BASEPATH = Path(__file__).resolve().parent
 
