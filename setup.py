@@ -11,7 +11,7 @@ BASEPATH = Path(__file__).resolve().parent
 setup(
     name="temporis",
     packages=find_packages(),
-    version="0.3.1",
+    version="0.3.3",
     description="Time-series utilities for predictive maintenance",
     author="",
     install_requires=[
