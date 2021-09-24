@@ -7,7 +7,7 @@ from numpy.lib.arraysetops import isin
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.iterators.iterators import WindowedDatasetIterator
 from temporis.transformation import Transformer
-
+from temporis.models.keras import keras_regression_batcher
 
 class Batcher:
     """WindowedIterator Batcher
@@ -235,3 +235,6 @@ class Batcher:
             pass
 
         return self._slice_data(actual_batch_size)
+
+    def keras(self, keras_batcher=keras_regression_batcher):
+        return keras_batcher(self)
