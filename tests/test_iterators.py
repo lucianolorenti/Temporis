@@ -75,8 +75,9 @@ class TestIterators():
         batch_size = 15
         window_size = 5
         ds = MockDataset(5)
+        print(len(ds))
         transformer.fit(ds)
-        b = Batcher.new(ds, window_size, batch_size,
+        b = Batcher.new(ds.map(transformer), window_size, batch_size,
                         transformer, 1, restart_at_end=False)
         X, y, w = next(b)
         assert len(y.ravel()) == batch_size
@@ -93,15 +94,11 @@ class TestIterators():
             transformerY=y_pipe
         )
         transformer_raw.fit(dataset)
-        it  = WindowedDatasetIterator(dataset, 5, transformer_raw)
-        X, y, sw = it[0]
+        it  = WindowedDatasetIterator(dataset.map(transformer_raw), 5)
+        X, y, sw = next(it)
         assert np.all(X == np.array([[0,1,2,3,4]]).T)
         assert y[0][0] == 4
 
 
-        X, y, sw = it[-1]
-        assert np.all(X == np.array([[95,96,97,98,99]]).T)
-        assert y[0][0] == 99
-        
         
 

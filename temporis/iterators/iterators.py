@@ -1,145 +1,71 @@
 import logging
 import random
-from typing import Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.exceptions import NotFittedError
-from sklearn.utils.validation import check_is_fitted
-from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-from temporis.transformation import Transformer
-from temporis.utils.lrucache import LRUDataCache
+from temporis.dataset.transformed import TransformedDataset
+from temporis.iterators.shufflers import AbstractShuffler, NotShuffled
 
-CACHE_SIZE = 30
 
 logger = logging.getLogger(__name__)
 
-SAMPLE_WEIGHT_PROPORTIONAL_TO_LENGTH = 'proportional_to_length'
-SAMPLE_WEIGHT_RUL_INV = 'rul_inv'
-SAMPLE_WEIGHT_EQUAL = 'equal'
 
-VALID_SAMPLE_WEIGHTS = [SAMPLE_WEIGHT_PROPORTIONAL_TO_LENGTH,
-                        SAMPLE_WEIGHT_RUL_INV,
-                        SAMPLE_WEIGHT_EQUAL]
 
+class AbstractSampleWeights:
+    def __call__(self, y, i: int, metadata):
+        raise NotImplementedError
+
+
+class NotWeighted(AbstractSampleWeights):
+    def __call__(self, y, i: int, metadata):
+        return 1
+
+class RULInverseWeighted(AbstractSampleWeights):
+    def __call__(self, y, i: int, metadata):
+        return ((1 / (y.iloc[i]+1)))
+
+class InverseToLengthWeighted(AbstractSampleWeights):
+    def __call__(self, y, i: int, metadata):
+        return (1 / y[0])
+
+
+SampleWeight = Union[AbstractSampleWeights,
+                     Callable[[np.ndarray, int, Any], float]]
 
 
 class WindowedDatasetIterator:
-    """
-    Iterate over the whole set of lives using a lookback window.
-
-    Each element returned consists of a sample of the live with the n-previous
-    points.
-
-    Parameters
-    ----------
-    dataset: AbstractTimeSeriesDataset
-    window_size: int,
-    transformer: Transformer
-    step: int = 1
-    shuffle : [False, 'signal', 'life', 'all', 'signal_life')
-              How to shuffle the windows.
-
-        * 'signal': Each point of the life is shuffled, but the lives
-                    are kept in order
-
-                    Iteration 1: | Life 1 | Life 1 | Life 1 | Life 2 | Life 2 | Life 2
-                                    |   3    |  1     |  2     |   2    |   3    |   1
-                    Iteration 2: | Life 1 | Life 1 | Life 1 | Life 2 | Life 2 | Life 2
-                                    |   1    |  3     |  2     |   3    |   2    |   1
-
-
-        * 'life': Lives are shuffled, but each point inside the life kept
-                    its order
-
-                    Iteration 1: | Life 1 | Life 1 | Life 1 | Life 2 | Life 2 | Life 2 |
-                                    |   1    | 2      |  3     |   1    |   2    |   3    |
-                    Iteration 2: | Life 2 | Life 2 | Life 2 | Life 1 | Life 1 | Life 1 |
-                                    |   1    |  2     |  3     |   1    |   2    |   3    |
-
-        * 'signal_life': Each point in the life is shuffled, and the life
-                            order are shuffled also.
-
-                    Iteration 1: | Life 1 | Life 1 | Life 1 | Life 2 | Life 2 | Life 2
-                                    |   3    | 2      |  1     |   1    |   3    |   2
-                    Iteration 2: | Life 2 | Life 2 | Life 2 | Life 1 | Life 1 | Life 1
-                                    |   3    |  1     |  2     |   3    |   1    |   2
-
-
-        * 'all': Everything is shuffled
-
-            Iteration 1: | Life 1 | Life 2 | Life 2 | Life 1 | Life 1 | Life 2
-                         |   3    | 2      |  1     |   1    |   2    |   3
-
-       * 'ordered': The data points will be fed in RUL decreasing order
-
-            Iteration 1: | Life 2 | Life 1 | Life 2 | Life 1 | Life 2 | Life 1
-                         |   4    | 3      |  3     |   2    |   2    |   1
-
-    cache_size: int = CACHE_SIZE
-                Size of the LRU Cache. The size indicates the number of lives to store
-
-    evenly_spaced_points: int
-                Determine wether the window should include points in which
-                the RUL does not have gaps larger than the parameter
-
-    sample_weight: str
-                   Choose the weight of each sample. Possible values are
-                   'equal', 'proportional_to_length'.
-                   If 'equal' is chosen, each sample weights 1,
-                   if 'proportional_to_length' is chosen, each sample
-                   weight 1 / life length
-
-    """
-
     def __init__(self,
-                 dataset: AbstractTimeSeriesDataset,
+                 dataset: TransformedDataset,
                  window_size: int,
                  step: int = 1,
                  output_size: int = 1,
-                 shuffle: Union[str, bool] = False,
-                 cache_size: int = CACHE_SIZE,
+                 shuffler: AbstractShuffler = NotShuffled(),
                  evenly_spaced_points: Optional[int] = None,
-                 sample_weight: Union[
-                     str,
-                     Callable[[pd.DataFrame], float]] = SAMPLE_WEIGHT_EQUAL,
+                 sample_weight:  SampleWeight= NotWeighted(),
                  add_last: bool = True,
                  discard_threshold: Optional[float] = None):
 
         self.dataset = dataset 
-        self.shuffle = shuffle
+        self.shuffler = shuffler
+        self.shuffler.initialize(self)
         self.evenly_spaced_points = evenly_spaced_points
         self.window_size = window_size
         self.step = step
-        self.shuffle = shuffle
-        if isinstance(sample_weight, str):
-            if sample_weight not in VALID_SAMPLE_WEIGHTS:
-                raise ValueError(
-                    f'Invalid sample_weight parameter. Valid values are {VALID_SAMPLE_WEIGHTS}')
-        elif not callable(sample_weight):
-            raise ValueError('sample_weight should be an string or a callable')
+        if not isinstance(sample_weight, AbstractSampleWeights) or not callable(sample_weight):
+            raise ValueError('sample_weight should be an AbstractSampleWeights or a callable')
 
         self.sample_weight = sample_weight
         self.discard_threshold = discard_threshold
-        self.orig_lifes, self.orig_elements, self.sample_weights = self._windowed_element_list()
-        self.lifes, self.elements = self.orig_lifes, self.orig_elements
+        
         self.i = 0
         self.output_size = output_size
         self.add_last = add_last
 
 
-    def _sample_weight(self, y, i: int, metadata):
-        if isinstance(self.sample_weight, str):
-            if self.sample_weight == SAMPLE_WEIGHT_EQUAL:
-                return 1
-            elif self.sample_weight == SAMPLE_WEIGHT_RUL_INV:
-                return ((1 / (y.iloc[i]+1)))
-            elif self.sample_weight == SAMPLE_WEIGHT_PROPORTIONAL_TO_LENGTH:
-                return (1 / y[0])
-        elif callable(self.sample_weight):
-            return self.sample_weight(y, i, metadata)
+        self.length = None
 
-    def _windowed_element_list(self):
+    def _generate_input_sample_points_per_life(self, life_index:int):
         def window_evenly_spaced(y, i):
             w = y[i-self.window_size:i+1].diff().dropna().abs()
             return np.all(w <= self.evenly_spaced_points)
@@ -151,136 +77,78 @@ class WindowedDatasetIterator:
         else:
             def should_discard(y, i): return False
 
-        olifes = []
-        oelements = []
-        sample_weights = []
-        logger.debug('Computing windows')
-        for life in range(self.dataset.n_time_series):
-            life_data = self.dataset[life]
-            y = self.transformer.transformY(life_data)
-            metadata = self.transformer.transformMetadata(life_data)
+        X, y, sw = self.dataset[life_index]
+        self.processed_lives.append(life_index)
+       
 
-            list_ranges = range(self.window_size-1, y.shape[0], self.step)
-            if self.evenly_spaced_points is not None:
-                is_valid_point = window_evenly_spaced
-            else:
-                def is_valid_point(y, i): return True
+        list_ranges = range(self.window_size-1, y.shape[0], self.step)
+        if self.evenly_spaced_points is not None:
+            is_valid_point = window_evenly_spaced
+        else:
+            def is_valid_point(y, i): return True
 
-            list_ranges = [
-                i for i in list_ranges if is_valid_point(y, i) and not should_discard(y, i)
-            ]
+        list_ranges = [
+            i for i in list_ranges if is_valid_point(y, i) and not should_discard(y, i)
+        ]
 
-            for i in list_ranges:
-                olifes.append(life)
-                oelements.append(i)
-                sample_weights.append(self._sample_weight(y, i, metadata))
+        for i in list_ranges:
+            self.points.append((life_index, i, self._sample_weight(y, i, sw)))
+    
+    @property
+    def output_shape(self):
+        return self.output_size 
 
-        return olifes, oelements, sample_weights
-
-    def _shuffle(self):
+    def __len__(self):
         """
-        Shuffle the window elements
-        """
-        if not self.shuffle:
-            return
-        valid_shuffle = ((not self.shuffle)
-                         or (self.shuffle
-                             in ('signal', 'life', 'all', 'signal_life', 'ordered')))
-        df = pd.DataFrame({
-            'life': self.orig_lifes,
-            'elements': self.orig_elements
-        })
-        if not valid_shuffle:
-            raise ValueError(
-                "shuffle parameter invalid. Valid values are: False, 'signal', 'life', 'all' 'signal_life', 'ordered'"
-            )
-        if self.shuffle == 'signal':
-            groups = [d.sample(frac=1, axis=0) for _, d in df.groupby('life')]
-            df = pd.concat(groups).reset_index(drop=True)
-        elif self.shuffle == 'life':
-            groups = [d for _, d in df.groupby('life')]
-            random.shuffle(groups)
-            df = pd.concat(groups).reset_index(drop=True)
-        elif self.shuffle == 'signal_life':
-            groups = [d.sample(frac=1, axis=0) for _, d in df.groupby('life')]
-            random.shuffle(groups)
-            df = pd.concat(groups).reset_index(drop=True)
-        elif self.shuffle == 'all':
-            df = df.sample(frac=1, axis=0)
+        Return the length of the iterator
 
-        elif self.shuffle == 'ordered':
-            df = df.sort_values(by=['elements'], ascending=False)
-        self.lifes = df['life'].values.tolist()
-        self.elements = df['elements'].values.tolist()
+        If it not was iterated once, it will compute the length by iterating
+        from the entire dataset
+        """
+        if self.length is None:
+            self.length = sum(1 for _ in self)
+            self.__iter__()
+        return self.length
 
     def __iter__(self):
         self.i = 0
-        self._shuffle()
+        self.shuffler.start(self)
         return self
+    
+    def __next__(self):
+        life, timestamp = self.shuffler.next_element()
+        while timestamp < self.window_size -1:
+            life, timestamp = self.shuffler.next_element()
+        X, y, metadata = self.dataset[life]
+        window = windowed_signal_generator(
+            X, y, timestamp, self.window_size, self.output_size, self.add_last)
+        return window[0], window[1], [self.sample_weight(y, timestamp, metadata)]
 
-    def __len__(self):
-        return len(self.elements)
-
-
+        for i in list_ranges:
+            self.points.append((life_index, i, self._sample_weight(y, i, sw)))
+            
+    def _sample_weight(self, y, i: int, metadata):
+        return self.sample_weight(y, i, metadata)
+    
     def __getitem__(self, i: int):
-        (life, timestamp) = (self.lifes[i], self.elements[i])
-        X, y, metadata = self._load_data(life)
+        life, timestamp = self.shuffler.next_element(self)
+        X, y, metadata = self.dataset[life]
         window = windowed_signal_generator(
             X, y, timestamp, self.window_size, self.output_size, self.add_last)
         return window[0], window[1], [self.sample_weights[i]]
 
-
-    def at_end(self):
-        return self.i == len(self.elements)
-
-    def __next__(self):
-        if self.at_end():
-            raise StopIteration
-        ret = self.__getitem__(self.i)
-        self.i += 1
-        return ret
-
-    def get_data(self):
-        N_points = len(self)
-        dimension = self.window_size*self.transformer.n_features
-        X = np.zeros(
-            (N_points, dimension),
-            dtype=np.float32)
-        y = np.zeros((N_points, self.output_size), dtype=np.float32)
-        sample_weight = np.zeros(N_points, dtype=np.float32)
-
-        for i, (X_, y_, sample_weight_) in enumerate(self):
-            X[i, :] = X_.flatten()
-            y[i, :] = y_.flatten()
-            sample_weight[i] = sample_weight_[0]
-        return X, y, sample_weight
-
+    
     @property
     def n_features(self) -> int:
         """Number of features of the transformed dataset
-
         This is a helper method to obtain the transformed
         dataset information from the WindowedDatasetIterator
-
         Returns
         -------
         int
             Number of features of the transformed dataset
         """
-        return self.transformer.n_features
-
-
-    @property
-    def input_shape(self) -> Tuple[int, int]:
-        """Tuple containing (window_size, n_features)
-
-        Returns
-        -------
-        Tuple[int, int]
-            Tuple containing (window_size, n_features)
-        """
-        return (self.window_size, self.n_features)
-
+        return self.dataset.transformer.n_features
 
 
 def windowed_signal_generator(signal_X, signal_y, i: int, window_size: int, output_size: int = 1,  add_last: bool = True):

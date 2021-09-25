@@ -1,25 +1,25 @@
-import tensorflow as tf 
+import tensorflow as tf
 
-def keras_regression_batcher(batcher):
-    n_features = batcher.n_features
+from temporis.iterators.iterators import WindowedDatasetIterator 
+
+def tf_regression_dataset(iterator:WindowedDatasetIterator):
+    n_features = iterator.n_features
 
     def generator_function():
-        for X, y, w in batcher:
-            yield X, y, w
+        for X, y, sw in iterator:
+            yield X, y, sw
 
     a = tf.data.Dataset.from_generator(
         generator_function,
         output_signature=(
             tf.TensorSpec(
-                shape=(None, batcher.window_size, n_features), dtype=tf.float32
+                shape=( iterator.window_size, n_features), dtype=tf.float32
             ),
-            tf.TensorSpec(shape=(None, batcher.output_shape, 1), dtype=tf.float32),
-            tf.TensorSpec(shape=(None, 1), dtype=tf.float32),
+            tf.TensorSpec(shape=( iterator.output_shape, 1), dtype=tf.float32),
+            tf.TensorSpec(shape=( 1), dtype=tf.float32),
         ),
     )
 
-    if batcher.prefetch_size is not None:
-        a = a.prefetch(batcher.batch_size * 2)
     return a
 
 

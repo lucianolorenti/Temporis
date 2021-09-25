@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from numpy.lib.arraysetops import isin
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-from temporis.iterators.iterators import WindowedDatasetIterator
-from temporis.transformation import Transformer
-from temporis.models.keras import keras_regression_batcher
+from temporis.iterators.iterators import NotWeighted, SampleWeight, WindowedDatasetIterator
+from temporis.iterators.shufflers import AbstractShuffler, NotShuffled
+
 
 class Batcher:
     """WindowedIterator Batcher
@@ -32,7 +32,6 @@ class Batcher:
         self.batch_size = batch_size
         self.restart_at_end = restart_at_end
         self.stop = False
-        self.prefetch_size = None
         self.batch_data = None
 
     @staticmethod
@@ -40,14 +39,12 @@ class Batcher:
         dataset: AbstractTimeSeriesDataset,
         window: int,
         batch_size: int,
-        transformer: Transformer,
         step: int,
         output_size: int = 1,
-        shuffle: bool = False,
+        shuffler: AbstractShuffler = NotShuffled(),
         restart_at_end: bool = True,
-        cache_size: int = 20,
         evenly_spaced_points: Optional[int] = None,
-        sample_weight: str = "equal",
+        sample_weight:  SampleWeight= NotWeighted(),
         add_last: bool = True,
         discard_threshold: Optional[float] = None,
     ):
@@ -74,11 +71,9 @@ class Batcher:
         iterator = WindowedDatasetIterator(
             dataset,
             window,
-            transformer,
             step=step,
             output_size=output_size,
-            shuffle=shuffle,
-            cache_size=cache_size,
+            shuffler=shuffler,
             evenly_spaced_points=evenly_spaced_points,
             sample_weight=sample_weight,
             add_last=add_last,
@@ -95,9 +90,13 @@ class Batcher:
         int
             Number of batches in the iterator
         """
-        return math.ceil(len(self.iterator) / self.batch_size)
+        if len(self.iterator) is None:
+            return None
+        q =  math.ceil(len(self.iterator) / self.batch_size)
+        return q
 
     def __iter__(self):
+        self.stop = False
         self.iterator.__iter__()
         return self
 
@@ -216,14 +215,8 @@ class Batcher:
         return sliced_data
 
     def __next__(self):
-
         if self.stop:
             raise StopIteration
-        if self.iterator.at_end():
-            if self.restart_at_end:
-                self.__iter__()
-            else:
-                raise StopIteration
         try:
             actual_batch_size = 0
             for j in range(self.batch_size):
@@ -232,9 +225,7 @@ class Batcher:
                 self.allocate_batch_data(d)
                 self._assign_data(d, j)
         except StopIteration:
-            pass
+            self.stop = True
 
         return self._slice_data(actual_batch_size)
 
-    def keras(self, keras_batcher=keras_regression_batcher):
-        return keras_batcher(self)

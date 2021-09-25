@@ -1,10 +1,12 @@
 
 from typing import Optional
-from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
+
+import pandas as pd
 from sklearn.utils.validation import check_is_fitted
-from temporis.utils.lrucache import LRUDataCache
-from sklearn.exceptions import NotFittedError
+from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation.functional.transformers import Transformer
+from temporis.utils.lrucache import LRUDataCache
+
 
 class TransformedDataset(AbstractTimeSeriesDataset):
     def __init__(self, dataset, transformer:Transformer, cache_size:Optional[int]=None):
@@ -25,6 +27,14 @@ class TransformedDataset(AbstractTimeSeriesDataset):
         """
         return self.dataset.n_time_series
 
+    def __call__(self, i:int):
+        return self[i]
+
+    def number_of_samples_of_time_series(self, i:int) -> int:
+        _, y, _ = self[i]
+        return y.shape[0]
+
+        
     def get_time_series(self, i: int) -> pd.DataFrame:
         """
 

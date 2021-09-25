@@ -1,13 +1,37 @@
 
 
+from temporis.iterators.iterators import WindowedDatasetIterator
 import numpy as np
 import pandas as pd
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.iterators.batcher import Batcher
+from temporis.models.keras import tf_regression_dataset
 from temporis.transformation.features.scalers import PandasMinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
 from temporis.transformation import (TemporisPipeline, Transformer)
-import math
+
+
+class SimpleDataset(AbstractTimeSeriesDataset):
+    def __init__(self):
+
+        self.lives = [
+            pd.DataFrame({
+                'feature1': np.array(range(0, 100)),
+                'RUL': np.array(range(0, 100))
+            })]
+
+
+    def get_time_series(self, i: int):
+        return self.lives[i]
+
+    @property
+    def rul_column(self):
+        return 'RUL'
+
+    @property
+    def n_time_series(self):
+        return len(self.lives)
+
 
 class MockDataset(AbstractTimeSeriesDataset):
     def __init__(self, nlives: int):
@@ -41,26 +65,29 @@ class MockDataset(AbstractTimeSeriesDataset):
         return len(self.lives)
 
 
-class TestBatcher():
-    def test_batcher(self):
+class TestModels():
+    def test_models(self):
         features = ['feature1', 'feature2']
         x = ByNameFeatureSelector(features)
         x = PandasMinMaxScaler((-1, 1))(x)
 
         y = ByNameFeatureSelector(['RUL'])
         transformer = Transformer(x, y)
-        
         batch_size = 15
         window_size = 5
         ds = MockDataset(5)
         transformer.fit(ds)
-        b = Batcher.new(ds.map(transformer), window_size, batch_size,
-                        transformer, 1, restart_at_end=False)
+        iterator = WindowedDatasetIterator(
+            ds.map(transformer),
+            window_size,
+            step=1,
+            output_size=1
+        )
 
-        expected_size = math.ceil(((5*50) - (4*5)) / 15)
-        assert len(b) == expected_size
-        X, y, w = next(b)
-        assert len(y.ravel()) == batch_size
-        assert X.shape[0] == batch_size
-        assert X.shape[1] == window_size
-        assert X.shape[2] == 2
+    
+        b1 = tf_regression_dataset(iterator).batch(15)
+        assert b1.take(1)
+
+
+        
+

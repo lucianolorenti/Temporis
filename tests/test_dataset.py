@@ -1,4 +1,5 @@
-from temporis.dataset.analysis import null_proportion, variance_information
+from temporis.dataset.analysis.null import null_proportion
+from temporis.dataset.analysis.variance import variance_information
 import numpy as np
 import pandas as pd
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset, FoldedDataset
@@ -47,15 +48,15 @@ class MockDataset(AbstractTimeSeriesDataset):
 class TestDataset:
     def test_dataset(self):
         ds = MockDataset(5)
-        columns = [set(["feature1", "feature2", "RUL", "life"]) for i in range(4)]
-        columns.append(set(["feature1", "feature2", "feature3", "RUL", "life"]))
+        columns = [set(["feature1", "feature2", "RUL"]) for i in range(4)]
+        columns.append(set(["feature1", "feature2", "feature3", "RUL"]))
         for life, columns in zip(ds, columns):
             assert set(life.columns) == columns
         assert ds.n_time_series == 5
 
         p = ds.to_pandas()
         assert p.shape[0] == 50 * 5
-        assert set(ds.common_features()) == set(["feature1", "feature2", "RUL", "life"])
+        assert set(ds.common_features()) == set(["feature1", "feature2", "RUL"])
 
         folded = ds[[3, 2, 1]]
         assert isinstance(folded, FoldedDataset)
@@ -70,7 +71,7 @@ class TestDataset:
         ds = CMAPSSDataset()
         assert len(ds) == 709
         life = ds[0]
-        assert len(life.columns) == 29
+        assert len(life.columns) == 28
 
 
 class TestAnalysis:

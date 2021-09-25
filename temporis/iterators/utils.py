@@ -8,6 +8,12 @@ import numpy as np
 from temporis.iterators.batcher import Batcher
 from temporis.iterators.iterators import WindowedDatasetIterator
 
+try:
+    import tensorflow as tf 
+    TENSORFLOW = True
+except:
+    TENSORFLOW = False
+
 
 def true_values(
     dataset_iterator: Union[WindowedDatasetIterator, Batcher, AbstractTimeSeriesDataset]
@@ -31,5 +37,8 @@ def true_values(
         dataset_iterator = WindowedDatasetIterator(
             dataset_iterator, window_size=1, shuffle=False
         )
+    if TENSORFLOW:
+        if isinstance(dataset_iterator, tf.data.Dataset):
+            dataset_iterator = dataset_iterator.as_numpy_iterator()
     d = np.concatenate([y for _, y, _ in dataset_iterator])
     return d
