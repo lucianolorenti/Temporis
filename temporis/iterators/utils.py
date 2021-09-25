@@ -28,11 +28,8 @@ def true_values(
     if isinstance(dataset_iterator, Batcher):
         dataset_iterator = dataset_iterator.iterator
     if isinstance(dataset_iterator, AbstractTimeSeriesDataset):
-        t = TransformerIdentity()
-        t.fit(dataset_iterator)
-
         dataset_iterator = WindowedDatasetIterator(
-            dataset_iterator, window_size=1, transformer=t, shuffle=False
+            dataset_iterator, window_size=1, shuffle=False
         )
     d = np.concatenate([y for _, y, _ in dataset_iterator])
     return d

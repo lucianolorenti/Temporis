@@ -23,101 +23,8 @@ VALID_SAMPLE_WEIGHTS = [SAMPLE_WEIGHT_PROPORTIONAL_TO_LENGTH,
                         SAMPLE_WEIGHT_EQUAL]
 
 
-class DatasetIterator:
-    """
 
-    Each tiem series is stored in a LRU cache in-memory and should have
-    an unique identifier. A unique number is sufficient.
-
-
-    Parameters
-    ---------
-    dataset     : AbstractTimeSeriesDataset
-                  Dataset with the time-series data
-    transformer : Transformer
-                  Transformer to apply to each times series
-    shuffle     : Union[bool, str] default: False
-                  If the data returned for the iterator should be shuffle.
-                  The possible values depends on the iterator
-    cache_size  : int. default: CACHE_SIZE
-                  Size of the LRU cache where the lives are stored
-    """
-
-    def __init__(self,
-                 dataset: AbstractTimeSeriesDataset,
-                 transformer: Transformer,
-                 shuffle: Union[bool, str] = False,
-                 cache_size: int = CACHE_SIZE):
-        if not transformer.fitted_:
-            raise ValueError('Transformer not fitted')
-        self.dataset = dataset
-        self.shuffle = shuffle
-        self.transformer = transformer
-        self.cache = LRUDataCache(cache_size)
-
-        try:
-            check_is_fitted(transformer)
-        except NotFittedError:
-            self.transformer.fit(dataset)
-
-    def _load_data(self, ts) -> pd.DataFrame:
-        """
-        Return a DataFrame with the contents of the time series
-
-        Parameters
-        ----------
-        ts : any
-               The time series identifiers
-        """
-        if ts not in self.cache.data:
-            data = self.dataset[ts]
-            X, y, metadata = self.transformer.transform(data)
-            self.cache.add(ts, (X.values, y.values, metadata))
-        return self.cache.get(ts)
-
-
-class TimeSeriesDatasetIterator(DatasetIterator):
-    """
-    Iterates over the whole set of time series.
-    
-
-    Parameters
-    ----------
-    dataset     : AbstractTimeSeriesDataset
-                  Dataset with the lives data
-    transformer : Transformer
-                  Transformer to apply to each time-series
-    shuffle     : default: False
-                  If the data returned for the iterator should be shuffle.
-                  The possible values depends on the iterator
-    """
-
-    def __init__(self,
-                 dataset: AbstractTimeSeriesDataset,
-                 transformer: Transformer,
-                 shuffle: Union[bool, str] = False):
-        super().__init__(dataset, transformer, shuffle)
-        self.elements = list(range(0, len(self.dataset)))
-        self.i = 0
-
-    def __iter__(self):
-        self.i = 0
-        if self.shuffle:
-            random.shuffle(self.elements)
-        return self
-
-    def __len__(self) -> int:
-        return len(self.dataset)
-
-    def __next__(self):
-        if self.i == len(self):
-            raise StopIteration
-        current_life = self.elements[self.i]
-        self.i += 1
-        return self._load_data(current_life)
-
-
-class WindowedDatasetIterator(DatasetIterator):
+class WindowedDatasetIterator:
     """
     Iterate over the whole set of lives using a lookback window.
 
@@ -188,7 +95,6 @@ class WindowedDatasetIterator(DatasetIterator):
     def __init__(self,
                  dataset: AbstractTimeSeriesDataset,
                  window_size: int,
-                 transformer: Transformer,
                  step: int = 1,
                  output_size: int = 1,
                  shuffle: Union[str, bool] = False,
@@ -199,7 +105,9 @@ class WindowedDatasetIterator(DatasetIterator):
                      Callable[[pd.DataFrame], float]] = SAMPLE_WEIGHT_EQUAL,
                  add_last: bool = True,
                  discard_threshold: Optional[float] = None):
-        super().__init__(dataset, transformer, shuffle, cache_size=cache_size)
+
+        self.dataset = dataset 
+        self.shuffle = shuffle
         self.evenly_spaced_points = evenly_spaced_points
         self.window_size = window_size
         self.step = step
