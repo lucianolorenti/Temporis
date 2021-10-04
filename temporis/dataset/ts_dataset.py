@@ -7,6 +7,7 @@ from typing import List,  Tuple, Union
 import numpy as np
 import tensorflow as tf
 import pandas as pd
+from tqdm.auto import tqdm
 
 
 
@@ -178,7 +179,6 @@ class AbstractTimeSeriesDataset:
         for i in bar(range(self.n_time_series)):
             if proportion_of_lives < 1.0 and np.random.rand() > proportion_of_lives:
                 continue
-
             life = self[i]
             common_features.append(set(life.columns.values))
         return common_features[0].intersection(*common_features)
@@ -215,6 +215,26 @@ class AbstractTimeSeriesDataset:
             .select_dtypes(include=[np.number], exclude=["datetime", "timedelta"])
             .columns.values
         )
+
+
+    def numeric_features(self, show_progress:bool = False) -> List[str]: 
+        """Obtain the list of the common numeric features in the dataset
+
+        Parameters
+        ----------
+        show_progress : bool, optional
+            Whether to show progress when computing the common features, by default False
+
+        Returns
+        -------
+        List[str]
+            List of columns
+        """
+             
+        features = self.common_features(show_progress=show_progress)
+        df = self.get_time_series(0)
+        return list(df.loc[:, features].select_dtypes(include=[np.number]).columns.values)
+
 
 
 class FoldedDataset(AbstractTimeSeriesDataset):
