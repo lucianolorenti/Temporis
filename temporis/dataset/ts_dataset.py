@@ -6,6 +6,7 @@ from typing import List, Tuple, Union
 import numpy as np
 from numpy.lib.arraysetops import isin
 import pandas as pd
+from tqdm.auto import tqdm
 
 
 class AbstractTimeSeriesDataset:
@@ -14,7 +15,7 @@ class AbstractTimeSeriesDataset:
         self._durations = None
 
     @property
-    def n_time_series(self):
+    def n_time_series(self) -> int:
         raise NotImplementedError
 
     """Base class of the dataset handled by this library.
@@ -33,6 +34,22 @@ class AbstractTimeSeriesDataset:
         """
         raise NotImplementedError
 
+    def duration(self, life:pd.DataFrame) -> float:
+        """Obtain the duration of the time-series
+
+        Parameters
+        ----------
+        i : int
+            Index of the life
+
+        Returns
+        -------
+        float
+            Duration of the life
+        """
+        v = life.index
+        return v.max() - v.min()
+
     def durations(self) -> List[float]:
         """Obtain the length of each life
 
@@ -41,8 +58,9 @@ class AbstractTimeSeriesDataset:
         List[float]
             List of durations
         """
-        if self._durations is None:
-            self._durations = [life[self.rul_column].iloc[0] for life in self]
+        if self._durations is None:            
+            self._durations = [self.duration(life) for life in self]
+            #[self.rul_column].iloc[0]
         return self._durations
 
     def __getitem__(self, i: Union[int, Iterable]):
@@ -78,7 +96,7 @@ class AbstractTimeSeriesDataset:
             return FoldedDataset(self, i)
         else:
             df = self.get_time_series(i)
-            df["life"] = i
+            
             return df
 
     @property
@@ -94,13 +112,18 @@ class AbstractTimeSeriesDataset:
         """
         return self.n_time_series
 
-    def to_pandas(self, proportion=1.0) -> pd.DataFrame:
+    def to_pandas(
+        self,
+        proportion_of_lives: float = 1.0,
+        subsample_proportion: float = 1.0,
+        show_progress: bool = False,
+    ) -> pd.DataFrame:
         """
         Create a dataset with the time-series concatenated
 
         Parameters
         ----------
-        proportion: float
+        proportion_of_lives: float
                     Proportion of lives to use.
 
         Returns
@@ -109,25 +132,75 @@ class AbstractTimeSeriesDataset:
         pd.DataFrame:
             Return a DataFrame with all the lives concatenated
         """
+        if show_progress:
+            bar = tqdm
+        else:
+            bar = lambda x: x
         df = []
-        common_features = self.common_features()
-        for i in range(self.n_time_series):
-            if proportion < 1.0 and np.random.rand() > proportion:
+
+        features = list(
+            self._compute_common_features(
+                proportion_of_lives=proportion_of_lives, show_progress=show_progress
+            )
+        )
+
+        for i in bar(range(self.n_time_series)):
+            if proportion_of_lives < 1.0 and np.random.rand() > proportion_of_lives:
                 continue
-            current_life = self[i][common_features]
+
+            current_life = self[i].loc[:, features]
+            if subsample_proportion < 1.0:
+                indices = range(
+                    0,
+                    current_life.shape[0],
+                    int(current_life.shape[0] * subsample_proportion),
+                )
+                current_life = current_life.iloc[indices, :]
             df.append(current_life)
         return pd.concat(df)
 
-    def common_features(self) -> List[str]:
+    def _compute_common_features(
+        self, proportion_of_lives: float = 1.0, show_progress: bool = False
+    ) -> List[str]:
+        common_features = []
+        if show_progress:
+            bar = tqdm
+        else:
+            bar = lambda x: x
+        for i in bar(range(self.n_time_series)):
+            if proportion_of_lives < 1.0 and np.random.rand() > proportion_of_lives:
+                continue
+ 
+            life = self[i]
+            common_features.append(set(life.columns.values))
+        return common_features[0].intersection(*common_features)
+
+    def common_features(self, show_progress: bool = False) -> List[str]:
         if self._common_features is None:
-            self._common_features = []
-            for i in range(self.n_time_series):
-                life = self[i]
-                self._common_features.append(set(life.columns.values))
-            self._common_features = self._common_features[0].intersection(
-                *self._common_features
+            self._common_features = self._compute_common_features(
+                1.0, show_progress=show_progress
             )
         return self._common_features
+
+
+    def numeric_features(self, show_progress:bool = False) -> List[str]: 
+        """Obtain the list of the common numeric features in the dataset
+
+        Parameters
+        ----------
+        show_progress : bool, optional
+            Whether to show progress when computing the common features, by default False
+
+        Returns
+        -------
+        List[str]
+            List of columns
+        """
+             
+        features = self.common_features(show_progress=show_progress)
+        df = self.get_time_series(0)
+        return list(df.loc[:, features].select_dtypes(include=[np.number]).columns.values)
+
 
 
 class FoldedDataset(AbstractTimeSeriesDataset):
