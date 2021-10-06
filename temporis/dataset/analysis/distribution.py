@@ -18,8 +18,8 @@ def histogram_per_life(
 
   
     if share_bins:
-        min_value = np.inf
-        max_value = -np.inf
+        min_value = ds[0][feature].min()
+        max_value = ds[0][feature].max()
         for life in ds:
             min_value = min(np.min(life[feature]), min_value)
             max_value = max(np.max(life[feature]), max_value)

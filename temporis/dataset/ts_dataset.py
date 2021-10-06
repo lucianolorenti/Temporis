@@ -34,7 +34,7 @@ class AbstractTimeSeriesDataset:
         """
         raise NotImplementedError
 
-    def duration(self, life:pd.DataFrame) -> float:
+    def duration(self, life: pd.DataFrame) -> float:
         """Obtain the duration of the time-series
 
         Parameters
@@ -58,9 +58,9 @@ class AbstractTimeSeriesDataset:
         List[float]
             List of durations
         """
-        if self._durations is None:            
+        if self._durations is None:
             self._durations = [self.duration(life) for life in self]
-            #[self.rul_column].iloc[0]
+            # [self.rul_column].iloc[0]
         return self._durations
 
     def __getitem__(self, i: Union[int, Iterable]):
@@ -96,7 +96,7 @@ class AbstractTimeSeriesDataset:
             return FoldedDataset(self, i)
         else:
             df = self.get_time_series(i)
-            
+
             return df
 
     @property
@@ -170,7 +170,7 @@ class AbstractTimeSeriesDataset:
         for i in bar(range(self.n_time_series)):
             if proportion_of_lives < 1.0 and np.random.rand() > proportion_of_lives:
                 continue
- 
+
             life = self[i]
             common_features.append(set(life.columns.values))
         return common_features[0].intersection(*common_features)
@@ -182,8 +182,7 @@ class AbstractTimeSeriesDataset:
             )
         return self._common_features
 
-
-    def numeric_features(self, show_progress:bool = False) -> List[str]: 
+    def numeric_features(self, show_progress: bool = False) -> List[str]:
         """Obtain the list of the common numeric features in the dataset
 
         Parameters
@@ -196,11 +195,14 @@ class AbstractTimeSeriesDataset:
         List[str]
             List of columns
         """
-             
+
         features = self.common_features(show_progress=show_progress)
         df = self.get_time_series(0)
-        return list(df.loc[:, features].select_dtypes(include=[np.number]).columns.values)
-
+        return list(
+            df.loc[:, features]
+            .select_dtypes(include=[np.number], exclude=["datetime", "timedelta"])
+            .columns.values
+        )
 
 
 class FoldedDataset(AbstractTimeSeriesDataset):
