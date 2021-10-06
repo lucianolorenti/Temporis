@@ -230,11 +230,14 @@ class AbstractTimeSeriesDataset:
         List[str]
             List of columns
         """
-             
+
         features = self.common_features(show_progress=show_progress)
         df = self.get_time_series(0)
-        return list(df.loc[:, features].select_dtypes(include=[np.number]).columns.values)
-
+        return list(
+            df.loc[:, features]
+            .select_dtypes(include=[np.number], exclude=["datetime", "timedelta"])
+            .columns.values
+        )
 
 
 class FoldedDataset(AbstractTimeSeriesDataset):
