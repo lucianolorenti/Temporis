@@ -95,6 +95,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -110,15 +111,17 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset">AbstractTimeSeriesDataset (class in temporis.dataset.ts_dataset)</a>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.AbstractSampleWeights">AbstractSampleWeights (class in temporis.iterators.iterators)</a>
 </li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Accumulate">Accumulate (class in temporis.transformation.features.transformation)</a>
+      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset">AbstractTimeSeriesDataset (class in temporis.dataset.ts_dataset)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Accumulate">Accumulate (class in temporis.transformation.features.transformation)</a>
+</li>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.allocate_batch_data">allocate_batch_data() (temporis.iterators.batcher.Batcher method)</a>
 </li>
-      <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator.at_end">at_end() (temporis.iterators.iterators.WindowedDatasetIterator method)</a>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator3.at_end">at_end() (temporis.iterators.iterators.WindowedDatasetIterator3 method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -152,8 +155,6 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/iterators.html#temporis.iterators.iterators.DatasetIterator">DatasetIterator (class in temporis.iterators.iterators)</a>
-</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Diff">Diff (class in temporis.transformation.features.transformation)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.Difference">Difference (class in temporis.transformation.features.extraction)</a>
@@ -260,7 +261,7 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator.get_data">get_data() (temporis.iterators.iterators.WindowedDatasetIterator method)</a>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator3.get_data">get_data() (temporis.iterators.iterators.WindowedDatasetIterator3 method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -289,14 +290,24 @@
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.input_shape">input_shape (temporis.iterators.batcher.Batcher property)</a>
 
       <ul>
-        <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator.input_shape">(temporis.iterators.iterators.WindowedDatasetIterator property)</a>
+        <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator3.input_shape">(temporis.iterators.iterators.WindowedDatasetIterator3 property)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.Interactions">Interactions (class in temporis.transformation.features.extraction)</a>
 </li>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.InverseToLengthWeighted">InverseToLengthWeighted (class in temporis.iterators.iterators)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.IQROutlierRemover">IQROutlierRemover (class in temporis.transformation.features.outliers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.keras">keras() (temporis.iterators.batcher.Batcher method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -318,6 +329,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.map">map() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.MeanCentering">MeanCentering (class in temporis.transformation.features.transformation)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.MeanFilter">MeanFilter (class in temporis.transformation.features.denoising)</a>
@@ -364,24 +377,28 @@
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.n_features">n_features (temporis.iterators.batcher.Batcher property)</a>
 
       <ul>
-        <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator.n_features">(temporis.iterators.iterators.WindowedDatasetIterator property)</a>
+        <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator3.n_features">(temporis.iterators.iterators.WindowedDatasetIterator3 property)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.ByNameFeatureSelector.n_features">(temporis.transformation.features.selection.ByNameFeatureSelector property)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.DiscardByNameFeatureSelector.n_features">(temporis.transformation.features.selection.DiscardByNameFeatureSelector property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.n_time_series">n_time_series (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset property)</a>
 
       <ul>
         <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.FoldedDataset.n_time_series">(temporis.dataset.ts_dataset.FoldedDataset property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.new">new() (temporis.iterators.batcher.Batcher static method)</a>
 </li>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.NotWeighted">NotWeighted (class in temporis.iterators.iterators)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.NullProportionSelector">NullProportionSelector (class in temporis.transformation.features.selection)</a>
+</li>
+      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.number_of_samples_of_time_series">number_of_samples_of_time_series() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
 </li>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.numeric_features">numeric_features() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
 </li>
@@ -483,15 +500,17 @@
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMeanImputer">RollingMeanImputer (class in temporis.transformation.features.imputers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.RollingMeanOutlierRemover">RollingMeanOutlierRemover (class in temporis.transformation.features.outliers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMedianImputer">RollingMedianImputer (class in temporis.transformation.features.imputers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.RollingStatisticsNumba">RollingStatisticsNumba (class in temporis.transformation.features.extraction)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.RollingStatisticsPandas">RollingStatisticsPandas (class in temporis.transformation.features.extraction)</a>
+</li>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.RULInverseWeighted">RULInverseWeighted (class in temporis.iterators.iterators)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -605,8 +624,6 @@
 </li>
       </ul></li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.TimeToPreviousBinaryValue.time_to_previous_event">time_to_previous_event() (temporis.transformation.features.extraction.TimeToPreviousBinaryValue method)</a>
-</li>
-      <li><a href="reference/iterators.html#temporis.iterators.iterators.TimeSeriesDatasetIterator">TimeSeriesDatasetIterator (class in temporis.iterators.iterators)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.TimeToPreviousBinaryValue">TimeToPreviousBinaryValue (class in temporis.transformation.features.extraction)</a>
 </li>
@@ -730,11 +747,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.window_size">window_size (temporis.iterators.batcher.Batcher property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.iterators.windowed_signal_generator">windowed_signal_generator() (in module temporis.iterators.iterators)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator">WindowedDatasetIterator (class in temporis.iterators.iterators)</a>
+</li>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator3">WindowedDatasetIterator3 (class in temporis.iterators.iterators)</a>
 </li>
   </ul></td>
 </tr></table>
