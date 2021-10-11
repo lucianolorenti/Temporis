@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.iterators.batcher import Batcher
+from temporis.models.keras import tf_regression_dataset
 from temporis.transformation.features.scalers import PandasMinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
 from temporis.transformation import (TemporisPipeline, Transformer)
@@ -64,8 +65,8 @@ class MockDataset(AbstractTimeSeriesDataset):
         return len(self.lives)
 
 
-class TestIterators():
-    def test_iterators(self):
+class TestModels():
+    def test_models(self):
         features = ['feature1', 'feature2']
         x = ByNameFeatureSelector(features)
         x = PandasMinMaxScaler((-1, 1))(x)
@@ -75,29 +76,17 @@ class TestIterators():
         batch_size = 15
         window_size = 5
         ds = MockDataset(5)
-        print(len(ds))
         transformer.fit(ds)
-        b = Batcher.new(ds.map(transformer), window_size, batch_size,
-                        transformer, 1)
-        X, y, w = next(b)
-        assert len(y.ravel()) == batch_size
-        assert X.shape[0] == batch_size
-        assert X.shape[1] == window_size
-        assert X.shape[2] == 2
-
-    def test_2(self):
-        dataset = SimpleDataset()
-        pipe = ByNameFeatureSelector(['feature1'])
-        y_pipe = ByNameFeatureSelector(['RUL'])
-        transformer_raw = Transformer(
-            transformerX=pipe,    
-            transformerY=y_pipe
+        iterator = WindowedDatasetIterator(
+            ds.map(transformer),
+            window_size,
+            step=1,
+            output_size=1
         )
-        transformer_raw.fit(dataset)
-        it  = WindowedDatasetIterator(dataset.map(transformer_raw), 5)
-        X, y, sw = next(it)
-        assert np.all(X == np.array([[0,1,2,3,4]]).T)
-        assert y[0][0] == 4
+
+    
+        b1 = tf_regression_dataset(iterator).batch(15)
+        assert b1.take(1)
 
 
         

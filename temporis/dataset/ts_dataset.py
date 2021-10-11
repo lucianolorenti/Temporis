@@ -1,10 +1,11 @@
 """The Dataset module provides a light interface to define a PM Dataset
 """
 from collections.abc import Iterable
-from typing import List, Tuple, Union
+
+from typing import Any, List,  Tuple, Union
 
 import numpy as np
-from numpy.lib.arraysetops import isin
+import tensorflow as tf
 import pandas as pd
 from tqdm.auto import tqdm
 
@@ -18,11 +19,9 @@ class AbstractTimeSeriesDataset:
     def n_time_series(self) -> int:
         raise NotImplementedError
 
-    """Base class of the dataset handled by this library.
 
-        Methods for fitting and transform receives an instance
-        that inherit from this class
-    """
+    def number_of_samples_of_time_series(self, i:int) -> int:
+        return self[i].shape[0]
 
     def get_time_series(self, i: int) -> pd.DataFrame:
         """
@@ -63,6 +62,9 @@ class AbstractTimeSeriesDataset:
             # [self.rul_column].iloc[0]
         return self._durations
 
+    def __call__(self, i):
+        return self[i]
+
     def __getitem__(self, i: Union[int, Iterable]):
         """Obtain a time-series or an splice of the dataset using a FoldedDataset
 
@@ -88,7 +90,8 @@ class AbstractTimeSeriesDataset:
                 len(self) if i.stop is None else i.stop,
                 1 if i.step is None else i.step,
             )
-
+        if isinstance(i, tf.Tensor):
+            return self.get_time_series(i.ref())
         if isinstance(i, Iterable):
             if not all(isinstance(item, (int, np.integer)) for item in i):
                 raise ValueError("Invalid iterable index passed")
@@ -96,7 +99,6 @@ class AbstractTimeSeriesDataset:
             return FoldedDataset(self, i)
         else:
             df = self.get_time_series(i)
-
             return df
 
     @property
@@ -170,7 +172,6 @@ class AbstractTimeSeriesDataset:
         for i in bar(range(self.n_time_series)):
             if proportion_of_lives < 1.0 and np.random.rand() > proportion_of_lives:
                 continue
-
             life = self[i]
             common_features.append(set(life.columns.values))
         return common_features[0].intersection(*common_features)
@@ -181,6 +182,10 @@ class AbstractTimeSeriesDataset:
                 1.0, show_progress=show_progress
             )
         return self._common_features
+
+    def map(self, transformer):
+        from temporis.dataset.transformed import TransformedDataset
+        return TransformedDataset(self, transformer)
 
     def numeric_features(self, show_progress: bool = False) -> List[str]:
         """Obtain the list of the common numeric features in the dataset
@@ -224,3 +229,9 @@ class FoldedDataset(AbstractTimeSeriesDataset):
             DataFrame with the data of the life i
         """
         return self.dataset[self.indices[i]]
+
+    def __getattribute__(self, name: str) -> Any:
+        if name in ['dataset', 'indices', 'n_time_series']:
+            return super().__getattribute__(name)
+        else:
+            return self.dataset.__getattribute__(name)

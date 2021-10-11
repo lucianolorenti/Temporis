@@ -41,10 +41,18 @@ X_transformations = PandasMinMaxScaler((-1,1), robust=False)(X_transformations)
 y_transformation = ByNameFeatureSelector(['price'])
 
 transformer = Transformer(
-    transformerX=X_transformations.build(),
-    transformerY=y_transformation.build())
+    transformerX=X_transformations,
+    transformerY=y_transformation)
 
 transformer.fit(train_dataset)
+
+iterator = WindowedDatasetIterator(
+  dataset.map(transformer),
+  window_size=64,
+  step=32,
+  shuffler=AllShuffled()
+  sample_weight=NotWeighted(),
+)
 ```
 
 
