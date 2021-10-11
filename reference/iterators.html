@@ -141,7 +141,26 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="temporis.iterators.iterators.WindowedDatasetIterator">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.iterators.iterators.</span></span><span class="sig-name descname"><span class="pre">WindowedDatasetIterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dataset:</span> <span class="pre">temporis.dataset.transformed.TransformedDataset,</span> <span class="pre">window_size:</span> <span class="pre">int,</span> <span class="pre">step:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">output_size:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">shuffler:</span> <span class="pre">temporis.iterators.shufflers.AbstractShuffler</span> <span class="pre">=</span> <span class="pre">&lt;temporis.iterators.shufflers.NotShuffled</span> <span class="pre">object&gt;,</span> <span class="pre">sample_weight:</span> <span class="pre">Union[temporis.iterators.iterators.AbstractSampleWeights,</span> <span class="pre">Callable[[numpy.ndarray,</span> <span class="pre">int,</span> <span class="pre">Any],</span> <span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">&lt;temporis.iterators.iterators.NotWeighted</span> <span class="pre">object&gt;,</span> <span class="pre">add_last:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.iterators.iterators.WindowedDatasetIterator" title="Permalink to this definition"></a></dt>
-<dd><dl class="py property">
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="temporis.iterators.iterators.WindowedDatasetIterator.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#temporis.iterators.iterators.WindowedDatasetIterator.get_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="temporis.iterators.iterators.WindowedDatasetIterator.input_shape">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_shape</span></span><em class="property"><span class="pre">:</span> <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#temporis.iterators.iterators.WindowedDatasetIterator.input_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Tuple containing (window_size, n_features)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Tuple containing (window_size, n_features)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Tuple[int, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="temporis.iterators.iterators.WindowedDatasetIterator.n_features">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_features</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#temporis.iterators.iterators.WindowedDatasetIterator.n_features" title="Permalink to this definition"></a></dt>
 <dd><p>Number of features of the transformed dataset
