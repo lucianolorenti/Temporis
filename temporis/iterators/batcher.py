@@ -18,19 +18,16 @@ class Batcher:
               Dataset iterator
     batch_size: int
                 Batch size to use
-    restart_at_end: bool = True
-                    Wether if the iterator is infinite or not
+
     """
 
     def __init__(
         self,
         iterator: WindowedDatasetIterator,
         batch_size: int,
-        restart_at_end: bool = True,
     ):
         self.iterator = iterator
         self.batch_size = batch_size
-        self.restart_at_end = restart_at_end
         self.stop = False
         self.batch_data = None
 
@@ -42,11 +39,8 @@ class Batcher:
         step: int,
         output_size: int = 1,
         shuffler: AbstractShuffler = NotShuffled(),
-        restart_at_end: bool = True,
-        evenly_spaced_points: Optional[int] = None,
         sample_weight:  SampleWeight= NotWeighted(),
         add_last: bool = True,
-        discard_threshold: Optional[float] = None,
     ):
         """Batcher constructor from a dataset
 
@@ -60,8 +54,6 @@ class Batcher:
             Dataset from which the batcher will be created
         batch_size : int
             Batch size
-        restart_at_end : bool, optional
-            Whether the Batcher is infinite or not, by default True
 
         Returns
         -------
@@ -74,12 +66,10 @@ class Batcher:
             step=step,
             output_size=output_size,
             shuffler=shuffler,
-            evenly_spaced_points=evenly_spaced_points,
             sample_weight=sample_weight,
             add_last=add_last,
-            discard_threshold=discard_threshold,
         )
-        b = Batcher(iterator, batch_size, restart_at_end)
+        b = Batcher(iterator, batch_size)
         return b
 
     def __len__(self) -> int:
