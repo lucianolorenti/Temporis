@@ -10,8 +10,6 @@ import pandas as pd
 from tqdm.auto import tqdm
 
 
-
-
 class AbstractTimeSeriesDataset:
     def __init__(self):
         self._common_features = None

@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 from typing import List, Optional
 
 import numpy as np
 import pandas as pd
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
+=======
+>>>>>>> 8cb874b5207c369721ce12f634f37eb730a36176
 
 
 def variance_information(
@@ -77,4 +80,8 @@ def variance_information(
         ],
     )
     df.sort_values(by="Min std", inplace=True, ascending=True)
+<<<<<<< HEAD
     return df, std_per_life
+=======
+    return df, std_per_life
+>>>>>>> 8cb874b5207c369721ce12f634f37eb730a36176
