@@ -41,58 +41,23 @@ class WindowedDatasetIterator:
                  step: int = 1,
                  output_size: int = 1,
                  shuffler: AbstractShuffler = NotShuffled(),
-                 evenly_spaced_points: Optional[int] = None,
                  sample_weight:  SampleWeight= NotWeighted(),
-                 add_last: bool = True,
-                 discard_threshold: Optional[float] = None):
+                 add_last: bool = True):
 
         self.dataset = dataset 
         self.shuffler = shuffler
         self.shuffler.initialize(self)
-        self.evenly_spaced_points = evenly_spaced_points
         self.window_size = window_size
         self.step = step
         if not isinstance(sample_weight, AbstractSampleWeights) or not callable(sample_weight):
             raise ValueError('sample_weight should be an AbstractSampleWeights or a callable')
 
         self.sample_weight = sample_weight
-        self.discard_threshold = discard_threshold
         
         self.i = 0
         self.output_size = output_size
         self.add_last = add_last
-
-
         self.length = None
-
-    def _generate_input_sample_points_per_life(self, life_index:int):
-        def window_evenly_spaced(y, i):
-            w = y[i-self.window_size:i+1].diff().dropna().abs()
-            return np.all(w <= self.evenly_spaced_points)
-
-
-        if self.discard_threshold is not None:
-            def should_discard(y, i):
-                return y[i] > self.discard_threshold
-        else:
-            def should_discard(y, i): return False
-
-        X, y, sw = self.dataset[life_index]
-        self.processed_lives.append(life_index)
-       
-
-        list_ranges = range(self.window_size-1, y.shape[0], self.step)
-        if self.evenly_spaced_points is not None:
-            is_valid_point = window_evenly_spaced
-        else:
-            def is_valid_point(y, i): return True
-
-        list_ranges = [
-            i for i in list_ranges if is_valid_point(y, i) and not should_discard(y, i)
-        ]
-
-        for i in list_ranges:
-            self.points.append((life_index, i, self._sample_weight(y, i, sw)))
     
     @property
     def output_shape(self):
@@ -123,19 +88,14 @@ class WindowedDatasetIterator:
         window = windowed_signal_generator(
             X, y, timestamp, self.window_size, self.output_size, self.add_last)
         return window[0], window[1], [self.sample_weight(y, timestamp, metadata)]
-
-        for i in list_ranges:
-            self.points.append((life_index, i, self._sample_weight(y, i, sw)))
             
-    def _sample_weight(self, y, i: int, metadata):
-        return self.sample_weight(y, i, metadata)
     
     def __getitem__(self, i: int):
         life, timestamp = self.shuffler.next_element(self)
         X, y, metadata = self.dataset[life]
         window = windowed_signal_generator(
             X, y, timestamp, self.window_size, self.output_size, self.add_last)
-        return window[0], window[1], [self.sample_weights[i]]
+        return window[0], window[1], [self.sample_weights(y, i, metadata)]
 
     
     @property
