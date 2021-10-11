@@ -55,7 +55,7 @@ class TestBatcher():
         ds = MockDataset(5)
         transformer.fit(ds)
         b = Batcher.new(ds.map(transformer), window_size, batch_size,
-                        transformer, 1, restart_at_end=False)
+                        transformer, 1)
 
         expected_size = math.ceil(((5*50) - (4*5)) / 15)
         assert len(b) == expected_size

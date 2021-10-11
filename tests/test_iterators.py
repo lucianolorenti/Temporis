@@ -78,7 +78,7 @@ class TestIterators():
         print(len(ds))
         transformer.fit(ds)
         b = Batcher.new(ds.map(transformer), window_size, batch_size,
-                        transformer, 1, restart_at_end=False)
+                        transformer, 1)
         X, y, w = next(b)
         assert len(y.ravel()) == batch_size
         assert X.shape[0] == batch_size
