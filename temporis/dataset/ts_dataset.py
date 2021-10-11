@@ -2,7 +2,7 @@
 """
 from collections.abc import Iterable
 
-from typing import List,  Tuple, Union
+from typing import Any, List,  Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -19,11 +19,6 @@ class AbstractTimeSeriesDataset:
     def n_time_series(self) -> int:
         raise NotImplementedError
 
-    """Base class of the dataset handled by this library.
-
-        Methods for fitting and transform receives an instance
-        that inherit from this class
-    """
 
     def number_of_samples_of_time_series(self, i:int) -> int:
         return self[i].shape[0]
@@ -215,29 +210,6 @@ class AbstractTimeSeriesDataset:
         )
 
 
-    def numeric_features(self, show_progress:bool = False) -> List[str]: 
-        """Obtain the list of the common numeric features in the dataset
-
-        Parameters
-        ----------
-        show_progress : bool, optional
-            Whether to show progress when computing the common features, by default False
-
-        Returns
-        -------
-        List[str]
-            List of columns
-        """
-
-        features = self.common_features(show_progress=show_progress)
-        df = self.get_time_series(0)
-        return list(
-            df.loc[:, features]
-            .select_dtypes(include=[np.number], exclude=["datetime", "timedelta"])
-            .columns.values
-        )
-
-
 class FoldedDataset(AbstractTimeSeriesDataset):
     def __init__(self, dataset: AbstractTimeSeriesDataset, indices: list):
         super().__init__()
@@ -257,3 +229,9 @@ class FoldedDataset(AbstractTimeSeriesDataset):
             DataFrame with the data of the life i
         """
         return self.dataset[self.indices[i]]
+
+    def __getattribute__(self, name: str) -> Any:
+        if name in ['dataset', 'indices', 'n_time_series']:
+            return super().__getattribute__(name)
+        else:
+            return self.dataset.__getattribute__(name)

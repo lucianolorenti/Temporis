@@ -138,7 +138,7 @@ class Batcher:
         Tuple[int, int]
             Tuple containing (window_size, n_features)
         """
-        return (self.window_size, self.n_features)
+        return self.iterator.input_shape
 
     @property
     def computed_step(self):

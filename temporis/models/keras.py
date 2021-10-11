@@ -1,8 +1,9 @@
 import tensorflow as tf
 
-from temporis.iterators.iterators import WindowedDatasetIterator 
+from temporis.iterators.iterators import WindowedDatasetIterator
 
-def tf_regression_dataset(iterator:WindowedDatasetIterator):
+
+def tf_regression_dataset(iterator: WindowedDatasetIterator):
     n_features = iterator.n_features
 
     def generator_function():
@@ -13,10 +14,10 @@ def tf_regression_dataset(iterator:WindowedDatasetIterator):
         generator_function,
         output_signature=(
             tf.TensorSpec(
-                shape=( iterator.window_size, n_features), dtype=tf.float32
+                shape=(iterator.window_size, n_features), dtype=tf.float32
             ),
-            tf.TensorSpec(shape=( iterator.output_shape, 1), dtype=tf.float32),
-            tf.TensorSpec(shape=( 1), dtype=tf.float32),
+            tf.TensorSpec(shape=(iterator.output_shape, 1), dtype=tf.float32),
+            tf.TensorSpec(shape=(1), dtype=tf.float32),
         ),
     )
 
