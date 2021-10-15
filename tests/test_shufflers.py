@@ -1,61 +1,111 @@
+import math
 
-from temporis.iterators.shufflers import AbstractShuffler, AllShuffled, IntraTimeSeriesShuffler, InverseOrder, NotShuffled, TimeSeriesOrderIntraSignalShuffling, TimeSeriesOrderShuffling
 import numpy as np
+from temporis.iterators.shufflers import (
+    AbstractShuffler,
+    AllShuffled,
+    IntraTimeSeriesShuffler,
+    InverseOrder,
+    NotShuffled,
+    TimeSeriesOrderIntraSignalShuffling,
+    TimeSeriesOrderShuffling,
+)
 
 
 class MockDataFrame:
     def __init__(self, size):
-        self.size = size 
+        self.size = size
 
     @property
     def shape(self):
         return [self.size, None]
 
+
 class MockDataset:
     def __init__(self):
         self.sizes = [5, 7, 3]
-    
-    def __getitem__(self, id:int):
+
+    def __getitem__(self, id: int):
         return MockDataFrame(self.sizes[id])
 
-    def number_of_samples_of_time_series(self, id:int):
+    def number_of_samples_of_time_series(self, id: int):
         return self.sizes[id]
 
     @property
     def n_time_series(self):
         return 3
 
+
 class MockIterator:
-    def __init__(self):
-        self.number_of_lives = 3
+    def __init__(self, step: int = 1):
         self.dataset = MockDataset()
+        self.step = step
 
 
-class TestShufflers():
+class TestShufflers:
     def test_shufflers(self):
-        
+
         x = NotShuffled()
         generated = [e for e in x.iterator(MockIterator())]
-        expected = [ 
-            (0, 0), (0, 1),(0, 2),(0, 3),(0, 4),
-            (1, 0), (1, 1),(1, 2),(1, 3),(1, 4),(1,5),(1,6),
-            (2, 0), (2, 1),(2, 2)
+        expected = [
+            (0, 0),
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (1, 0),
+            (1, 1),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (1, 5),
+            (1, 6),
+            (2, 0),
+            (2, 1),
+            (2, 2),
+        ]
+        for g, e in zip(generated, expected):
+            assert g == e
+
+        x = NotShuffled()
+        generated = [e for e in x.iterator(MockIterator(2))]
+        expected = [
+            (0, 0),
+            (0, 2),
+            (0, 4),
+            (1, 0),
+            (1, 2),
+            (1, 4),
+            (1, 6),
+            (2, 0),
+            (2, 2),
         ]
         for g, e in zip(generated, expected):
             assert g == e
 
     def test_intra_singal(self):
-        np.random.seed(0) 
+        np.random.seed(0)
         x = IntraTimeSeriesShuffler()
         iterator = MockIterator()
         generated = [e for e in x.iterator(iterator)]
         for i in range(3):
-            samples_ts = [e for e in generated if e[0]==i]
+            samples_ts = [e for e in generated if e[0] == i]
             assert len(samples_ts) == iterator.dataset.sizes[i]
-            ts_timestamps = [e[1]for e in samples_ts]
-            assert ts_timestamps != list(range(0,iterator.dataset.sizes[i]))
-            assert sorted(ts_timestamps) == list(range(0,iterator.dataset.sizes[i]))
+            ts_timestamps = [e[1] for e in samples_ts]
+            assert ts_timestamps != list(range(0, iterator.dataset.sizes[i]))
+            assert sorted(ts_timestamps) == list(range(0, iterator.dataset.sizes[i]))
 
+        x = IntraTimeSeriesShuffler()
+        step = 2
+        iterator = MockIterator(step)
+        generated = [e for e in x.iterator(iterator)]
+        for i in range(3):
+            samples_ts = [e for e in generated if e[0] == i]
+            assert len(samples_ts) == math.ceil(iterator.dataset.sizes[i] / step)
+            ts_timestamps = [e[1] for e in samples_ts]
+            assert sorted(ts_timestamps) == list(
+                np.arange(0, iterator.dataset.sizes[i], step=step)
+            )
 
     def test_time_series_order(self):
         x = TimeSeriesOrderShuffling()
@@ -66,9 +116,25 @@ class TestShufflers():
         i = [elem[1] for elem in generated if elem[0] == 2]
         assert i == list(range(0, it.dataset.sizes[2]))
 
+        step = 2
+        x = TimeSeriesOrderShuffling()
+        it = MockIterator(step)
+        generated = [e for e in x.iterator(it)]
+        g = [g[0] for g in generated]
+        assert len(np.where(np.diff(g))[0]) == 2
+        i = [elem[1] for elem in generated if elem[0] == 2]
+        assert i == np.arange(0, it.dataset.sizes[2], step=step).tolist()
+
     def test_TimeSeriesOrderIntraSignalShuffling(self):
         x = TimeSeriesOrderIntraSignalShuffling()
         it = MockIterator()
+        generated = [e for e in x.iterator(it)]
+        g = [g[0] for g in generated]
+        assert len(np.where(np.diff(g))[0]) == 2
+
+        step = 2
+        x = TimeSeriesOrderIntraSignalShuffling()
+        it = MockIterator(step)
         generated = [e for e in x.iterator(it)]
         g = [g[0] for g in generated]
         assert len(np.where(np.diff(g))[0]) == 2
@@ -78,8 +144,15 @@ class TestShufflers():
         it = MockIterator()
         generated = [e for e in x.iterator(it)]
         g = [g[1] for g in generated]
-        assert np.all(np.diff(g) <=0)
+        assert np.all(np.diff(g) <= 0)
 
+        step = 2
+        x = InverseOrder()
+        it = MockIterator(step)
+        generated = [e for e in x.iterator(it)]
+        g = [g[1] for g in generated]
+        assert np.all(np.diff(g) <= 0)
+        assert generated == [(1, 6), (0, 4), (1, 4), (0, 2), (1, 2), (2, 2), (0, 0), (1, 0), (2, 0)]
 
     def test_AllShuffled(self):
         x = AllShuffled()
@@ -90,7 +163,11 @@ class TestShufflers():
             g = [elem[0] for elem in generated if elem[0] == i]
             assert len(g) == it.dataset.sizes[i]
 
-
-        
-
-            
+        step = 2
+        x = AllShuffled()
+        it = MockIterator(step)
+        generated = [e for e in x.iterator(it)]
+        assert len(generated) == np.sum(np.ceil(np.array(it.dataset.sizes) / step))
+        for i in range(3):
+            g = [elem[0] for elem in generated if elem[0] == i]
+            assert len(g) == math.ceil(it.dataset.sizes[i] / step)

@@ -81,22 +81,12 @@ class WindowedDatasetIterator:
         return self
     
     def __next__(self):
-        life, timestamp = self.shuffler.next_element()
-        while timestamp < self.window_size -1:
-            life, timestamp = self.shuffler.next_element()
+        life, timestamp = self.shuffler.next_element(lambda x: x >= self.window_size -1)
         X, y, metadata = self.dataset[life]
         window = windowed_signal_generator(
             X, y, timestamp, self.window_size, self.output_size, self.add_last)
         return window[0], window[1], [self.sample_weight(y, timestamp, metadata)]
-            
-    
-    def __getitem__(self, i: int):
-        life, timestamp = self.shuffler.next_element(self)
-        X, y, metadata = self.dataset[life]
-        window = windowed_signal_generator(
-            X, y, timestamp, self.window_size, self.output_size, self.add_last)
-        return window[0], window[1], [self.sample_weights(y, i, metadata)]
-
+        
 
     def get_data(self):
         N_points = len(self)
