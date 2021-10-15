@@ -1285,8 +1285,8 @@
    ],
    "source": [
     "raw_pipe = ByNameFeatureSelector(features)\n",
-    "raw_pipe = ForwardFillImputer()(functional_pipe)\n",
-    "raw_pipe = PandasMinMaxScaler((-1,1), robust=False, name='raw_scaled')(functional_pipe)\n",
+    "raw_pipe = ForwardFillImputer()(raw_pipe)\n",
+    "raw_pipe = PandasMinMaxScaler((-1,1), robust=False, name='raw_scaled')(raw_pipe)\n",
     "\n",
     "transformed_pipe = ByNameFeatureSelector(features[0:3])\n",
     "transformed_pipe = RollingStatisticsPandas(window=15, to_compute=['kurtosis', 'peak'])(transformed_pipe)\n",
@@ -1747,8 +1747,11 @@
     "import tensorflow as tf\n",
     "\n",
     "\n",
+<<<<<<< HEAD
+=======
     "\n",
     "\n",
+>>>>>>> e6975c2470390ef5e1fd51621f49131a5e415b9d
     "inputs = tf.keras.Input(shape=iterator.input_shape)\n",
     "x = tf.keras.layers.Flatten()(inputs)\n",
     "x = tf.keras.layers.Dense(32, activation=tf.nn.relu)(x)\n",
@@ -1932,6 +1935,7 @@
     "from sklearn.model_selection import train_test_split\n",
     "\n",
     "train_transformed_ds, val_transformed_ds = train_test_split(transformed_ds, train_size=0.85)\n",
+<<<<<<< HEAD
     "\n",
     "window = 7\n",
     "train_iterator = WindowedDatasetIterator(\n",
@@ -1941,6 +1945,17 @@
     "    output_size=1,\n",
     "    shuffler=NotShuffled())\n",
     "\n",
+=======
+    "\n",
+    "window = 7\n",
+    "train_iterator = WindowedDatasetIterator(\n",
+    "    train_transformed_ds,\n",
+    "    window,\n",
+    "    step=1,\n",
+    "    output_size=1,\n",
+    "    shuffler=NotShuffled())\n",
+    "\n",
+>>>>>>> e6975c2470390ef5e1fd51621f49131a5e415b9d
     "val_iterator = WindowedDatasetIterator(\n",
     "    val_transformed_ds,\n",
     "    window,\n",
