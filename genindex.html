@@ -227,11 +227,9 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.ZScoreOutlierRemover.fit">(temporis.transformation.features.outliers.ZScoreOutlierRemover method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasMinMaxScaler.fit">(temporis.transformation.features.scalers.PandasMinMaxScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.MinMaxScaler.fit">(temporis.transformation.features.scalers.MinMaxScaler method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasRobustScaler.fit">(temporis.transformation.features.scalers.PandasRobustScaler method)</a>
-</li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasStandardScaler.fit">(temporis.transformation.features.scalers.PandasStandardScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.StandardScaler.fit">(temporis.transformation.features.scalers.StandardScaler method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.ByNameFeatureSelector.fit">(temporis.transformation.features.selection.ByNameFeatureSelector method)</a>
 </li>
@@ -326,6 +324,8 @@
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.MedianFilter">MedianFilter (class in temporis.transformation.features.denoising)</a>
 </li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.MinMaxScaler">MinMaxScaler (class in temporis.transformation.features.scalers)</a>
+</li>
       <li>
     module
 
@@ -419,15 +419,9 @@
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.PandasMedianImputer">PandasMedianImputer (class in temporis.transformation.features.imputers)</a>
 </li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasMinMaxScaler">PandasMinMaxScaler (class in temporis.transformation.features.scalers)</a>
-</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.PandasNullProportionSelector">PandasNullProportionSelector (class in temporis.transformation.features.selection)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.PandasRemoveInf">PandasRemoveInf (class in temporis.transformation.features.imputers)</a>
-</li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasRobustScaler">PandasRobustScaler (class in temporis.transformation.features.scalers)</a>
-</li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasStandardScaler">PandasStandardScaler (class in temporis.transformation.features.scalers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.PandasVarianceThreshold">PandasVarianceThreshold (class in temporis.transformation.features.selection)</a>
 </li>
@@ -458,13 +452,15 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.IQROutlierRemover.partial_fit">(temporis.transformation.features.outliers.IQROutlierRemover method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasMinMaxScaler.partial_fit">(temporis.transformation.features.scalers.PandasMinMaxScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.MinMaxScaler.partial_fit">(temporis.transformation.features.scalers.MinMaxScaler method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasRobustScaler.partial_fit">(temporis.transformation.features.scalers.PandasRobustScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PerCategoricalMinMaxScaler.partial_fit">(temporis.transformation.features.scalers.PerCategoricalMinMaxScaler method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasStandardScaler.partial_fit">(temporis.transformation.features.scalers.PandasStandardScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustMinMaxScaler.partial_fit">(temporis.transformation.features.scalers.RobustMinMaxScaler method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.ScaleInvRUL.partial_fit">(temporis.transformation.features.scalers.ScaleInvRUL method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.StandardScaler.partial_fit">(temporis.transformation.features.scalers.StandardScaler method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.ByNameFeatureSelector.partial_fit">(temporis.transformation.features.selection.ByNameFeatureSelector method)</a>
 </li>
@@ -477,6 +473,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PerCategoricalMinMaxScaler">PerCategoricalMinMaxScaler (class in temporis.transformation.features.scalers)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.PerColumnImputer">PerColumnImputer (class in temporis.transformation.features.imputers)</a>
 </li>
       <li><a href="reference/dataset.html#temporis.dataset.CMAPSS.prepare_train_data">prepare_train_data() (in module temporis.dataset.CMAPSS)</a>
@@ -487,16 +485,18 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustMinMaxScaler">RobustMinMaxScaler (class in temporis.transformation.features.scalers)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.rolling_kurtosis">rolling_kurtosis() (in module temporis.transformation.features.extraction)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingImputer">RollingImputer (class in temporis.transformation.features.imputers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMeanImputer">RollingMeanImputer (class in temporis.transformation.features.imputers)</a>
 </li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.RollingMeanOutlierRemover">RollingMeanOutlierRemover (class in temporis.transformation.features.outliers)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.RollingMeanOutlierRemover">RollingMeanOutlierRemover (class in temporis.transformation.features.outliers)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMedianImputer">RollingMedianImputer (class in temporis.transformation.features.imputers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.RollingStatisticsNumba">RollingStatisticsNumba (class in temporis.transformation.features.extraction)</a>
@@ -528,6 +528,8 @@
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Sqrt">Sqrt (class in temporis.transformation.features.transformation)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Square">Square (class in temporis.transformation.features.transformation)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.StandardScaler">StandardScaler (class in temporis.transformation.features.scalers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.StringConcatenate">StringConcatenate (class in temporis.transformation.features.transformation)</a>
 </li>
@@ -693,13 +695,15 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.ZScoreOutlierRemover.transform">(temporis.transformation.features.outliers.ZScoreOutlierRemover method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasMinMaxScaler.transform">(temporis.transformation.features.scalers.PandasMinMaxScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.MinMaxScaler.transform">(temporis.transformation.features.scalers.MinMaxScaler method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasRobustScaler.transform">(temporis.transformation.features.scalers.PandasRobustScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PerCategoricalMinMaxScaler.transform">(temporis.transformation.features.scalers.PerCategoricalMinMaxScaler method)</a>
 </li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.PandasStandardScaler.transform">(temporis.transformation.features.scalers.PandasStandardScaler method)</a>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustMinMaxScaler.transform">(temporis.transformation.features.scalers.RobustMinMaxScaler method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.ScaleInvRUL.transform">(temporis.transformation.features.scalers.ScaleInvRUL method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.StandardScaler.transform">(temporis.transformation.features.scalers.StandardScaler method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.ByNameFeatureSelector.transform">(temporis.transformation.features.selection.ByNameFeatureSelector method)</a>
 </li>

@@ -1232,61 +1232,95 @@ with 1 column</p>
 <section id="module-temporis.transformation.features.scalers">
 <span id="scalers"></span><h2>Scalers<a class="headerlink" href="#module-temporis.transformation.features.scalers" title="Permalink to this headline"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasMinMaxScaler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.scalers.</span></span><span class="sig-name descname"><span class="pre">PandasMinMaxScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">robust</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_quantile</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasMinMaxScaler" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasMinMaxScaler.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasMinMaxScaler.fit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.MinMaxScaler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.scalers.</span></span><span class="sig-name descname"><span class="pre">MinMaxScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.MinMaxScaler" title="Permalink to this definition"></a></dt>
+<dd><p>Transform features by scaling each feature to a given range.</p>
+<p>This transformer scales and translates each feature individually
+such that it is in the given range on the training set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>range</strong> (<em>tuple</em>) – Desired range of transformed data.</p></li>
+<li><p><strong>clip</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to clip transformed values of held-out data to provided, by default True</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.MinMaxScaler.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.MinMaxScaler.fit" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasMinMaxScaler.partial_fit">
-<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasMinMaxScaler.partial_fit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.MinMaxScaler.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.MinMaxScaler.partial_fit" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasMinMaxScaler.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasMinMaxScaler.transform" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.MinMaxScaler.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.MinMaxScaler.transform" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasRobustScaler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.scalers.</span></span><span class="sig-name descname"><span class="pre">PandasRobustScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasRobustScaler" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasRobustScaler.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasRobustScaler.fit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PerCategoricalMinMaxScaler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.scalers.</span></span><span class="sig-name descname"><span class="pre">PerCategoricalMinMaxScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">categorical_feature:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">scaler:</span> <span class="pre">Optional[Union[temporis.transformation.features.scalers.MinMaxScaler</span></em>, <em class="sig-param"><span class="pre">temporis.transformation.features.scalers.RobustMinMaxScaler]]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'temporis.transformation.features.scalers.MinMaxScaler'&gt;</span></em>, <em class="sig-param"><span class="pre">scaler_params:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></em>, <em class="sig-param"><span class="pre">name:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PerCategoricalMinMaxScaler" title="Permalink to this definition"></a></dt>
+<dd><p>Performs a minmax scaler partition the data trough some categorical feature</p>
+<p>Usually, different execution configurations lead to different scales in the features.
+Therefore, sometimes it is useful to scale the data based on a categorical feature,
+to reflect the difference in the execution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>categorical_feature</strong> (<em>str</em>) – The name of the categorical feature whose values are going to be used
+to split each time-series</p></li>
+<li><p><strong>scaler</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference internal" href="#temporis.transformation.features.scalers.MinMaxScaler" title="temporis.transformation.features.scalers.MinMaxScaler"><em>MinMaxScaler</em></a><em>,</em><a class="reference internal" href="#temporis.transformation.features.scalers.RobustMinMaxScaler" title="temporis.transformation.features.scalers.RobustMinMaxScaler"><em>RobustMinMaxScaler</em></a><em>]</em><em>]</em><em>, </em><em>default MinMaxScaler</em>) – The scale to use when scaling the data</p></li>
+<li><p><strong>scaler_params</strong> (<em>dict</em>) – Parameters used when constructing the scaler</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Name of the transformer</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PerCategoricalMinMaxScaler.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PerCategoricalMinMaxScaler.partial_fit" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasRobustScaler.partial_fit">
-<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasRobustScaler.partial_fit" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasRobustScaler.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasRobustScaler.transform" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PerCategoricalMinMaxScaler.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PerCategoricalMinMaxScaler.transform" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasStandardScaler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.scalers.</span></span><span class="sig-name descname"><span class="pre">PandasStandardScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasStandardScaler" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasStandardScaler.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasStandardScaler.fit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.RobustMinMaxScaler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.scalers.</span></span><span class="sig-name descname"><span class="pre">RobustMinMaxScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_quantile</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdigest_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.RobustMinMaxScaler" title="Permalink to this definition"></a></dt>
+<dd><p>Scale features using statistics that are robust to outliers.</p>
+<p>This Scaler scales the data according to the quantile range
+The IQR is the range between the limits provided, by default,
+1st quartile (25th quantile) and the 3rd quartile (75th quantile).</p>
+<p>The quantiles are approximated using tdigest</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>range</strong> (<em>tuple</em>) – Desired range of transformed data.</p></li>
+<li><p><strong>clip</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to clip transformed values of held-out data to provided, by default True</p></li>
+<li><p><strong>lower_quantile</strong> (<em>float</em><em>, </em><em>optional</em>) – Lower limit of the quantile range to compute the scale, by default 0.25</p></li>
+<li><p><strong>upper_quantile</strong> (<em>float</em><em>, </em><em>optional</em>) – Upper limit of the quantile range to compute the scale, by default 0.75</p></li>
+<li><p><strong>tdigest_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Size of the t-digest structure, by default 100</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.RobustMinMaxScaler.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.RobustMinMaxScaler.partial_fit" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasStandardScaler.partial_fit">
-<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasStandardScaler.partial_fit" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.scalers.PandasStandardScaler.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.PandasStandardScaler.transform" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.RobustMinMaxScaler.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.RobustMinMaxScaler.transform" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1309,6 +1343,32 @@ Usually this will be used before a CumSum transformation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="temporis.transformation.features.scalers.ScaleInvRUL.transform">
 <span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.ScaleInvRUL.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.StandardScaler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.scalers.</span></span><span class="sig-name descname"><span class="pre">StandardScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.StandardScaler" title="Permalink to this definition"></a></dt>
+<dd><p>Standardize features by removing the mean and scaling to unit variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.StandardScaler.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.StandardScaler.fit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.StandardScaler.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.StandardScaler.partial_fit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.scalers.StandardScaler.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.scalers.StandardScaler.transform" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
