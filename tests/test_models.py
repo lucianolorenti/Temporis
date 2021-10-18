@@ -6,7 +6,7 @@ import pandas as pd
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.iterators.batcher import Batcher
 from temporis.models.keras import tf_regression_dataset
-from temporis.transformation.features.scalers import PandasMinMaxScaler
+from temporis.transformation.features.scalers import MinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
 from temporis.transformation import (TemporisPipeline, Transformer)
 
@@ -69,7 +69,7 @@ class TestModels():
     def test_models(self):
         features = ['feature1', 'feature2']
         x = ByNameFeatureSelector(features)
-        x = PandasMinMaxScaler((-1, 1))(x)
+        x = MinMaxScaler((-1, 1))(x)
 
         y = ByNameFeatureSelector(['RUL'])
         transformer = Transformer(x, y)

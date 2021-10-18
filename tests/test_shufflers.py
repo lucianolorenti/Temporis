@@ -171,3 +171,4 @@ class TestShufflers:
         for i in range(3):
             g = [elem[0] for elem in generated if elem[0] == i]
             assert len(g) == math.ceil(it.dataset.sizes[i] / step)
+

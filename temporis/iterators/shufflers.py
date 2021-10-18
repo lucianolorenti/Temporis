@@ -279,9 +279,12 @@ class AllShuffled(AbstractShuffler):
         )
 
     def timestamp(self) -> int:
-        ret = self.timestamps_per_ts[self.current_time_series][
-            self.timestamps_per_ts_indices[self.current_time_series]
-        ]
+        try:
+            ret = self.timestamps_per_ts[self.current_time_series][
+                self.timestamps_per_ts_indices[self.current_time_series]
+            ]
+        except:
+            raise StopIteration
         self.timestamps_per_ts_indices[self.current_time_series] += 1
         return ret
 
