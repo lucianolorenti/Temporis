@@ -97,7 +97,7 @@ class TestModels():
     def test_sklearn(self):
         features = ['feature1', 'feature2']
         x = ByNameFeatureSelector(features)
-        x = PandasMinMaxScaler((-1, 1))(x)
+        x = MinMaxScaler((-1, 1))(x)
 
         y = ByNameFeatureSelector(['RUL'])
         transformer = lambda : Transformer(x, y)
