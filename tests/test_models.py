@@ -11,9 +11,8 @@ from temporis.iterators.utils import true_values
 from temporis.models.keras import tf_regression_dataset
 from temporis.models.scikitlearn import (EstimatorWrapper,
                                          SKLearnTimeSeriesWindowTransformer)
-from temporis.transformation import TemporisPipeline, Transformer
-from temporis.transformation.features.scalers import (MinMaxScaler,
-                                                      PandasMinMaxScaler)
+from temporis.transformation import Transformer
+from temporis.transformation.features.scalers import (MinMaxScaler)
 from temporis.transformation.features.selection import ByNameFeatureSelector
 
 
