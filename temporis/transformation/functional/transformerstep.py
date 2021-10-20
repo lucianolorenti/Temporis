@@ -21,5 +21,12 @@ class TransformerStep(TransformerStepMixin,  TransformerMixin):
             raise ValueError("{cname} is not present in the dataset")
         return columns[0]
 
+    def find_feature(self, X:pd.DataFrame, name:str) -> Optional[str]:
+        matches = [c for c in X.columns if name in c]
+        if len(matches) > 0:
+            return matches[0]
+        else:
+            return None
+
 
 

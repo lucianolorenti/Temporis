@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-from temporis.transformation.features.scalers import PandasMinMaxScaler
+from temporis.transformation.features.scalers import MinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
 from temporis.transformation.features.transformation import MeanCentering
 from temporis.transformation import Transformer
@@ -59,7 +59,7 @@ class TestPipeline:
 
         pipe = ByNameFeatureSelector(["a", "b"])
         pipe = MeanCentering()(pipe)
-        pipe = PandasMinMaxScaler((-1, 1), name='Scaler')(pipe)
+        pipe = MinMaxScaler((-1, 1), name='Scaler')(pipe)
 
         target_pipe = ByNameFeatureSelector(["RUL"])
 
@@ -83,12 +83,12 @@ class TestPipeline:
 
         pipe_a = ByNameFeatureSelector(["a"])
         pipe_a = MeanCentering()(pipe_a)
-        scaler_a =  PandasMinMaxScaler((-1, 1), name="a")
+        scaler_a =  MinMaxScaler((-1, 1), name="a")
         pipe_a =scaler_a(pipe_a)
 
         pipe_b = ByNameFeatureSelector(["b"])
         pipe_b = MeanCentering()(pipe_b)
-        scaler_b = PandasMinMaxScaler((-1, 1), name="b")
+        scaler_b = MinMaxScaler((-1, 1), name="b")
         pipe_b = scaler_b(pipe_b)
 
         pipe = TransformationConcatenate()([pipe_a, pipe_b])
@@ -113,10 +113,10 @@ class TestPipeline:
         dataset = MockDataset1()
 
         pipe = ByNameFeatureSelector(["a"])
-        pipe = PandasMinMaxScaler((-1, 1))(pipe)
+        pipe = MinMaxScaler((-1, 1))(pipe)
 
         pipe2 = ByNameFeatureSelector(["b"])
-        pipe2 = PandasMinMaxScaler((-5, 0))(pipe2)
+        pipe2 = MinMaxScaler((-5, 0))(pipe2)
 
         pipe = TransformationConcatenate()([pipe, pipe2])
         pipe = MeanCentering()(pipe)
