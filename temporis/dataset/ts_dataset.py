@@ -209,6 +209,16 @@ class AbstractTimeSeriesDataset:
             .columns.values
         )
 
+    def categorical_features(self, show_progress: bool = False) -> List[str]:
+        features = self.common_features(show_progress=show_progress)
+        df = self.get_time_series(0)
+        return list(
+            df.loc[:, features]
+            .select_dtypes(exclude=[np.number, "datetime", "timedelta"])
+            .columns.values
+        )
+
+
 
 class FoldedDataset(AbstractTimeSeriesDataset):
     def __init__(self, dataset: AbstractTimeSeriesDataset, indices: list):

@@ -35,7 +35,7 @@ def true_values(
         dataset_iterator = dataset_iterator.iterator
     if isinstance(dataset_iterator, AbstractTimeSeriesDataset):
         dataset_iterator = WindowedDatasetIterator(
-            dataset_iterator, window_size=1, shuffle=False
+            dataset_iterator, window_size=1
         )
     if TENSORFLOW:
         if isinstance(dataset_iterator, tf.data.Dataset):

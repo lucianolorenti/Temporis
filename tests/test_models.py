@@ -1,14 +1,19 @@
 
 
-from temporis.iterators.iterators import WindowedDatasetIterator
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.iterators.batcher import Batcher
+from temporis.iterators.iterators import WindowedDatasetIterator
+from temporis.iterators.utils import true_values
 from temporis.models.keras import tf_regression_dataset
-from temporis.transformation.features.scalers import MinMaxScaler
+from temporis.models.scikitlearn import (EstimatorWrapper,
+                                         SKLearnTimeSeriesWindowTransformer)
+from temporis.transformation import Transformer
+from temporis.transformation.features.scalers import (MinMaxScaler)
 from temporis.transformation.features.selection import ByNameFeatureSelector
-from temporis.transformation import (TemporisPipeline, Transformer)
 
 
 class SimpleDataset(AbstractTimeSeriesDataset):
@@ -88,6 +93,28 @@ class TestModels():
         b1 = tf_regression_dataset(iterator).batch(15)
         assert b1.take(1)
 
+
+    def test_sklearn(self):
+        features = ['feature1', 'feature2']
+        x = ByNameFeatureSelector(features)
+        x = MinMaxScaler((-1, 1))(x)
+
+        y = ByNameFeatureSelector(['RUL'])
+        transformer = lambda : Transformer(x, y)
+        ds = MockDataset(5)   
+
+        transformer = SKLearnTimeSeriesWindowTransformer(transformer, window_size=5)
+        pipe = make_pipeline(
+            transformer,
+            EstimatorWrapper(LinearRegression())
+        )
+        pipe.fit(ds)
+        
+        y_pred = pipe.predict(ds)
+        y_true = transformer.true_values(ds)
+
+        mse = np.sum((y_pred -y_true)**2)
+        assert mse < 0.01
 
         
 
