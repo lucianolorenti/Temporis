@@ -26,14 +26,17 @@ class AbstractShuffler:
     def next_element(
         self, valid_timestmap: Optional[Callable[[int], bool]] = None
     ) -> Tuple[int, int]:
-        if self.at_end():
-            raise StopIteration
 
-        ts_index = self.time_series()
-        timestamp = self.timestamp()
-        if valid_timestmap:
-            while not valid_timestmap(timestamp):
-                timestamp = self.timestamp()
+        valid = False
+        while not valid:
+            if self.at_end():
+                raise StopIteration
+            ts_index = self.time_series()
+            timestamp = self.timestamp()
+            if valid_timestmap:
+                valid = valid_timestmap(timestamp)
+            else:
+                valid = True
         return ts_index, timestamp
 
     def start(self, iterator: "WindowedDatasetIterator"):
@@ -266,25 +269,25 @@ class AllShuffled(AbstractShuffler):
 
     def time_series(self) -> int:
         l = np.random.randint(self.wditerator.dataset.n_time_series)
+
         while (
             self.number_samples_of_time_series(l) == self.timestamps_per_ts_indices[l]
         ):
             l = np.random.randint(self.wditerator.dataset.n_time_series)
         self.current_time_series = l
+
         return self.current_time_series
 
     def at_end(self) -> bool:
+
         return np.sum(self._samples_per_time_series) == np.sum(
             self.timestamps_per_ts_indices
         )
 
     def timestamp(self) -> int:
-        try:
-            ret = self.timestamps_per_ts[self.current_time_series][
-                self.timestamps_per_ts_indices[self.current_time_series]
-            ]
-        except:
-            raise StopIteration
+        ret = self.timestamps_per_ts[self.current_time_series][
+            self.timestamps_per_ts_indices[self.current_time_series]
+        ]
         self.timestamps_per_ts_indices[self.current_time_series] += 1
         return ret
 

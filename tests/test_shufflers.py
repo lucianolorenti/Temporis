@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+from temporis.iterators.iterators import WindowedDatasetIterator
 from temporis.iterators.shufflers import (
     AbstractShuffler,
     AllShuffled,
@@ -36,9 +37,24 @@ class MockDataset:
         return 3
 
 
+class MockDatasetBig:
+    def __init__(self):
+        self.sizes = [55, 32, 59, 125, 6046]
+
+    def __getitem__(self, id: int):
+        return MockDataFrame(self.sizes[id])
+
+    def number_of_samples_of_time_series(self, id: int):
+        return self.sizes[id]
+
+    @property
+    def n_time_series(self):
+        return 5
+
+
 class MockIterator:
-    def __init__(self, step: int = 1):
-        self.dataset = MockDataset()
+    def __init__(self,  step: int = 1, dataset=MockDataset(),):
+        self.dataset = dataset
         self.step = step
 
 
@@ -169,6 +185,16 @@ class TestShufflers:
         generated = [e for e in x.iterator(it)]
         assert len(generated) == np.sum(np.ceil(np.array(it.dataset.sizes) / step))
         for i in range(3):
+            g = [elem[0] for elem in generated if elem[0] == i]
+            assert len(g) == math.ceil(it.dataset.sizes[i] / step)
+
+
+        step = 4
+        x = AllShuffled()
+        it = WindowedDatasetIterator(MockDatasetBig(), window_size=5, step=step, shuffler=AllShuffled())
+        generated = [e for e in x.iterator(it)]
+        assert len(generated) == np.sum(np.ceil(np.array(it.dataset.sizes) / step))
+        for i in range(5):
             g = [elem[0] for elem in generated if elem[0] == i]
             assert len(g) == math.ceil(it.dataset.sizes[i] / step)
 

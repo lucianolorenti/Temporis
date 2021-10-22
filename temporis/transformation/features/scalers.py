@@ -115,7 +115,7 @@ class MinMaxScaler(TransformerStep):
         self.clip = clip
 
     def partial_fit(self, df, y=None):
-        import time 
+
 
         partial_data_min = df.min(skipna=True)
         partial_data_max = df.max(skipna=True)
@@ -137,11 +137,17 @@ class MinMaxScaler(TransformerStep):
         return self
 
     def transform(self, X):
-        X = (
-            (X - self.data_min)
-            / (self.data_max - self.data_min)
-            * (self.max - self.min)
-        ) + self.min
+        try:
+            X = (
+                (X - self.data_min)
+                / (self.data_max - self.data_min)
+                * (self.max - self.min)
+            ) + self.min
+        except:
+            print(X)
+            print(self.data_min)
+            print(self.data_max)
+            raise
         if self.clip:
             X.clip(lower=self.min, upper=self.max, inplace=True)
         return X
@@ -277,8 +283,10 @@ class PerCategoricalMinMaxScaler(TransformerStep):
             self.categorical_feature_name = self.find_feature(X, self.categorical_feature)
         for category, data in X.groupby(self.categorical_feature_name):
             data = data.drop(columns=[self.categorical_feature_name])
-            self.scalers[category] = self.scaler(**self.scaler_params)               
+            if category not in self.scalers:
+                self.scalers[category] = self.scaler(**self.scaler_params)               
             self.scalers[category].partial_fit(data)
+            self.scalers["default"].partial_fit(data)
 
     def transform(self, X:pd.DataFrame):
      
