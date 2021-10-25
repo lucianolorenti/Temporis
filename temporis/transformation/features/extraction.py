@@ -10,9 +10,11 @@ from numpy.lib.arraysetops import isin
 from pandas.core.window.expanding import Expanding
 from sklearn.base import TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
-from temporis.transformation.features.extraction_numba import (compute,
-                                                               roll_matrix,
-                                                               stats_order)
+from temporis.transformation.features.extraction_numba import (
+    compute,
+    roll_matrix,
+    stats_order,
+)
 from temporis.transformation.features.hurst import hurst_exponent
 from temporis.transformation import TransformerStep
 
@@ -656,6 +658,7 @@ class RollingStatisticsPandas(TransformerStep):
         self.window = window
         self.min_points = min_points
         valid_stats = [
+            "mean",
             "kurtosis",
             "skewness",
             "max",
@@ -671,6 +674,7 @@ class RollingStatisticsPandas(TransformerStep):
         ]
         if to_compute is None:
             self.to_compute = [
+                "mean",
                 "kurtosis",
                 "skewness",
                 "max",
@@ -697,6 +701,9 @@ class RollingStatisticsPandas(TransformerStep):
 
     def fit(self, X, y=None):
         return self
+
+    def _mean(self, s: pd.Series):
+        return s.rolling(self.window, self.min_points).mean(skipna=True)
 
     def _kurtosis(self, s: pd.Series):
         return s.rolling(self.window, self.min_points).kurt(skipna=True)
@@ -748,7 +755,11 @@ class RollingStatisticsPandas(TransformerStep):
         return self._peak(s) / self._rms(s)
 
     def transform(self, X):
-        X_new = pd.DataFrame(index=X.index)
+        columns = []
+        for c in X.columns:
+            for stats in self.to_compute:
+                columns.append(f"{c}_{stats}")
+        X_new = pd.DataFrame(index=X.index, columns=columns)
         for c in X.columns:
             for stats in self.to_compute:
                 X_new[f"{c}_{stats}"] = getattr(self, f"_{stats}")(X[c])
@@ -923,7 +934,7 @@ class ExpandingStatistics(TransformerStep):
         s_abs_sqrt: Expanding,
         s_sq: Expanding,
     ):
-        return (x - s.mean(skipna=True)) / (s.std(skipna=True)+0.00000000001)
+        return (x - s.mean(skipna=True)) / (s.std(skipna=True) + 0.00000000001)
 
     def _clearance(
         self,
@@ -988,8 +999,8 @@ class ExpandingStatistics(TransformerStep):
         )
 
     def transform(self, X):
-        
-        X_new_n_columns = len(X.columns)*len(self.to_compute)
+
+        X_new_n_columns = len(X.columns) * len(self.to_compute)
         i = 0
         columns = np.empty((X_new_n_columns,), dtype=object)
         for c in X.columns:
@@ -997,8 +1008,7 @@ class ExpandingStatistics(TransformerStep):
                 columns[i] = f"{c}_{stats}"
                 i += 1
 
-        X_new = pd.DataFrame(index=X.index,
-                             columns=columns)
+        X_new = pd.DataFrame(index=X.index, columns=columns)
         expanding = X.expanding(self.min_points)
         s_abs = X.abs().expanding(self.min_points)
         s_abs_sqrt = X.abs().pow(1.0 / 2).expanding(self.min_points)
