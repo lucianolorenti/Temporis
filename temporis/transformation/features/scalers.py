@@ -64,11 +64,11 @@ class RobustMinMaxScaler(TransformerStep):
                 self.computed_limits[c] = {'min':0, 'max': 0}
 
         for c in df.columns:
-            self.quantile_estimator[c].batch_update(df[c].values)
-            self.quantile_estimator[c].batch_update(df[c].values)
+            self.quantile_estimator[c].merge_unsorted(df[c].values)
+            self.quantile_estimator[c].merge_unsorted(df[c].values)
 
-            self.computed_limits[c]['min'] = self.scalers[c].estimateQuantile(self.lower_quantile)
-            self.computed_limits[c]['max'] = self.scalers[c].estimateQuantile(self.upper_quantile)
+            self.computed_limits[c]['min'] = self.quantile_estimator[c].estimate_quantile(self.lower_quantile)
+            self.computed_limits[c]['max'] = self.quantile_estimator[c].estimate_quantile(self.upper_quantile)
 
     
     def transform(self, X:pd.DataFrame):
@@ -79,9 +79,9 @@ class RobustMinMaxScaler(TransformerStep):
             if self.clip:
                 X[c].clip(lower=lower_limit, upper=upper_limit, inplace=True)
 
-            if self.scale:
-                t_data_c_std = (X[c] - lower_limit) / (upper_limit - lower_limit)
-                X[c] = t_data_c_std * (upper_limit - lower_limit) + lower_limit
+        
+            t_data_c_std = (X[c] - lower_limit) / (upper_limit - lower_limit)
+            X[c] = t_data_c_std * (upper_limit - lower_limit) + lower_limit
 
         return X
             
