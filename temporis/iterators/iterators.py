@@ -44,24 +44,25 @@ class WindowedDatasetIterator:
                  sample_weight:  SampleWeight= NotWeighted(),
                  add_last: bool = True):
 
-        self.dataset = dataset 
+        self.dataset = dataset
         self.shuffler = shuffler
-        self.shuffler.initialize(self)
         self.window_size = window_size
         self.step = step
+        self.shuffler.initialize(self)
+
         if not isinstance(sample_weight, AbstractSampleWeights) or not callable(sample_weight):
             raise ValueError('sample_weight should be an AbstractSampleWeights or a callable')
 
         self.sample_weight = sample_weight
-        
+
         self.i = 0
         self.output_size = output_size
         self.add_last = add_last
         self.length = None
-    
+
     @property
     def output_shape(self):
-        return self.output_size 
+        return self.output_size
 
     def __len__(self):
         """
@@ -79,14 +80,14 @@ class WindowedDatasetIterator:
         self.i = 0
         self.shuffler.start(self)
         return self
-    
+
     def __next__(self):
         life, timestamp = self.shuffler.next_element(lambda x: x >= self.window_size -1)
         X, y, metadata = self.dataset[life]
         window = windowed_signal_generator(
             X, y, timestamp, self.window_size, self.output_size, self.add_last)
         return window[0], window[1], [self.sample_weight(y, timestamp, metadata)]
-        
+
 
     def get_data(self):
         N_points = len(self)
@@ -101,9 +102,9 @@ class WindowedDatasetIterator:
             X[i, :] = X_.flatten()
             y[i, :] = y_.flatten()
             sample_weight[i] = sample_weight_[0]
-        return X, y, sample_weight 
+        return X, y, sample_weight
 
-    
+
     @property
     def n_features(self) -> int:
         """Number of features of the transformed dataset
@@ -157,6 +158,7 @@ def windowed_signal_generator(signal_X, signal_y, i: int, window_size: int, outp
     """
     initial = max(i - window_size+1, 0)
     signal_X_1 = signal_X[initial:i + (1 if add_last else 0), :]
+
     if len(signal_y.shape) == 1:
 
         signal_y_1 = signal_y[i:min(i+output_size, signal_y.shape[0])]
