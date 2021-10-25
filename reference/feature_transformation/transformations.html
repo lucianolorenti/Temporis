@@ -56,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="step.html">Feature transformation step</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Transformations</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.imputers">Imputers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.denoising">Denoising</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#denoising">Denoising</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.extraction">Extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.selection">Selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.scalers">Scalers</a></li>
@@ -369,171 +369,8 @@ replaced by the output of the function supplied</p>
 </dd></dl>
 
 </section>
-<section id="module-temporis.transformation.features.denoising">
-<span id="denoising"></span><h2>Denoising<a class="headerlink" href="#module-temporis.transformation.features.denoising" title="Permalink to this headline"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.EWMAFilter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">EWMAFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_periods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.EWMAFilter" title="Permalink to this definition"></a></dt>
-<dd><p>Filter each feature using a rolling median filter</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>window</strong> (<em>int</em>) – Size of the rolling window</p></li>
-<li><p><strong>min_periods</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of points of the rolling window, by default 15</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.EWMAFilter.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.denoising.EWMAFilter.transform" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.MeanFilter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">MeanFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_periods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.MeanFilter" title="Permalink to this definition"></a></dt>
-<dd><p>Filter each feature using a rolling mean filter</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>window</strong> (<em>int</em>) – Size of the rolling window</p></li>
-<li><p><strong>min_periods</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of points of the rolling window, by default 15</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.MeanFilter.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.denoising.MeanFilter.transform" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.MedianFilter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">MedianFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_periods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.MedianFilter" title="Permalink to this definition"></a></dt>
-<dd><p>Filter each feature using a rolling median filter</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>window</strong> (<em>int</em>) – Size of the rolling window</p></li>
-<li><p><strong>min_periods</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of points of the rolling window, by default 15</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.MedianFilter.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.denoising.MedianFilter.transform" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.MultiDimensionalKMeans">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">MultiDimensionalKMeans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_clusters</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.MultiDimensionalKMeans" title="Permalink to this definition"></a></dt>
-<dd><p>Clusterize data points and replace each feature with the centroid feature its belong</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_clusters</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of clusters to obtain by default 5</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.MultiDimensionalKMeans.partial_fit">
-<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.MultiDimensionalKMeans.partial_fit" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.MultiDimensionalKMeans.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.denoising.MultiDimensionalKMeans.transform" title="Permalink to this definition"></a></dt>
-<dd><p>Transform the input life with the centroid information</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – Input life</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A new DataFrame in which each point was replaced by the
-centroid its belong</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.OneDimensionalKMeans">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">OneDimensionalKMeans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_clusters</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.OneDimensionalKMeans" title="Permalink to this definition"></a></dt>
-<dd><p>Clusterize each feature into a number of clusters</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n_clusters</strong> (<em>int</em>) – Number of clusters to obtain per cluster</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.OneDimensionalKMeans.partial_fit">
-<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.OneDimensionalKMeans.partial_fit" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.OneDimensionalKMeans.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.denoising.OneDimensionalKMeans.transform" title="Permalink to this definition"></a></dt>
-<dd><p>Transform the input dataframe</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – Input life</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A new DataFrame with the same index as the input.
-Each feature is replaced with the clusters of each point</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.SavitzkyGolayTransformer">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">SavitzkyGolayTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.SavitzkyGolayTransformer" title="Permalink to this definition"></a></dt>
-<dd><p>Filter each feature using LOESS</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>window</strong> (<em>int</em>) – Window size of the filter</p></li>
-<li><p><strong>order</strong> (<em>int</em><em>, </em><em>optional</em>) – Order of the filter, by default 2</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Step name, by default None</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.denoising.SavitzkyGolayTransformer.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.denoising.SavitzkyGolayTransformer.transform" title="Permalink to this definition"></a></dt>
-<dd><p>Return a new dataframe with the features filtered</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – Input life</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A new DatafFrame with the same index as the input with the features filtered</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="denoising">
+<h2>Denoising<a class="headerlink" href="#denoising" title="Permalink to this headline"></a></h2>
 </section>
 <section id="module-temporis.transformation.features.extraction">
 <span id="extraction"></span><h2>Extraction<a class="headerlink" href="#module-temporis.transformation.features.extraction" title="Permalink to this headline"></a></h2>
@@ -879,59 +716,8 @@ of the input column</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatisticsNumba">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.extraction.</span></span><span class="sig-name descname"><span class="pre">RollingStatisticsNumba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_periods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_features</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatisticsNumba" title="Permalink to this definition"></a></dt>
-<dd><p>Compute diverse number of features using an rolling window. Numba implementation</p>
-<p>For each feature present in the life a number of feature will be computed for each time stamp
-Features from time and frequency domain can be computed</p>
-<p>The possible features are:</p>
-<p>Time domain:</p>
-<ul class="simple">
-<li><p>Kurtosis</p></li>
-<li><p>Skewness</p></li>
-<li><p>Max</p></li>
-<li><p>Min</p></li>
-<li><p>Std</p></li>
-<li><p>Peak</p></li>
-<li><p>Impulse</p></li>
-<li><p>Clearance</p></li>
-<li><p>RMS</p></li>
-<li><p>Shape</p></li>
-<li><p>Crest</p></li>
-</ul>
-<p>Frequency Domain:</p>
-<ul class="simple">
-<li><p>fft_centroid: Centroid of the abscolute FT</p></li>
-<li><p>fft_variance: Variance of the abscolute FT</p></li>
-<li><p>fft_skew: Skewness of the abscolute FT</p></li>
-<li><p>fft_kurtosis: Kurtosis of the abscolute FT</p></li>
-<li><p>ps_centroid: Power spectrum centroid</p></li>
-<li><p>ps_variance: Power spectrum variance</p></li>
-<li><p>ps_skew: Power spectrum skewness</p></li>
-<li><p>ps_kurtosis: Power spectrum skewness</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>window</strong> (<em>int</em>) – Size of the rolling window</p></li>
-<li><p><strong>min_periods</strong> (<em>int</em><em>, </em><em>optional</em>) – The minimun number of points of the expanding window, by default 15</p></li>
-<li><p><strong>time</strong> (<em>bool</em>) – Wether to compute time domain features, by default True.</p></li>
-<li><p><strong>frequency</strong> (<em>bool = True</em><em>,</em>) – Wether to compute frequency domain features, by default True.</p></li>
-<li><p><strong>select_features</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Name of features to keep</p></li>
-<li><p><strong>name</strong> (<em>Optiona</em><em>[</em><em>str</em><em>]</em>) – Name of the step, by default None</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatisticsNumba.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatisticsNumba.transform" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatisticsPandas">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.extraction.</span></span><span class="sig-name descname"><span class="pre">RollingStatisticsPandas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_compute</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatisticsPandas" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatistics">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.extraction.</span></span><span class="sig-name descname"><span class="pre">RollingStatistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_compute</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatistics" title="Permalink to this definition"></a></dt>
 <dd><p>Compute diverse number of features using an rolling window. Pandas implementation</p>
 <p>For each feature present in the life a number of feature will be computed for each time stamp</p>
 <p>The possible features are:</p>
@@ -974,18 +760,18 @@ Features from time and frequency domain can be computed</p>
 :param name: Name of the step, by default None
 :type name: Optiona[str]</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatisticsPandas.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatisticsPandas.fit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatistics.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatistics.fit" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatisticsPandas.partial_fit">
-<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatisticsPandas.partial_fit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatistics.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatistics.partial_fit" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatisticsPandas.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatisticsPandas.transform" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="temporis.transformation.features.extraction.RollingStatistics.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.RollingStatistics.transform" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
