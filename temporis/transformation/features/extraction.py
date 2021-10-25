@@ -8,13 +8,8 @@ import numpy as np
 import pandas as pd
 from numpy.lib.arraysetops import isin
 from pandas.core.window.expanding import Expanding
-from sklearn.base import TransformerMixin
-from sklearn.feature_extraction.text import CountVectorizer
-from temporis.transformation.features.extraction_numba import (
-    compute,
-    roll_matrix,
-    stats_order,
-)
+
+
 from temporis.transformation.features.hurst import hurst_exponent
 from temporis.transformation import TransformerStep
 
@@ -504,113 +499,7 @@ class LifeStatistics(TransformerStep):
         return X_new
 
 
-class RollingStatisticsNumba(TransformerStep):
-    """Compute diverse number of features using an rolling window. Numba implementation
-
-    For each feature present in the life a number of feature will be computed for each time stamp
-    Features from time and frequency domain can be computed
-
-    The possible features are:
-
-    Time domain:
-
-    - Kurtosis
-    - Skewness
-    - Max
-    - Min
-    - Std
-    - Peak
-    - Impulse
-    - Clearance
-    - RMS
-    - Shape
-    - Crest
-
-    Frequency Domain:
-
-    - fft_centroid: Centroid of the abscolute FT
-    - fft_variance: Variance of the abscolute FT
-    - fft_skew: Skewness of the abscolute FT
-    - fft_kurtosis: Kurtosis of the abscolute FT
-    - ps_centroid: Power spectrum centroid
-    - ps_variance: Power spectrum variance
-    - ps_skew: Power spectrum skewness
-    - ps_kurtosis: Power spectrum skewness
-
-    Parameters
-    ----------
-    window:int
-        Size of the rolling window
-    min_periods : int, optional
-        The minimun number of points of the expanding window, by default 15
-    time: bool
-        Wether to compute time domain features, by default True.
-    frequency: bool = True,
-        Wether to compute frequency domain features, by default True.
-    select_features : Optional[List[Str]], optional
-        Name of features to keep
-    name: Optiona[str]
-        Name of the step, by default None
-
-    """
-
-    def __init__(
-        self,
-        window: int,
-        min_periods: int = 15,
-        time: bool = True,
-        frequency: bool = True,
-        select_features: Optional[list] = None,
-        name: Optional[str] = None,
-    ):
-        super().__init__(name)
-        self.window = window
-        self.min_periods = min_periods
-        self.fs = 1
-        self.time = time
-        self.frequency = frequency
-        self.select_features = select_features
-
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-
-        columns = []
-        stat_columns_dict = {}
-        for column in X.columns:
-            for stat in stats_order(time=self.time, frequency=self.frequency):
-                new_cname = f"{column}_{stat}"
-                stat_columns_dict.setdefault(column, []).append(len(columns))
-                columns.append(new_cname)
-
-        X_new = pd.DataFrame(
-            np.zeros((len(X.index), len(columns))),
-            index=X.index,
-            columns=columns,
-            dtype=np.float32,
-        )
-        X_values = X.values
-        X_new_values = X_new.values
-        roll_matrix(
-            X_values,
-            self.window,
-            self.min_periods,
-            X_new_values,
-            time=self.time,
-            frequency=self.frequency,
-        )
-        if self.select_features:
-            selected_columns = []
-            for c in X_new.columns:
-                for f in self.select_features:
-                    if f in c:
-                        selected_columns.append(c)
-                        break
-
-            X_new = X_new.loc[:, selected_columns]
-
-        return X_new
-
-
-class RollingStatisticsPandas(TransformerStep):
+class RollingStatistics(TransformerStep):
     """Compute diverse number of features using an rolling window. Pandas implementation
 
     For each feature present in the life a number of feature will be computed for each time stamp

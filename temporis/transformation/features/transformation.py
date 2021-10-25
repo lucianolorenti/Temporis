@@ -1,25 +1,19 @@
-
-import logging
 from typing import Optional
 
-import emd
-import numpy as np
+
 import pandas as pd
-from temporis.transformation.features.extraction import (compute, roll_matrix,
-                                                       stats_order)
 from temporis.transformation import TransformerStep
 
 
-
 class MeanCentering(TransformerStep):
-    """Center the data with respect to the mean
-    """
+    """Center the data with respect to the mean"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.N = 0
         self.sum = None
 
-    def fit(self, X:pd.DataFrame, y=None):
+    def fit(self, X: pd.DataFrame, y=None):
         """Compute the mean of the dataset
 
         Parameters
@@ -35,7 +29,7 @@ class MeanCentering(TransformerStep):
         """
         self.mean = X.mean()
 
-    def partial_fit(self, X:pd.DataFrame, y=None):
+    def partial_fit(self, X: pd.DataFrame, y=None):
         """Compute incrementally the mean of the dataset
 
         Parameters
@@ -57,7 +51,7 @@ class MeanCentering(TransformerStep):
         self.mean = self.sum / self.N
         return self
 
-    def transform(self, X:pd.DataFrame)->pd.DataFrame:
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Center the input life
 
         Parameters
@@ -68,16 +62,16 @@ class MeanCentering(TransformerStep):
         Returns
         -------
         pd.DataFrame
-            A new DataFrame with the same index as the input with the 
+            A new DataFrame with the same index as the input with the
             data centered with respect to the mean of the fiited dataset
         """
         return X - self.mean
 
 
 class Square(TransformerStep):
-    """Compute the square of the values of each feature
-    """
-    def transform(self, X:pd.DataFrame)->pd.DataFrame:
+    """Compute the square of the values of each feature"""
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Transform the input life with the square of the values
 
         Parameters
@@ -91,12 +85,13 @@ class Square(TransformerStep):
             A new dataframe with the same index as the input with
             the square of the values
         """
-        return (X.pow(2))
+        return X.pow(2)
+
 
 class Sqrt(TransformerStep):
-    """Compute the sqrt of the values of each feature
-    """
-    def transform(self, X:pd.DataFrame)->pd.DataFrame:
+    """Compute the sqrt of the values of each feature"""
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Transform the input life with the sqrt of the values
 
         Parameters
@@ -110,7 +105,7 @@ class Sqrt(TransformerStep):
             A new dataframe with the same index as the input with
             the sqrt of the values
         """
-        return (X.pow(1./2))
+        return X.pow(1.0 / 2)
 
 
 class Scale(TransformerStep):
@@ -123,6 +118,7 @@ class Scale(TransformerStep):
     name : Optional[str], optional
         Name of the step, by default None
     """
+
     def __init__(self, scale_factor: float, name: Optional[str] = None):
         super().__init__(name)
         self.scale_factor = scale_factor
@@ -143,8 +139,6 @@ class Scale(TransformerStep):
         return X * self.scale_factor
 
 
-
-
 class ExpandingCentering(TransformerStep):
     """Center the life using an expanding window
 
@@ -154,7 +148,8 @@ class ExpandingCentering(TransformerStep):
         X - X.expanding().mean()
 
     """
-    def transform(self, X:pd.DataFrame) -> pd.DataFrame:
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Transform the live centering it using an expanding window
 
         Parameters
@@ -165,7 +160,7 @@ class ExpandingCentering(TransformerStep):
         Returns
         -------
         pd.DataFrame
-            Return a new DataFrame with the same index as the input with the 
+            Return a new DataFrame with the same index as the input with the
             data centered
         """
         return X - X.expanding().mean()
@@ -173,13 +168,14 @@ class ExpandingCentering(TransformerStep):
 
 class ExpandingNormalization(TransformerStep):
     """Normalize the life features using an expanding window
-    
+
     .. highlight:: python
     .. code-block:: python
 
         (X - X.expanding().mean()) / (X.expanding().std())
-   
+
     """
+
     def transform(self, X):
         """Transform the live normalized it using an expanding window
 
@@ -191,11 +187,10 @@ class ExpandingNormalization(TransformerStep):
         Returns
         -------
         pd.DataFrame
-            Return a new DataFrame with the same index as the input with the 
+            Return a new DataFrame with the same index as the input with the
             data normalized
         """
         return (X - X.expanding().mean()) / (X.expanding().std())
-
 
 
 class Accumulate(TransformerStep):
@@ -203,7 +198,8 @@ class Accumulate(TransformerStep):
 
     This is useful for binary features to compute count
     """
-    def transform(self, X:pd.DataFrame) -> pd.DataFrame:
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Transform the input life computing the cumulated sum
 
         Parameters
@@ -221,8 +217,8 @@ class Accumulate(TransformerStep):
 
 
 class Diff(TransformerStep):
-    """Compute the 1 step difference of each feature.
-    """
+    """Compute the 1 step difference of each feature."""
+
     def transform(self, X):
         """Transform the input life computing the 1 step difference
 
@@ -240,11 +236,9 @@ class Diff(TransformerStep):
         return X.diff()
 
 
-
-
 class StringConcatenate(TransformerStep):
-    """Compute the 1 step difference of each feature.
-    """
+    """Compute the 1 step difference of each feature."""
+
     def transform(self, X):
         """Transform the input life computing the 1 step difference
 
@@ -260,5 +254,5 @@ class StringConcatenate(TransformerStep):
             with the difference of the features
         """
         new_X = pd.DataFrame(index=X.index)
-        new_X['concatenation'] = X.agg('-'.join, axis=1)
+        new_X["concatenation"] = X.agg("-".join, axis=1)
         return new_X
