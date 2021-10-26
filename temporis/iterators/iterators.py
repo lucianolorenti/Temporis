@@ -23,7 +23,7 @@ class NotWeighted(AbstractSampleWeights):
 
 class RULInverseWeighted(AbstractSampleWeights):
     def __call__(self, y, i: int, metadata):
-        return ((1 / (y.iloc[i]+1)))
+        return ((1 / (y[i,0]+1)))
 
 class InverseToLengthWeighted(AbstractSampleWeights):
     def __call__(self, y, i: int, metadata):
