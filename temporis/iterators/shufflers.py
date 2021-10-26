@@ -277,10 +277,8 @@ class AllShuffled(AbstractShuffler):
         return self.current_time_series
 
     def at_end(self) -> bool:
-
-        return np.sum(self._samples_per_time_series) == np.sum(
-            self.timestamps_per_ts_indices
-        )
+        return (self._samples_per_time_series == self.timestamps_per_ts_indices).all()
+        
 
     def timestamp(self) -> int:
         ret = self.timestamps_per_ts[self.current_time_series][

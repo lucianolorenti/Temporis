@@ -60,14 +60,15 @@ class MeanFilter(TransformerStep):
     name : Optional[str], optional
         Name of the step, by default None
     """
-    def __init__(self, window: int, min_periods: int = 15, name: Optional[str] = None):
+    def __init__(self, window: int, center=True, min_periods: int = 15, name: Optional[str] = None):
 
         super().__init__(name)
         self.window = window
         self.min_periods = min_periods
+        self.center= center
 
     def transform(self, X:pd.DataFrame, y=None) -> pd.DataFrame:
-        return X.rolling(self.window, min_periods=self.min_periods).mean(skip_na=True)
+        return X.rolling(self.window, min_periods=self.min_periods, center=self.center).mean(skip_na=True)
 
 
 class MedianFilter(TransformerStep):
