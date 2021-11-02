@@ -20,6 +20,12 @@ from tensorflow.keras.layers import Dense, Dropout, Flatten
 from xgboost import XGBRegressor
 
 
+from numpy.random import seed
+seed(1)
+import tensorflow as tf 
+tf.random.set_seed(2)
+
+
 class SimpleDataset(AbstractTimeSeriesDataset):
     def __init__(self):
 
@@ -133,7 +139,7 @@ class TestModels():
         transformer.fit(ds)
         train_dataset = ds[range(0, 4)]
         val_dataset = ds[range(4, 5)]
-        window_size = 2
+        window_size = 6
         train_iterator = WindowedDatasetIterator(
             train_dataset.map(transformer),
             window_size=window_size,
@@ -148,7 +154,7 @@ class TestModels():
         input = Input(shape=train_iterator.input_shape)
         x = input
         x = Flatten()(x)
-        x = Dense(5, activation="relu")(x)
+        x = Dense(8, activation="relu")(x)
         x = Dense(5, activation="relu")(x)
         x = Dense(1)(x)
         model = Model(inputs=[input], outputs=[x])
