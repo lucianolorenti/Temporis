@@ -2,18 +2,22 @@
 
 import numpy as np
 import pandas as pd
+from temporis.models.scikitlearn import predict, train_model
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import make_pipeline
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-from temporis.iterators.batcher import Batcher
 from temporis.iterators.iterators import WindowedDatasetIterator
+from temporis.iterators.shufflers import AllShuffled
 from temporis.iterators.utils import true_values
 from temporis.models.keras import tf_regression_dataset
 from temporis.models.scikitlearn import (EstimatorWrapper,
                                          SKLearnTimeSeriesWindowTransformer)
 from temporis.transformation import Transformer
-from temporis.transformation.features.scalers import (MinMaxScaler)
+from temporis.transformation.features.scalers import MinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
+from tensorflow.keras import Input, Model
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from xgboost import XGBRegressor
 
 
 class SimpleDataset(AbstractTimeSeriesDataset):
@@ -43,8 +47,8 @@ class MockDataset(AbstractTimeSeriesDataset):
 
         self.lives = [
             pd.DataFrame({
-                'feature1': np.linspace(0, (i+1)*100, 50),
-                'feature2': np.linspace(-25, (i+1)*500, 50),
+                'feature1': np.linspace(0, 5*100, 50),
+                'feature2': np.linspace(-25, 5*500, 50),
                 'RUL': np.linspace(100, 0, 50)
             })
             for i in range(nlives-1)]
@@ -118,3 +122,70 @@ class TestModels():
 
         
 
+    def test_keras(self):
+
+        features = ["feature1", "feature2"]
+        pipe = ByNameFeatureSelector(features)
+        pipe = MinMaxScaler((-1, 1))(pipe)
+        rul_pipe = ByNameFeatureSelector(["RUL"])
+        transformer = Transformer(pipe, rul_pipe)
+        ds = MockDataset(5)
+        transformer.fit(ds)
+        train_dataset = ds[range(0, 4)]
+        val_dataset = ds[range(4, 5)]
+        window_size = 2
+        train_iterator = WindowedDatasetIterator(
+            train_dataset.map(transformer),
+            window_size=window_size,
+            step=1,
+            shuffler=AllShuffled(),
+        )
+
+        val_iterator = WindowedDatasetIterator(
+            val_dataset.map(transformer), window_size=window_size, step=1
+        )
+
+        input = Input(shape=train_iterator.input_shape)
+        x = input
+        x = Flatten()(x)
+        x = Dense(5, activation="relu")(x)
+        x = Dense(5, activation="relu")(x)
+        x = Dense(1)(x)
+        model = Model(inputs=[input], outputs=[x])
+        model.compile(loss="mae", optimizer="Adam")
+        model.fit(
+            tf_regression_dataset(train_iterator).batch(2),
+            validation_data=tf_regression_dataset(val_iterator).batch(64),
+            epochs=50,
+        )
+        y_pred = model.predict(tf_regression_dataset(val_iterator).batch(64))
+        y_true = true_values(val_iterator)
+
+        mse = np.mean((y_pred.ravel() - y_true.ravel()) ** 2)
+
+        assert mse < 3
+
+
+
+    def test_xgboost(self):
+        features = ["feature1", "feature2"]
+
+        x = ByNameFeatureSelector(features)
+        x = MinMaxScaler((-1, 1))(x)
+
+        y = ByNameFeatureSelector(["RUL"])
+        transformer = Transformer(x, y)
+
+        ds = MockDataset(5)
+        transformer.fit(ds)
+        transformed_ds = ds.map(transformer)
+        ds_iterator = WindowedDatasetIterator(
+            transformed_ds, window_size=5, step=2, shuffler=AllShuffled()
+        )
+        model = XGBRegressor(n_estimators=500)
+        train_model(model, ds_iterator)
+
+        y_pred = predict(model, ds_iterator)
+        y_true = true_values(ds_iterator)
+
+        assert np.sum(y_pred - y_true) < 0.001

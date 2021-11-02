@@ -40,5 +40,5 @@ def true_values(
     if TENSORFLOW:
         if isinstance(dataset_iterator, tf.data.Dataset):
             dataset_iterator = dataset_iterator.as_numpy_iterator()
-    d = np.concatenate([y for _, y, _ in dataset_iterator])
+    d = np.squeeze(np.concatenate([y for _, y, _ in dataset_iterator]))
     return d
