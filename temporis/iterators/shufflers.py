@@ -295,6 +295,9 @@ class AllShuffled(AbstractShuffler):
             step=self.wditerator.step,
             dtype=np.int,
         )
+        N = self.time_series_size(time_series_index)
+        step = self.wditerator.step
+        self.timestamps_per_ts[time_series_index] = N - np.logspace(0, 1, num=math.ceil(N/step), base=N).astype('int') 
         np.random.shuffle(self.timestamps_per_ts[time_series_index])
 
 
