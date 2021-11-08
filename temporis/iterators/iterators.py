@@ -82,8 +82,7 @@ class WindowedDatasetIterator:
         return self
 
     def __next__(self):
-        #life, timestamp = self.shuffler.next_element(lambda x: x >= self.window_size -1)
-        life, timestamp = self.shuffler.next_element(lambda x: True)
+        life, timestamp = self.shuffler.next_element(lambda x: x >= self.window_size -1)
         X, y, metadata = self.dataset[life]
         window = windowed_signal_generator(
             X, y, timestamp, self.window_size, self.output_size, self.add_last)

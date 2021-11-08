@@ -2,7 +2,7 @@
 """
 from collections.abc import Iterable
 
-from typing import Any, List,  Tuple, Union
+from typing import Any, List, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -19,8 +19,7 @@ class AbstractTimeSeriesDataset:
     def n_time_series(self) -> int:
         raise NotImplementedError
 
-
-    def number_of_samples_of_time_series(self, i:int) -> int:
+    def number_of_samples_of_time_series(self, i: int) -> int:
         return self[i].shape[0]
 
     def get_time_series(self, i: int) -> pd.DataFrame:
@@ -147,6 +146,7 @@ class AbstractTimeSeriesDataset:
         )
 
         for i in bar(range(self.n_time_series)):
+
             if proportion_of_lives < 1.0 and np.random.rand() > proportion_of_lives:
                 continue
 
@@ -176,16 +176,19 @@ class AbstractTimeSeriesDataset:
             common_features.append(set(life.columns.values))
         return common_features[0].intersection(*common_features)
 
-    def common_features(self, show_progress: bool = False) -> List[str]:
+    def common_features(
+        self, show_progress: bool = False, proportion_of_lives: float = 1.0
+    ) -> List[str]:
         if self._common_features is None:
             self._common_features = self._compute_common_features(
-                1.0, show_progress=show_progress
+                proportion_of_lives, show_progress=show_progress
             )
         return self._common_features
 
-    def map(self, transformer):
+    def map(self, transformer, cache_size: int = None):
         from temporis.dataset.transformed import TransformedDataset
-        return TransformedDataset(self, transformer)
+
+        return TransformedDataset(self, transformer, cache_size=cache_size)
 
     def numeric_features(self, show_progress: bool = False) -> List[str]:
         """Obtain the list of the common numeric features in the dataset
@@ -219,7 +222,6 @@ class AbstractTimeSeriesDataset:
         )
 
 
-
 class FoldedDataset(AbstractTimeSeriesDataset):
     def __init__(self, dataset: AbstractTimeSeriesDataset, indices: list):
         super().__init__()
@@ -229,13 +231,12 @@ class FoldedDataset(AbstractTimeSeriesDataset):
     @property
     def n_time_series(self):
         return len(self.indices)
-    
-    def get_time_series(self, i:int):
-        return self.dataset[self.indices[i]]
-       
 
-    def __getattribute__(self, name: str) -> Any:
-        if name in ['dataset', 'indices', 'n_time_series']:
-            return super().__getattribute__(name)
-        else:
-            return self.dataset.__getattribute__(name)
+    def get_time_series(self, i: int):
+        return self.dataset[self.indices[i]]
+
+    # def __getattribute__(self, name: str) -> Any:
+    #    if name in ["dataset", "indices", "n_time_series"]:
+    #        return super().__getattribute__(name)
+    #    else:
+    #        return self.dataset.__getattribute__(name)
