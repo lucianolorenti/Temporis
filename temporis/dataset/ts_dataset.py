@@ -229,16 +229,10 @@ class FoldedDataset(AbstractTimeSeriesDataset):
     @property
     def n_time_series(self):
         return len(self.indices)
-
-    def __getitem__(self, i: int):
-        """
-
-        Returns
-        -------
-        pd.DataFrame
-            DataFrame with the data of the life i
-        """
+    
+    def get_time_series(self, i:int):
         return self.dataset[self.indices[i]]
+       
 
     def __getattribute__(self, name: str) -> Any:
         if name in ['dataset', 'indices', 'n_time_series']:
