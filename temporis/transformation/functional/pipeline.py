@@ -1,17 +1,13 @@
 import shelve
 import uuid
-from copy import copy
-from functools import cache
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple, Union, final
+from typing import Iterable, List, Optional, Tuple, Union
 
 import pandas as pd
-from numpy.lib.arraysetops import isin
-from pandas.core.frame import DataFrame
+
 from sklearn.base import TransformerMixin
 from temporis import CACHE_PATH
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-from temporis.transformation.functional.concatenate import Concatenate
 from temporis.transformation.functional.graph_utils import (
     dfs_iterator,
     root_nodes,
