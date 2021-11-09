@@ -1,3 +1,5 @@
+import shelve
+import uuid
 from copy import copy
 from functools import cache
 from pathlib import Path
@@ -16,8 +18,8 @@ from temporis.transformation.functional.graph_utils import (
     topological_sort_iterator,
 )
 from temporis.transformation.functional.transformerstep import TransformerStep
-import shelve
-import uuid
+from tqdm.auto import tqdm
+
 
 def encode_tuple(tup: Tuple):
     return ",".join(list(map(lambda x: str(hash(x)), tup)))
@@ -44,15 +46,14 @@ class GraphTraversalCache:
 
         Parameters
         ----------
-        root_nodes : [type]
-            [description]
-        dataset : [type]
-            [description]
+        root_nodes :
+
+        dataset :
+
         """
-        filename = ''.join(str(uuid.uuid4()).split('-'))
-        self.cache_path = cache_path / "GraphTraversalCache" / filename      
+        filename = "".join(str(uuid.uuid4()).split("-"))
+        self.cache_path = cache_path / "GraphTraversalCache" / filename
         self.cache_path.parent.mkdir(exist_ok=True, parents=True)
-        
 
         self.transformed_cache = shelve.open(str(self.cache_path))
         for r in root_nodes:
@@ -61,7 +62,7 @@ class GraphTraversalCache:
 
     def clear_cache(self):
         self.transformed_cache.close()
-        self.transformed_cache = shelve.open(str(self.cache_path ))
+        self.transformed_cache = shelve.open(str(self.cache_path))
 
     def state_up_to(self, current_node: TransformerStep, dataset_element: int):
 
@@ -97,11 +98,6 @@ class GraphTraversalCache:
         dataset_element: int,
         new_element: pd.DataFrame,
     ):
-        # if next_node not in self.transformed_cache:
-        #    self.transformed_cache[next_node] = {}
-
-        # if node not in self.transformed_cache[next_node]:
-        #    self.transformed_cache[next_node][node] = {}
         self.transformed_cache[
             encode_tuple((next_node, node, dataset_element))
         ] = new_element
@@ -115,8 +111,6 @@ class GraphTraversalCache:
                 self.transformed_cache.pop(k)
 
     def advance_state_to(self, node):
-        #if node.next not in self.transformed_cache:
-        #    self.transformed_cache[node.next] = {}
         prev_key = self.previous_state_key(node)
         assert prev_key == node.previous
         self.transformed_cache[node.next][node] = self.transformed_cache.pop(node)[
@@ -124,7 +118,12 @@ class GraphTraversalCache:
         ]
 
     def get_keys_of(self, n):
-        return [k for k in self.transformed_cache.keys() if decode_tuple(k)[0]== str(hash(n))]
+        return [
+            k
+            for k in self.transformed_cache.keys()
+            if decode_tuple(k)[0] == str(hash(n))
+        ]
+
 
 class CachedPipelineRunner:
     """Performs an execution of the transformation graph caching the intermediate results
@@ -150,7 +149,6 @@ class CachedPipelineRunner:
     ):
         dataset_size = len(dataset)
         cache = GraphTraversalCache(self.root_nodes, dataset)
-        from tqdm.auto import tqdm
 
         for node in topological_sort_iterator(self.final_step):
 
