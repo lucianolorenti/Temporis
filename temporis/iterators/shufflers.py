@@ -256,8 +256,11 @@ class AllShuffled(AbstractShuffler):
                  |   3  | 2    |  1   |   1  |   2  |   3
     """
 
-    def initialize(self, iterator: "WindowedDatasetIterator"):
+    def initialize(
+        self, iterator: "WindowedDatasetIterator", evenly_sampled: bool = True
+    ):
         super().initialize(iterator)
+        self.evenly_sampled = evenly_sampled
         self.timestamps_per_ts = {
             i: None for i in range(self.wditerator.dataset.n_time_series)
         }
@@ -278,7 +281,6 @@ class AllShuffled(AbstractShuffler):
 
     def at_end(self) -> bool:
         return (self._samples_per_time_series == self.timestamps_per_ts_indices).all()
-        
 
     def timestamp(self) -> int:
         ret = self.timestamps_per_ts[self.current_time_series][
@@ -289,15 +291,19 @@ class AllShuffled(AbstractShuffler):
 
     def load_time_series(self, time_series_index: int):
         super().load_time_series(time_series_index)
-        self.timestamps_per_ts[time_series_index] = np.arange(
-            start=0,
-            stop=self.time_series_size(time_series_index),
-            step=self.wditerator.step,
-            dtype=np.int,
-        )
-        N = self.time_series_size(time_series_index)
-        step = self.wditerator.step
-        self.timestamps_per_ts[time_series_index] = N - np.logspace(0, 1, num=math.ceil(N/step), base=N).astype('int') 
+        if self.evenly_sampled:
+            self.timestamps_per_ts[time_series_index] = np.arange(
+                start=0,
+                stop=self.time_series_size(time_series_index),
+                step=self.wditerator.step,
+                dtype=np.int,
+            )
+        else:
+            N = self.time_series_size(time_series_index)
+            step = self.wditerator.step
+            self.timestamps_per_ts[time_series_index] = N - np.logspace(
+                0, 1, num=math.ceil(N / step), base=N
+            ).astype("int")
         np.random.shuffle(self.timestamps_per_ts[time_series_index])
 
 

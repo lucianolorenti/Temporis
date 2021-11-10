@@ -96,7 +96,7 @@ class TestModels():
             ds.map(transformer),
             window_size,
             step=1,
-            output_size=1
+            output_size=1,
         )
 
     

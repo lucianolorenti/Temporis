@@ -96,6 +96,3 @@ class TestIterators():
         assert np.all(X == np.array([[0,1,2,3,4]]).T)
         assert y[0][0] == 4
 
-
-        
-

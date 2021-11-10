@@ -211,3 +211,20 @@ class TestShufflers:
         q1 = [len(b) for b in q]
         assert q1.count(q1[0]) == len(q1)
 
+
+    def test_same_points(self):
+
+
+        step = 5
+        x = AllShuffled()
+        it = WindowedDatasetIterator(MockDatasetBig(), window_size=5, step=step)
+        values1 = [e for e in x.iterator(it)]
+        assert len(set(values1)) == len(values1)
+
+        step = 5
+        x = NotShuffled()
+        it = WindowedDatasetIterator(MockDatasetBig(), window_size=5, step=step)
+        values2 = [e for e in x.iterator(it)]
+        assert len(set(values2)) == len(values2)
+        assert (sorted(values1, key=lambda x: (x[0], x[1])) == sorted(values2, key=lambda x: (x[0], x[1])))
+
