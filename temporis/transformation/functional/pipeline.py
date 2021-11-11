@@ -56,6 +56,13 @@ class GraphTraversalCache:
             for i, df in enumerate(dataset):
                 self.transformed_cache[encode_tuple((r, None, i))] = df
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.transformed_cache.close()
+        self.cache_path.unlink()
+    
     def clear_cache(self):
         self.transformed_cache.close()
         self.transformed_cache = shelve.open(str(self.cache_path))
@@ -144,28 +151,28 @@ class CachedPipelineRunner:
         show_progress: bool = False,
     ):
         dataset_size = len(dataset)
-        cache = GraphTraversalCache(self.root_nodes, dataset)
 
-        for node in topological_sort_iterator(self.final_step):
+        with GraphTraversalCache(self.root_nodes, dataset) as cache:
+            for node in topological_sort_iterator(self.final_step):
 
-            if isinstance(node, TransformerStep) and fit:
-                for dataset_element in range(dataset_size):
-                    node.partial_fit(cache.state_up_to(node, dataset_element))
-            if show_progress:
-                bar = tqdm(range(dataset_size))
-            else:
-                bar = range(dataset_size)
-            for dataset_element in bar:
+                if isinstance(node, TransformerStep) and fit:
+                    for dataset_element in range(dataset_size):
+                        node.partial_fit(cache.state_up_to(node, dataset_element))
                 if show_progress:
-                    bar.set_description(node.name)
-                new_element = node.transform(cache.state_up_to(node, dataset_element))
+                    bar = tqdm(range(dataset_size))
+                else:
+                    bar = range(dataset_size)
+                for dataset_element in bar:
+                    if show_progress:
+                        bar.set_description(node.name)
+                    new_element = node.transform(cache.state_up_to(node, dataset_element))
 
-                cache.clean_state_up_to(node, dataset_element)
-                cache.store(node.next, node, dataset_element, new_element)
-            cache.remove_state(node)
+                    cache.clean_state_up_to(node, dataset_element)
+                    cache.store(node.next, node, dataset_element, new_element)
+                cache.remove_state(node)
 
-        last_state_key = cache.get_keys_of(None)[0]
-        return cache.transformed_cache[last_state_key]
+            last_state_key = cache.get_keys_of(None)[0]
+            return cache.transformed_cache[last_state_key]
 
     def fit(self, dataset: Iterable[pd.DataFrame], show_progress: bool = False):
         return self._run(dataset, fit=True, show_progress=show_progress)
