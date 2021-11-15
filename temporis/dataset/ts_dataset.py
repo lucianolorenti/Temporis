@@ -24,6 +24,10 @@ class AbstractTimeSeriesDataset:
     def number_of_samples_of_time_series(self, i: int) -> int:
         return self[i].shape[0]
 
+    def number_of_samples(self) ->  List[int]:
+        return [self.number_of_samples_of_time_series(i) for i in tqdm(range(len(self)))]
+
+
     def get_time_series(self, i: int) -> pd.DataFrame:
         """
 
