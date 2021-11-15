@@ -1,10 +1,12 @@
 """The Dataset module provides a light interface to define a PM Dataset
 """
 from collections.abc import Iterable
+from re import S
 
 from typing import Any, List, Tuple, Union
 
 import numpy as np
+from numpy.lib.arraysetops import isin
 import tensorflow as tf
 import pandas as pd
 from tqdm.auto import tqdm
@@ -235,8 +237,11 @@ class FoldedDataset(AbstractTimeSeriesDataset):
     def get_time_series(self, i: int):
         return self.dataset[self.indices[i]]
 
-    # def __getattribute__(self, name: str) -> Any:
-    #    if name in ["dataset", "indices", "n_time_series"]:
-    #        return super().__getattribute__(name)
-    #    else:
-    #        return self.dataset.__getattribute__(name)
+    def _original_index(self, i: int):
+        if isinstance(self.dataset, FoldedDataset):
+            return self.dataset._original_index(self.indices[i])
+        else:
+            return self.indices[i]
+
+    def original_indices(self):
+        return [self._original_index(i) for i in range(len(self.indices))]

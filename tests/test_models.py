@@ -158,18 +158,18 @@ class TestModels():
         x = Dense(5, activation="relu")(x)
         x = Dense(1)(x)
         model = Model(inputs=[input], outputs=[x])
-        model.compile(loss="mae", optimizer="Adam")
+        model.compile(loss="mae", optimizer="sgd")
         model.fit(
-            tf_regression_dataset(train_iterator).batch(2),
+            tf_regression_dataset(train_iterator).batch(4),
             validation_data=tf_regression_dataset(val_iterator).batch(64),
-            epochs=50,
+            epochs=15,
         )
         y_pred = model.predict(tf_regression_dataset(val_iterator).batch(64))
         y_true = true_values(val_iterator)
 
-        mse = np.mean((y_pred.ravel() - y_true.ravel()) ** 2)
+        mae = np.mean(np.abs(y_pred.ravel() - y_true.ravel()))
 
-        assert mse < 3
+        assert mae < 3
 
 
 

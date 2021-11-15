@@ -67,6 +67,9 @@ class TestDataset:
             ds[3][["feature1", "feature2"]]
         )
 
+        two_folds = ds[[3, 2, 1]][[1, 0]]
+        assert two_folds.original_indices() == [2, 3 ]
+
     def test_CMAPSSDataset(self):
         ds = CMAPSSDataset()
         assert len(ds) == 709
