@@ -21,13 +21,6 @@ class AbstractTimeSeriesDataset:
     def n_time_series(self) -> int:
         raise NotImplementedError
 
-    def number_of_samples_of_time_series(self, i: int) -> int:
-        return self[i].shape[0]
-
-    def number_of_samples(self) ->  List[int]:
-        return [self.number_of_samples_of_time_series(i) for i in tqdm(range(len(self)))]
-
-
     def get_time_series(self, i: int) -> pd.DataFrame:
         """
 
@@ -37,6 +30,12 @@ class AbstractTimeSeriesDataset:
             DataFrame with the data of the life i
         """
         raise NotImplementedError
+
+    def number_of_samples_of_time_series(self, i: int) -> int:
+        return self[i].shape[0]
+
+    def number_of_samples(self) ->  List[int]:
+        return [self.number_of_samples_of_time_series(i) for i in tqdm(range(len(self)))]
 
     def duration(self, life: pd.DataFrame) -> float:
         """Obtain the duration of the time-series

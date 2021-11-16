@@ -1,8 +1,9 @@
 
 
 from numpy.lib.arraysetops import isin
+from temporis.dataset.transformed import TransformedDataset
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from temporis.iterators.batcher import Batcher
@@ -16,7 +17,8 @@ except:
 
 
 def true_values(
-    dataset_iterator: Union[WindowedDatasetIterator, Batcher, AbstractTimeSeriesDataset]
+    dataset_iterator: Union[WindowedDatasetIterator, Batcher, AbstractTimeSeriesDataset],
+    target_column: Optional[str] = None
 ) -> np.array:
     """Obtain the true RUL of the dataset after the transformation
 
@@ -34,8 +36,12 @@ def true_values(
     if isinstance(dataset_iterator, Batcher):
         dataset_iterator = dataset_iterator.iterator
     if isinstance(dataset_iterator, AbstractTimeSeriesDataset):
+        if target_column is None:
+            raise ValueError('Please provide a target column to access')
+        ti = TransformerIdentity(target_column)
+        ti.fit([dataset_iterator[0]])
         dataset_iterator = WindowedDatasetIterator(
-            dataset_iterator, window_size=1
+            dataset_iterator.map(ti), window_size=1
         )
     if TENSORFLOW:
         if isinstance(dataset_iterator, tf.data.Dataset):
