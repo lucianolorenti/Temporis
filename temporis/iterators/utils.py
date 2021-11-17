@@ -35,7 +35,8 @@ def true_values(
     from temporis.transformation.functional.transformers import TransformerIdentity
     if isinstance(dataset_iterator, Batcher):
         dataset_iterator = dataset_iterator.iterator
-    if isinstance(dataset_iterator, AbstractTimeSeriesDataset):
+
+    elif isinstance(dataset_iterator, AbstractTimeSeriesDataset) and not isinstance(dataset_iterator, TransformedDataset):
         if target_column is None:
             raise ValueError('Please provide a target column to access')
         ti = TransformerIdentity(target_column)
