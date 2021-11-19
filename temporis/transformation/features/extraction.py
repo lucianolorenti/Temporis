@@ -10,7 +10,10 @@ from numpy.lib.arraysetops import isin
 from pandas.core.window.expanding import Expanding
 
 
-from temporis.transformation.features.hurst import hurst_exponent
+try:
+    from temporis.transformation.features.hurst import hurst_exponent
+except:
+    pass
 from temporis.transformation import TransformerStep
 
 logger = logging.getLogger(__name__)
@@ -75,7 +78,7 @@ class SampleNumber(TransformerStep):
         return df
 
 
-class OneHotCategoricalPandas(TransformerStep):
+class OneHotCategorical(TransformerStep):
     """Compute a one-hot encoding for a given feature
 
     Parameters
