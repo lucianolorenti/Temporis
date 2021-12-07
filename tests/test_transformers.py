@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -7,26 +7,22 @@ import scipy.stats
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation.features.entropy import LocalEntropyMeasures
 from temporis.transformation.features.extraction import (
-    EMD,
-    ChangesDetector,
-    Difference,
-    ExpandingStatistics,
-    OneHotCategoricalPandas,
-    SimpleEncodingCategorical,
-)
-from temporis.transformation.features.outliers import (
-    EWMAOutlierRemover,
-    EWMAOutOfRange,
-    IQROutlierRemover,
-    ZScoreOutlierRemover,
-)
+    EMD, ChangesDetector, Difference, ExpandingStatistics,
+    OneHotCategorical, SimpleEncodingCategorical)
+
+from temporis.transformation.features.outliers import (EWMAOutlierRemover,
+                                                       EWMAOutOfRange,
+                                                       IQROutlierRemover,
+                                                       ZScoreOutlierRemover)
 from temporis.transformation.features.resamplers import SubSampleTransformer
-from temporis.transformation.features.selection import (
-    ByNameFeatureSelector,
-    NullProportionSelector,
-)
+
+from temporis.transformation.features.selection import (ByNameFeatureSelector,
+                                                        NullProportionSelector)
 from temporis.transformation.features.transformation import Accumulate
-from temporis.transformation.functional.pipeline import TemporisPipeline
+from temporis.transformation.functional.pipeline import (TemporisPipeline)
+
+
+
 
 
 def manual_expanding(df: pd.DataFrame, min_points: int = 1):
@@ -216,7 +212,7 @@ class MockDataset2(AbstractTimeSeriesDataset):
 class TestTransformers:
     def test_IQROutlierRemover(self):
 
-        remover = IQROutlierRemover()
+        remover = IQROutlierRemover(clip=False)
         df = pd.DataFrame(
             {
                 "a": [0, 0.5, 0.2, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
@@ -224,6 +220,7 @@ class TestTransformers:
             }
         )
         df_new = remover.fit_transform(df)
+        print(df_new["a"][5])
         assert np.isposinf(df_new["a"][5])
         assert np.isneginf(df_new["b"][8])
 
@@ -434,7 +431,7 @@ class TestGenerators:
                 "b": [1, 1, 1, 1, 1],
             }
         )
-        transformer = OneHotCategoricalPandas("a")
+        transformer = OneHotCategorical("a")
         transformer.partial_fit(df)
         transformer.partial_fit(df1)
 
@@ -533,3 +530,5 @@ class TestEntropy:
         assert np.nansum(
             df_new["a_local_active_information"] - LOCAL_ACTIVE_INFORMATION
         ) < 1e-6
+
+

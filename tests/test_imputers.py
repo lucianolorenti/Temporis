@@ -4,16 +4,16 @@ import numpy as np
 import pandas as pd
 import pytest
 from temporis.transformation.features.imputers import (ForwardFillImputer,
-                                                     PandasMeanImputer,
-                                                     PandasMedianImputer,
-                                                     PandasRemoveInf)
+                                                       MeanImputer,
+                                                       MedianImputer,
+                                                       RemoveInf)
 
 
 class TestImputers():
 
     def test_PandasRemoveInf(self):
 
-        remover = PandasRemoveInf()
+        remover = RemoveInf()
         df = pd.DataFrame({
             'a': [0, np.inf, -np.inf, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
             'b': [5, 6,   7,   5,   np.inf,   5,  6,   5,   45],
@@ -30,7 +30,7 @@ class TestImputers():
 
     def test_PandasMedianImputer(self):
 
-        remover = PandasMedianImputer()
+        remover = MedianImputer()
         df = pd.DataFrame({
             'a': [0, np.nan, np.nan, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
             'b': [5, 6,   np.nan,   5,   9,   5,  6,   5,   45],
@@ -47,7 +47,7 @@ class TestImputers():
 
     def test_PandasMeanImputer(self):
 
-        remover = PandasMeanImputer()
+        remover = MeanImputer()
         df = pd.DataFrame({
             'a': [0, np.nan, np.nan, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
             'b': [5, 6,   np.nan,   5,   9,   5,  6,   5,   45],
