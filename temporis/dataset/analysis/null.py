@@ -26,7 +26,7 @@ def common_features_null_proportion_below(dataset: AbstractTimeSeriesDataset, t:
     ]
 
 
-def null_proportion(dataset: AbstractTimeSeriesDataset):
+def null_proportion(dataset: AbstractTimeSeriesDataset, features:Optional[List[str]]):
     """
     Return mean and max null proportion for each column of each life of the dataset
 
@@ -44,6 +44,8 @@ def null_proportion(dataset: AbstractTimeSeriesDataset):
           for each life
     """
     common_features = dataset.common_features()
+    if features:
+        common_features = set(common_features).intersection(set(features))
 
     null_proportion_per_life = {}
     for life in dataset:

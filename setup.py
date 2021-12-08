@@ -23,7 +23,6 @@ setup(
         "xgboost",
         "gwpy",
         "emd",
-        "numba",
         "dill",
         "mmh3",
         "pyinform",

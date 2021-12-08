@@ -15,6 +15,7 @@ from temporis.transformation.functional.graph_utils import (
 )
 from temporis.transformation.functional.transformerstep import TransformerStep
 from tqdm.auto import tqdm
+import shutil
 
 
 def encode_tuple(tup: Tuple):
@@ -53,9 +54,8 @@ class GraphTraversalCache:
 
         """
         filename = "".join(str(uuid.uuid4()).split("-"))
-        self.cache_path = cache_path / "GraphTraversalCache" / filename
+        self.cache_path = cache_path / "GraphTraversalCache" / filename / 'data'
         self.cache_path.parent.mkdir(exist_ok=True, parents=True)
-
         self.transformed_cache = shelve.open(str(self.cache_path))
         for r in root_nodes:
             for i, df in enumerate(dataset):          
@@ -66,7 +66,9 @@ class GraphTraversalCache:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.transformed_cache.close()
-        self.cache_path.unlink()
+
+        shutil.rmtree(self.cache_path.parent)
+
     
     def clear_cache(self):
         self.transformed_cache.close()

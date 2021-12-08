@@ -42,7 +42,8 @@ class WindowedDatasetIterator:
                  output_size: int = 1,
                  shuffler: AbstractShuffler = NotShuffled(),
                  sample_weight:  SampleWeight= NotWeighted(),
-                 add_last: bool = True):
+                 add_last: bool = True,
+                 padding: bool = False):
 
         self.dataset = dataset
         self.shuffler = shuffler
@@ -59,6 +60,11 @@ class WindowedDatasetIterator:
         self.output_size = output_size
         self.add_last = add_last
         self.length = None
+        self.padding = padding
+        if not self.padding:
+            self.valid_sample = lambda x: x >= self.window_size -1
+        else:
+            self.valid_sample = lambda x: True
 
     @property
     def output_shape(self):
@@ -82,7 +88,7 @@ class WindowedDatasetIterator:
         return self
 
     def __next__(self):
-        life, timestamp = self.shuffler.next_element(lambda x: x >= self.window_size -1)
+        life, timestamp = self.shuffler.next_element(self.valid_sample)
         X, y, metadata = self.dataset[life]
         window = windowed_signal_generator(
             X, y, timestamp, self.window_size, self.output_size, self.add_last)

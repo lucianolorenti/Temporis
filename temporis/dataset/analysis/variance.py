@@ -8,8 +8,7 @@ from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 def variance_information(
     dataset: AbstractTimeSeriesDataset,
     features: Optional[List[str]] = None,
-    transformer=None,
-):
+) -> pd.DataFrame:
     """
     Return mean and max null proportion for each column of each life of the dataset
 
@@ -33,25 +32,17 @@ def variance_information(
           The key is the column name and the value is the list of std proportion
           for each life
     """
-    if transformer is not None:
-        common_features = []
-        for life in dataset:
-            life = transformer.transform(life)
-            common_features.append(set(life.columns.tolist()))
-        common_features = common_features[0].intersection(*common_features)
-    else:
-        common_features = dataset.common_features()
+
+
+    common_features = dataset.common_features()
     if features:
         common_features = set(common_features).intersection(set(features))
 
     std_per_life = {}
     for life in dataset:
-        if transformer is not None:
-            life = transformer.transform(life)
-        d = life.std().to_dict()
-        for column in common_features:
-            if column not in d:
-                continue
+        selected_columns = [column for column in common_features if column in life.columns]
+        d = life[selected_columns].std().to_dict()
+        for column in selected_columns:
             if not isinstance(d[column], float):
                 continue
             std_list = std_per_life.setdefault(column, [])

@@ -10,8 +10,7 @@ from itertools import combinations
 
 def entropy_information(
     dataset: AbstractTimeSeriesDataset,
-    features: Optional[List[str]] = None,
-    transformer=None,
+    features: Optional[List[str]] = None
 ):
     """
     Return mean and max null proportion for each column of each life of the dataset
@@ -36,21 +35,12 @@ def entropy_information(
           The key is the column name and the value is the list of null proportion
           for each life
     """
-    if transformer is not None:
-        common_features = []
-        for life in dataset:
-            life = transformer.transform(life)
-            common_features.append(set(life.columns.tolist()))
-        common_features = common_features[0].intersection(*common_features)
-    else:
-        common_features = dataset.common_features()
+    common_features = dataset.common_features()
     if features:
         common_features = set(common_features).intersection(set(features))
 
     entropy_per_life = {}
     for life in dataset:
-        if transformer is not None:
-            life = transformer.transform(life)
         d = {}
         for c in common_features:
             try:

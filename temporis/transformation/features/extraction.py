@@ -11,7 +11,10 @@ from pandas.core.window.expanding import Expanding
 from pyts.transformation import ROCKET as pyts_ROCKET
 
 
-from temporis.transformation.features.hurst import hurst_exponent
+try:
+    from temporis.transformation.features.hurst import hurst_exponent
+except:
+    pass
 from temporis.transformation import TransformerStep
 from temporis.transformation.utils import SKLearnTransformerWrapper
 
