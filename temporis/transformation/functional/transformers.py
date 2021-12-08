@@ -17,6 +17,7 @@ import pandas as pd
 from pandas.core.algorithms import isin
 from sklearn.utils.validation import check_is_fitted
 from temporis.transformation.functional.concatenate import Concatenate
+from temporis.transformation.functional.graph_utils import topological_sort_iterator
 from temporis.transformation.functional.pipeline import TemporisPipeline
 from temporis.transformation.functional.transformerstep import TransformerStep
 
@@ -26,7 +27,9 @@ logger = logging.getLogger(__name__)
 RESAMPLER_STEP_NAME = "resampler"
 
 
-def transformer_info(transformer):
+
+
+def transformer_info(transformer : Optional[TemporisPipeline]):
     """Obtains the transformer information in a serializable format
 
     Parameters
@@ -44,31 +47,20 @@ def transformer_info(transformer):
         If the transformer passed as an argument doesn't have
         the get_params method.
     """
-    if isinstance(transformer, TemporisPipeline):
-        return [(name, transformer_info(step)) for name, step in transformer.steps]
-    elif isinstance(transformer, PandasFeatureUnion):
-        return [
-            ("name", "FeatureUnion"),
-            (
-                "steps",
-                [
-                    (name, transformer_info(step))
-                    for name, step in transformer.transformer_list
-                ],
-            ),
-            ("transformer_weights", transformer.transformer_weights),
-        ]
+    if transformer is None:
+        return 'Missing'
 
-    elif hasattr(transformer, "get_params"):
-        d = transformer.get_params()
-        d.update({"name": type(transformer).__name__})
-        return [(k, d[k]) for k in sorted(d.keys())]
-    elif isinstance(transformer, str) and transformer == "passthrough":
-        return transformer
-    else:
-        logger.error(type(transformer))
+    data = []
+    Q = topological_sort_iterator(transformer)
+    for q in Q:
+        data.append(q.description())
+    return data
+    
 
-        raise ValueError("Pipeline elements must have the get_params method")
+
+    
+
+
 
 
 class Transformer:
@@ -92,7 +84,7 @@ class Transformer:
     def __init__(
         self,
         transformerX: Union[TemporisPipeline, TransformerStep],
-        transformerY: Union[TemporisPipeline, TransformerStep],
+        transformerY: Optional[Union[TemporisPipeline, TransformerStep]] = None,
         transformerMetadata: Optional[Union[TemporisPipeline, TransformerStep]] = None,
     ):
         def ensure_pipeline(x):
@@ -101,7 +93,10 @@ class Transformer:
             return TemporisPipeline(x)
 
         self.transformerX = ensure_pipeline(transformerX)
-        self.transformerY = ensure_pipeline(transformerY)
+        if transformerY is not None:
+            self.transformerY = ensure_pipeline(transformerY)
+        else:
+            self.transformerY = None
         self.transformerMetadata = (
             ensure_pipeline(transformerMetadata)
             if transformerMetadata is not None
@@ -136,7 +131,8 @@ class Transformer:
         logger.debug("Fitting Transformer")
 
         self.transformerX.fit(dataset, show_progress=show_progress)
-        self.transformerY.fit(dataset, show_progress=show_progress)
+        if self.transformerY is not None:
+            self.transformerY.fit(dataset, show_progress=show_progress)
         if self.transformerMetadata is not None:
             self.transformerMetadata.fit(dataset)
 
@@ -188,7 +184,10 @@ class Transformer:
         np.array
             Target obtained from the life
         """
-        return self.transformerY.transform(life)
+        if self.transformerY is not None:
+            return self.transformerY.transform(life)
+        else:
+            return None
 
     def transformX(self, life: pd.DataFrame) -> np.array:
         """Get the transformer input data

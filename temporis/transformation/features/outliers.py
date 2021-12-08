@@ -9,11 +9,13 @@ from sklearn.utils.validation import check_is_fitted
 from temporis.transformation.features.tdigest import TDigest
 
 
-
 class IQROutlierRemover(TransformerStep):
     """
     Impute values outside (Q1 - margin*IQR, Q2 + margin*IQR)
-    
+
+    If clip is True the values will be clipped between the range,
+    otherwise the values are going to be replaced by inf and -inf
+
 
 
     Parameters
@@ -22,30 +24,35 @@ class IQROutlierRemover(TransformerStep):
         Lower quantile threshold for the non-anomalous values
     upper_quantile: float, default 0.75
         Upper quantile threshold for the non-anomalous values
-    margin: float, default 1.5 
-        How many times the IQR gets multiplied               
+    margin: float, default 1.5
+        How many times the IQR gets multiplied
     proportion_to_sample:float, default 1.0
         If you want to compute the quantiles in an smaller proportion of data
         you can specify it
+    clip: bool
+        Wether to clip the values outside the range.
 
     """
 
     def __init__(
-        self, lower_quantile:float=0.25, upper_quantile:float=0.75, 
-        margin=1.5, proportion_to_sample=1.0, 
+        self,
+        lower_quantile: float = 0.25,
+        upper_quantile: float = 0.75,
+        margin=1.5,
+        proportion_to_sample=1.0,
+        clip: bool = False,
         name: Optional[str] = None,
-        
     ):
-        
+
         super().__init__(name)
         self.margin = margin
         self.proportion_to_sample = proportion_to_sample
         self.tdigest_dict = None
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
+        self.clip = clip
 
     def partial_fit(self, X):
-
         if self.proportion_to_sample < 1:
             sampled_points = np.random.choice(
                 X.shape[0], int(X.shape[0] * self.proportion_to_sample), replace=False
@@ -54,16 +61,17 @@ class IQROutlierRemover(TransformerStep):
         if self.tdigest_dict is None:
             self.tdigest_dict = {c: TDigest(100) for c in X.columns}
         for c in X.columns:
-             self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
+            self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
 
         self.Q1 = {
-            c: self.tdigest_dict[c].estimate_quantile(self.lower_quantile) for c in self.tdigest_dict.keys()
+            c: self.tdigest_dict[c].estimate_quantile(self.lower_quantile)
+            for c in self.tdigest_dict.keys()
         }
 
         self.Q3 = {
-            c: self.tdigest_dict[c].estimate_quantile(self.upper_quantile) for c in self.tdigest_dict.keys()
+            c: self.tdigest_dict[c].estimate_quantile(self.upper_quantile)
+            for c in self.tdigest_dict.keys()
         }
-
 
         self.IQR = {c: self.Q3[c] - self.Q1[c] for c in self.Q1.keys()}
         return self
@@ -81,17 +89,36 @@ class IQROutlierRemover(TransformerStep):
         self.Q3 = self.Q3.to_dict()
         return self
 
-    def transform(self, X):
+    def transform(self, X):        
         X = X.copy()
         check_is_fitted(self, "Q1")
         check_is_fitted(self, "Q3")
         check_is_fitted(self, "IQR")
         for c in X.columns:
-            mask = X[c] < (self.Q1[c] - self.margin * self.IQR[c])
-            X.loc[mask, c] = -np.inf
-            mask = X[c] > (self.Q3[c] + self.margin * self.IQR[c])            
-            X.loc[mask, c] = np.inf
+            min_value = self.Q1[c] - self.margin * self.IQR[c]
+            mask = X[c] < min_value
+            if not self.clip:
+                X.loc[mask, c] = -np.inf
+            else:
+                X.loc[mask, c] = min_value
+            max_value = self.Q3[c] + self.margin * self.IQR[c]
+            mask = X[c] > (max_value)
+            if not self.clip:
+                X.loc[mask, c] = np.inf
+            else:
+                X.loc[mask, c] = max_value
         return X
+
+    def description(self):
+        name = super().description()
+        data = []
+        for k in self.Q1.keys():
+            data.append( (k, {
+                'Q1': self.Q1[k],
+                'Q3': self.Q3[k],
+                'IQR': self.IQR[k]
+            }))
+        return (name, data)
 
 
 class ZScoreOutlierRemover(BaseEstimator, TransformerMixin):

@@ -10,7 +10,7 @@ class RobustMinMaxScaler(TransformerStep):
     """Scale features using statistics that are robust to outliers.
 
     This Scaler scales the data according to the quantile range
-    The IQR is the range between the limits provided, by default, 
+    The IQR is the range between the limits provided, by default,
     1st quartile (25th quantile) and the 3rd quartile (75th quantile).
 
     The quantiles are approximated using tdigest
@@ -30,6 +30,7 @@ class RobustMinMaxScaler(TransformerStep):
     name : Optional[str], optional
         Name of the step, by default None
     """
+
     def __init__(
         self,
         range: tuple,
@@ -50,48 +51,49 @@ class RobustMinMaxScaler(TransformerStep):
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
         self.tdigest_size = tdigest_size
-        self.quantile_estimator = {
+        self.quantile_estimator = {}
+        self.computed_limits = {}
 
-        }
-        self.computed_limits = {
-
-        }
-        
-    def partial_fit(self, df:pd.DataFrame, y=None):      
+    def partial_fit(self, df: pd.DataFrame, y=None):
         if len(self.quantile_estimator) == 0:
             for c in df.columns:
                 self.quantile_estimator[c] = TDigest(self.tdigest_size)
-                self.computed_limits[c] = {'min':0, 'max': 0}
+                self.computed_limits[c] = {"min": 0, "max": 0}
 
         for c in df.columns:
-            self.quantile_estimator[c] = self.quantile_estimator[c].merge_unsorted(df[c].values)
-            self.quantile_estimator[c] = self.quantile_estimator[c].merge_unsorted(df[c].values)
+            self.quantile_estimator[c] = self.quantile_estimator[c].merge_unsorted(
+                df[c].values
+            )
+            self.quantile_estimator[c] = self.quantile_estimator[c].merge_unsorted(
+                df[c].values
+            )
 
-            self.computed_limits[c]['min'] = self.quantile_estimator[c].estimate_quantile(self.lower_quantile)
-            self.computed_limits[c]['max'] = self.quantile_estimator[c].estimate_quantile(self.upper_quantile)
+            self.computed_limits[c]["min"] = self.quantile_estimator[
+                c
+            ].estimate_quantile(self.lower_quantile)
+            self.computed_limits[c]["max"] = self.quantile_estimator[
+                c
+            ].estimate_quantile(self.upper_quantile)
 
-    
-    def transform(self, X:pd.DataFrame):
+    def transform(self, X: pd.DataFrame):
         for c in X.columns:
-            lower_limit = self.computed_limits[c]['min']
-            upper_limit = self.computed_limits[c]['max']
+            lower_limit = self.computed_limits[c]["min"]
+            upper_limit = self.computed_limits[c]["max"]
 
             if self.clip:
                 X[c].clip(lower=lower_limit, upper=upper_limit, inplace=True)
 
-            
-        
             t_data_c_std = (X[c] - lower_limit) / (upper_limit - lower_limit)
-            
+
             X[c] = t_data_c_std * (self.max - self.min) + self.min
-            
 
         return X
-            
+
+
 class MinMaxScaler(TransformerStep):
     """Transform features by scaling each feature to a given range.
 
-    This transformer scales and translates each feature individually 
+    This transformer scales and translates each feature individually
     such that it is in the given range on the training set.
 
     Parameters
@@ -103,6 +105,7 @@ class MinMaxScaler(TransformerStep):
     name : Optional[str], optional
          Name of the step, by default None
     """
+
     def __init__(
         self,
         range: tuple,
@@ -118,8 +121,6 @@ class MinMaxScaler(TransformerStep):
         self.clip = clip
 
     def partial_fit(self, df, y=None):
-
-
         partial_data_min = df.min(skipna=True)
         partial_data_max = df.max(skipna=True)
         if self.data_min is None:
@@ -134,7 +135,7 @@ class MinMaxScaler(TransformerStep):
             )
         return self
 
-    def fit(self, df, y=None):
+    def fit(self, df, y=None):        
         self.data_min = df.min()
         self.data_max = df.max()
         return self
@@ -147,30 +148,34 @@ class MinMaxScaler(TransformerStep):
                 * (self.max - self.min)
             ) + self.min
         except:
-            print(X)
-            print(self.data_min)
-            print(self.data_max)
             raise
         if self.clip:
             X.clip(lower=self.min, upper=self.max, inplace=True)
         return X
 
+    def description(self):
+        data = super().description()
+        return (data, {"Min": self.data_min, "Max": self.data_max})
+
 
 class StandardScaler(TransformerStep):
     """Standardize features by removing the mean and scaling to unit variance.
-    
+
     Parameters
     ----------
     name : Optional[str], optional
         Name of the step, by default None
-        
+
     """
+
     def __init__(self, name: Optional[str] = None):
         super().__init__(name)
         self.std = None
         self.mean = None
 
     def partial_fit(self, df, y=None):
+        if df.shape[0] < 15:
+            return self
         partial_data_mean = df.mean()
         partial_data_std = df.std()
         if self.mean is None:
@@ -187,10 +192,8 @@ class StandardScaler(TransformerStep):
         return self
 
     def transform(self, X):
-        return (X - self.mean) / (self.std)
-
-
-
+        # return (X - self.mean) / (self.std)
+        return X - self.mean
 
 
 class ScaleInvRUL(TransformerStep):
@@ -245,8 +248,8 @@ class ScaleInvRUL(TransformerStep):
 class PerCategoricalMinMaxScaler(TransformerStep):
     """Performs a minmax scaler partition the data trough some categorical feature
 
-    Usually, different execution configurations lead to different scales in the features. 
-    Therefore, sometimes it is useful to scale the data based on a categorical feature,   
+    Usually, different execution configurations lead to different scales in the features.
+    Therefore, sometimes it is useful to scale the data based on a categorical feature,
     to reflect the difference in the execution parameters.
 
     Parameters
@@ -261,43 +264,46 @@ class PerCategoricalMinMaxScaler(TransformerStep):
     name: Optional[str]
         Name of the transformer
 
-    """  
+    """
 
     def __init__(
         self,
         categorical_feature: str,
-        scaler: Optional[Union[MinMaxScaler,RobustMinMaxScaler]] = MinMaxScaler,
-        scaler_params: dict = {},        
+        scaler: Optional[Union[MinMaxScaler, RobustMinMaxScaler]] = MinMaxScaler,
+        scaler_params: dict = {},
         name: Optional[str] = None,
-    ):     
-        super().__init__(name)                
+    ):
+        super().__init__(name)
         self.categorical_feature = categorical_feature
         self.categorical_feature_name = None
         self.scaler = scaler
         self.scaler_params = scaler_params
-    
-        self.scalers = {
-            "default": self.scaler(**self.scaler_params)
-            
-        }
+
+        self.scalers = {"default": self.scaler(**self.scaler_params)}
 
     def partial_fit(self, X, y=None):
         if self.categorical_feature_name is None:
-            self.categorical_feature_name = self.find_feature(X, self.categorical_feature)
+            self.categorical_feature_name = self.find_feature(
+                X, self.categorical_feature
+            )
         for category, data in X.groupby(self.categorical_feature_name):
             data = data.drop(columns=[self.categorical_feature_name])
             if category not in self.scalers:
-                self.scalers[category] = self.scaler(**self.scaler_params)               
+                self.scalers[category] = self.scaler(**self.scaler_params)
             self.scalers[category].partial_fit(data)
             self.scalers["default"].partial_fit(data)
 
-    def transform(self, X:pd.DataFrame):
-     
+    def transform(self, X: pd.DataFrame):
+
         X_new = X.drop(columns=[self.categorical_feature_name])
-  
+
         for category, data in X.groupby(self.categorical_feature_name):
-            
+
             data = data.drop(columns=[self.categorical_feature_name])
-            scaler = self.scalers[category] if category in self.scalers else self.scalers['default'] #Use a defaultdict
+            scaler = (
+                self.scalers[category]
+                if category in self.scalers
+                else self.scalers["default"]
+            )  # Use a defaultdict
             X_new.loc[data.index, :] = scaler.transform(data)
         return X_new

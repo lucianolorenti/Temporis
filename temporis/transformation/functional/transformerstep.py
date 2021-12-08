@@ -28,5 +28,9 @@ class TransformerStep(TransformerStepMixin,  TransformerMixin):
         else:
             return None
 
+    def description(self):
+        return f'{self.name}'
+
+
 
 

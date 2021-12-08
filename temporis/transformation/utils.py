@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -37,7 +37,7 @@ class IdentityTransformerStep(TransformerStep):
             return input_array*1
 
 
-class PandasTransformerWrapper(TransformerStep):
+class SKLearnTransformerWrapper(TransformerStep):
     def __init__(self, transformer, name: Optional[str] = None):
         super().__init__(name)
         self.transformer = transformer
@@ -57,10 +57,14 @@ class PandasTransformerWrapper(TransformerStep):
             self.transformer.fit(X.values)
         return self
 
+    def _column_names(self, X) -> List[str]:
+        return X.columns
+
+
     def transform(self, X, y=None):
         if not isinstance(X, pd.DataFrame):
             raise ValueError('Input array must be a data frame')
-        return pd.DataFrame(self.transformer.transform(X), columns=X.columns, index=X.index)
+        return pd.DataFrame(self.transformer.transform(X), columns=self._column_names(X), index=X.index)
 
 
 def column_names_window(columns: list, window: int) -> list:

@@ -8,10 +8,12 @@ import numpy as np
 import pandas as pd
 from numpy.lib.arraysetops import isin
 from pandas.core.window.expanding import Expanding
+from pyts.transformation import ROCKET as pyts_ROCKET
 
 
 from temporis.transformation.features.hurst import hurst_exponent
 from temporis.transformation import TransformerStep
+from temporis.transformation.utils import SKLearnTransformerWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +77,7 @@ class SampleNumber(TransformerStep):
         return df
 
 
-class OneHotCategoricalPandas(TransformerStep):
+class OneHotCategorical(TransformerStep):
     """Compute a one-hot encoding for a given feature
 
     Parameters
@@ -111,7 +113,7 @@ class OneHotCategoricalPandas(TransformerStep):
 
         Returns
         -------
-        OneHotCategoricalPandas
+        OneHotCategorical
             self
         """
         if self.fixed_categories:
@@ -132,7 +134,7 @@ class OneHotCategoricalPandas(TransformerStep):
 
         Returns
         -------
-        OneHotCategoricalPandas
+        OneHotCategorical
             self
         """
         if self.fixed_categories:
@@ -265,7 +267,7 @@ class SimpleEncodingCategorical(TransformerStep):
 
         Returns
         -------
-        OneHotCategoricalPandas
+        OneHotCategorical
             self
         """
         if self.feature is None:
@@ -500,7 +502,7 @@ class LifeStatistics(TransformerStep):
 
 
 class RollingStatistics(TransformerStep):
-    """Compute diverse number of features using an rolling window. Pandas implementation
+    """Compute diverse number of features using an rolling window. 
 
     For each feature present in the life a number of feature will be computed for each time stamp
 
@@ -1040,3 +1042,15 @@ class Interactions(TransformerStep):
         for c1, c2 in itertools.combinations(X.columns, 2):
             X_new[f"{c1}_{c2}"] = X[c1] * X[c2]
         return X_new
+
+
+
+class ROCKET(SKLearnTransformerWrapper):
+    def __init__(self, n_kernels=1000, kernel_sizes=(7, 9, 11), random_state=None, name: Optional[str] = "ROCKET"):
+        transformer = pyts_ROCKET(n_kernels=n_kernels, kernel_sizes=kernel_sizes, random_state=random_state)
+        super().__init__(transformer, name)
+
+
+    def _column_names(self, X):
+        a =  ['Filter {i}' for i in range(self.transformer.n_kernels*2)]
+        return a

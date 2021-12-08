@@ -18,7 +18,12 @@ from tqdm.auto import tqdm
 
 
 def encode_tuple(tup: Tuple):
-    return ",".join(list(map(lambda x: str(hash(x)), tup)))
+    def get_hash(x):
+        if isinstance(x, TransformerStep):
+            return hash(x)
+        else:
+            return hash(x)
+    return ",".join(list(map(lambda x: str(get_hash(x)), tup)))
 
 
 def decode_tuple(s: str):
@@ -53,7 +58,7 @@ class GraphTraversalCache:
 
         self.transformed_cache = shelve.open(str(self.cache_path))
         for r in root_nodes:
-            for i, df in enumerate(dataset):
+            for i, df in enumerate(dataset):          
                 self.transformed_cache[encode_tuple((r, None, i))] = df
 
     def __enter__(self):
@@ -81,6 +86,7 @@ class GraphTraversalCache:
                 previous_node = previous_node[0]
             else:
                 previous_node = None
+            
             return self.transformed_cache[
                 encode_tuple((current_node, previous_node, dataset_element))
             ]
@@ -88,8 +94,7 @@ class GraphTraversalCache:
     def clean_state_up_to(self, current_node: TransformerStep, dataset_element: int):
 
         previous_node = current_node.previous
-
-        for p in previous_node:
+        for p in previous_node:            
             self.transformed_cache[
                 encode_tuple((current_node, p, dataset_element))
             ] = None
@@ -113,14 +118,7 @@ class GraphTraversalCache:
             for k in keys_to_remove:
                 self.transformed_cache.pop(k)
 
-    def advance_state_to(self, node):
-        prev_key = self.previous_state_key(node)
-        assert prev_key == node.previous
-        self.transformed_cache[node.next][node] = self.transformed_cache.pop(node)[
-            node.previous
-        ]
-
-    def get_keys_of(self, n):
+    def get_keys_of(self, n):        
         return [
             k
             for k in self.transformed_cache.keys()
@@ -154,10 +152,11 @@ class CachedPipelineRunner:
 
         with GraphTraversalCache(self.root_nodes, dataset) as cache:
             for node in topological_sort_iterator(self.final_step):
-
                 if isinstance(node, TransformerStep) and fit:
                     for dataset_element in range(dataset_size):
-                        node.partial_fit(cache.state_up_to(node, dataset_element))
+                        d = cache.state_up_to(node, dataset_element)
+                        node.partial_fit(d)
+
                 if show_progress:
                     bar = tqdm(range(dataset_size))
                 else:
@@ -166,11 +165,14 @@ class CachedPipelineRunner:
                     if show_progress:
                         bar.set_description(node.name)
                     new_element = node.transform(cache.state_up_to(node, dataset_element))
-
                     cache.clean_state_up_to(node, dataset_element)
-                    cache.store(node.next, node, dataset_element, new_element)
+                
+                    if len(node.next) > 0:
+                        for n in node.next:
+                            cache.store(n, node, dataset_element, new_element)
+                    else:
+                        cache.store(None, node, dataset_element, new_element)
                 cache.remove_state(node)
-
             last_state_key = cache.get_keys_of(None)[0]
             return cache.transformed_cache[last_state_key]
 
@@ -240,5 +242,24 @@ class TemporisPipeline(TransformerMixin):
 
         return self
 
+
+    def partial_fit(self,
+        dataset: Union[AbstractTimeSeriesDataset, pd.DataFrame],
+        show_progress: bool = False):
+        self.fit(dataset, show_progress=show_progress)
+
     def transform(self, df: pd.DataFrame):
         return self.runner.transform(df)
+
+    def description(self):
+        data = []
+        for node in topological_sort_iterator(self):
+            data.append(node.description())
+        return data
+
+
+
+def make_pipeline(*steps):
+    for s in range(1, len(steps)):
+        steps[s](steps[s-1])
+    return TemporisPipeline(steps[-1]) 

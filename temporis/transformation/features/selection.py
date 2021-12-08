@@ -14,12 +14,11 @@ class NullProportionSelector(TransformerStep):
         self.min_null_proportion = min_null_proportion
 
     def fit(self, X, y=None):
-        logger.info(f'Features before NullProportionSelector {X.shape[1]}')
+        logger.info(f"Features before NullProportionSelector {X.shape[1]}")
         self.not_null_proportion = np.mean(np.isfinite(X), axis=0)
         self.mask = self.not_null_proportion > self.min_null_proportion
 
-        logger.info(
-            f'Features before NullProportionSelector {np.sum(self.mask)}')
+        logger.info(f"Features before NullProportionSelector {np.sum(self.mask)}")
         return self
 
     def transform(self, X):
@@ -28,7 +27,6 @@ class NullProportionSelector(TransformerStep):
 
 
 class ByNameFeatureSelector(TransformerStep):
-
     def __init__(self, features=[], name: Optional[str] = None):
         super().__init__(name)
         self.features = features
@@ -45,7 +43,8 @@ class ByNameFeatureSelector(TransformerStep):
             self.features_computed_ = features
         else:
             self.features_computed_ = [
-                f for f in self.features_computed_ if f in features]
+                f for f in self.features_computed_ if f in features
+            ]
         return self
 
     def fit(self, df, y=None):
@@ -62,6 +61,10 @@ class ByNameFeatureSelector(TransformerStep):
     @property
     def n_features(self):
         return len(self.features_computed_)
+
+    def description(self):
+        name = super().description()
+        return (name, self.features_computed_)
 
 
 class LocateFeatures(TransformerStep):
@@ -85,8 +88,7 @@ class DiscardByNameFeatureSelector(TransformerStep):
         self.features_indices = None
 
     def fit(self, df, y=None):
-        self.feature_columns = [
-            f for f in df.columns if f not in self.features]
+        self.feature_columns = [f for f in df.columns if f not in self.features]
         return self
 
     def transform(self, X):
@@ -106,35 +108,42 @@ class PandasVarianceThreshold(TransformerStep):
     def partial_fit(self, X, y=None):
         variances_ = X.var(skipna=True)
         partial_selected_columns_ = X.columns[variances_ > self.min_variance]
-        if self.selected_columns_ is not None and len(partial_selected_columns_) < len(self.selected_columns_)*0.5:
+        if (
+            self.selected_columns_ is not None
+            and len(partial_selected_columns_) < len(self.selected_columns_) * 0.5
+        ):
             logger.warning(type(self).__name__)
             logger.warning(
-                f'Life removed more than a half of the columns. Shape {X.shape}')
+                f"Life removed more than a half of the columns. Shape {X.shape}"
+            )
             logger.warning(
-                f'Current: {len(self.selected_columns_)}. New ones: {len(partial_selected_columns_)}')
+                f"Current: {len(self.selected_columns_)}. New ones: {len(partial_selected_columns_)}"
+            )
         if self.selected_columns_ is None:
             self.selected_columns_ = partial_selected_columns_
         else:
             self.selected_columns_ = [
-                f for f in self.selected_columns_ if f in partial_selected_columns_]
+                f for f in self.selected_columns_ if f in partial_selected_columns_
+            ]
         if len(self.selected_columns_) == 0:
             logger.warning(type(self).__name__)
-            logger.warning('All features were removed')
+            logger.warning("All features were removed")
         return self
 
     def fit(self, X, y=None):
 
         if not isinstance(X, pd.DataFrame):
-            raise ValueError('Input array must be a data frame')
+            raise ValueError("Input array must be a data frame")
         self.variances_ = X.var(skipna=True)
         self.selected_columns_ = X.columns[self.variances_ > self.min_variance]
         logger.debug(
-            f'Dropped columns {[c for c in X.columns if c not in self.selected_columns_]}')
+            f"Dropped columns {[c for c in X.columns if c not in self.selected_columns_]}"
+        )
         return self
 
     def transform(self, X, y=None):
         if not isinstance(X, pd.DataFrame):
-            raise ValueError('Input array must be a data frame')
+            raise ValueError("Input array must be a data frame")
         return X[self.selected_columns_].copy()
 
 
@@ -147,33 +156,41 @@ class PandasNullProportionSelector(TransformerStep):
     def partial_fit(self, X, y=None):
         null_proportion = X.isnull().mean()
 
-        partial_selected_columns_ = X.columns[null_proportion <
-                                              self.max_null_proportion]
-        if self.selected_columns_ is not None and len(partial_selected_columns_) < len(self.selected_columns_)*0.5:
+        partial_selected_columns_ = X.columns[
+            null_proportion < self.max_null_proportion
+        ]
+        if (
+            self.selected_columns_ is not None
+            and len(partial_selected_columns_) < len(self.selected_columns_) * 0.5
+        ):
             logger.warning(type(self).__name__)
             logger.warning(
-                f'Life removed more than a half of the columns. Shape {X.shape}')
+                f"Life removed more than a half of the columns. Shape {X.shape}"
+            )
             logger.warning(
-                f'Current: {len(self.selected_columns_)}. New ones: {len(partial_selected_columns_)}')
+                f"Current: {len(self.selected_columns_)}. New ones: {len(partial_selected_columns_)}"
+            )
         if self.selected_columns_ is None:
             self.selected_columns_ = partial_selected_columns_
         else:
             self.selected_columns_ = [
-                f for f in self.selected_columns_ if f in partial_selected_columns_]
+                f for f in self.selected_columns_ if f in partial_selected_columns_
+            ]
         if len(self.selected_columns_) == 0:
             logger.warning(type(self).__name__)
-            logger.warning('All features were removed')
+            logger.warning("All features were removed")
         return self
 
     def fit(self, X, y=None):
         if not isinstance(X, pd.DataFrame):
-            raise ValueError('Input array must be a data frame')
+            raise ValueError("Input array must be a data frame")
         self.null_proportion = X.isnull().mean()
-        self.selected_columns_ = X.columns[self.null_proportion <
-                                           self.max_null_proportion]
+        self.selected_columns_ = X.columns[
+            self.null_proportion < self.max_null_proportion
+        ]
         return self
 
     def transform(self, X, y=None):
         if not isinstance(X, pd.DataFrame):
-            raise ValueError('Input array must be a data frame')
+            raise ValueError("Input array must be a data frame")
         return X[self.selected_columns_].copy()

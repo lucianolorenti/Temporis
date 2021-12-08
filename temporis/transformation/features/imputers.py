@@ -73,8 +73,20 @@ class PerColumnImputer(TransformerStep):
             X_new[c].replace([np.nan], self.data_median[c], inplace=True)
         return X_new
 
+    def description(self):
+        name = super().description()
+        data = []
+        for k in self.data_max.index:
+            data.append((k,
+            {
+                'Max': self.data_max[k],
+                'Min': self.data_max[k],
+                'Median': self.data_max[k],
+            }))
+        return (name, data)
 
-class PandasRemoveInf(TransformerStep):
+
+class RemoveInf(TransformerStep):
     """Replace NaN for inf"""
 
     def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
@@ -93,7 +105,7 @@ class PandasRemoveInf(TransformerStep):
         return X.replace([np.inf, -np.inf], np.nan)
 
 
-class PandasMedianImputer(TransformerStep):
+class MedianImputer(TransformerStep):
     """Impute missing values with the median value of the training set
 
     Parameters
@@ -151,7 +163,7 @@ class PandasMedianImputer(TransformerStep):
         return X.fillna(value=self.median)
 
 
-class PandasMeanImputer(TransformerStep):
+class MeanImputer(TransformerStep):
     """Impute missing values with the mean value of the training set
 
     Parameters
