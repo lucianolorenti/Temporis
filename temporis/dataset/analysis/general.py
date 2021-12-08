@@ -49,6 +49,8 @@ def sample_rate(ds: AbstractTimeSeriesDataset, unit:Optional[str] = 's') -> np.n
     for life in ds:
         diff =  np.diff(life.index.values)
         if pd.api.types.is_timedelta64_ns_dtype(diff.dtype):
+            if unit is None:
+                unit = 's'
             diff = diff / np.timedelta64(1, unit)
         time_diff.extend(diff)
     return np.array(time_diff)
