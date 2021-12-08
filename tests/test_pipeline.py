@@ -1,7 +1,8 @@
-from typing import Any, List, Optional, Tuple, Union
+
 
 import numpy as np
 import pandas as pd
+from scipy.stats import entropy
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation import Concatenate as TransformationConcatenate
 from temporis.transformation import Transformer
@@ -9,114 +10,44 @@ from temporis.transformation.features.imputers import PerColumnImputer
 from temporis.transformation.features.outliers import IQROutlierRemover
 from temporis.transformation.features.scalers import MinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
+from temporis.transformation.features.split import SplitByCategory
 from temporis.transformation.features.transformation import MeanCentering
 from temporis.transformation.functional.graph_utils import root_nodes
-from temporis.transformation.functional.pipeline import TemporisPipeline, make_pipeline
-from temporis.transformation.functional.transformerstep import TransformerStep
-from copy import deepcopy
+from temporis.transformation.functional.pipeline import make_pipeline
 
 
-
-class Joiner(TransformerStep):
-    def transform(self, X: List[Tuple[Any, pd.DataFrame]]):
-        print(X)
-        return pd.concat([data for category, data in X]).sort_index()
-            
-
-
-class Selector(TransformerStep):
-    def __init__(self, category:str,
-        category_feature:str,
-        name: Optional[str] = None,):
-        super().__init__(name)
-        self.category = category
-        self.category_feature = category_feature
-
-    def transform(self, X):
-        return X[X[self.category_feature] == self.category].drop(columns=[self.category_feature])
-
-
-class SplitByCategory(TransformerStep):
-    def __init__(
-        self,
-        categorical_feature_name: str,
-        pipeline : TemporisPipeline,
-        name: Optional[str] = None,
-    ):
-        super().__init__(name)
-        self.orig_pipeline = deepcopy(pipeline)
-        self.categorical_feature_name = categorical_feature_name
-        self._sub_pipelines = {}
-        self.joiner = Joiner()(self)
-
-    def _build_pipeline(self, category):
-        self.disconnect(self.joiner)
-        s = Selector(category, self.categorical_feature_name)(self)
-        new_pipe = deepcopy(self.orig_pipeline)        
-        for r in root_nodes(new_pipe):
-            r(s)
-        self.joiner(new_pipe.final_step)
-        return new_pipe
-
-    def transform(self, X):
-        return X
-   
-
-
-    def partial_fit(self, X, y=None):
-
-        #if 'default' not in self._sub_pipelines:
-        #    self._sub_pipelines['default'] = self._build_pipeline('ALL')
-        self.categorical_feature_name = self.find_feature(
-            X, self.categorical_feature_name
-        )
-        for c in X[self.categorical_feature_name].unique():
-            if c not in self._sub_pipelines:      
-                self._sub_pipelines[c] = self._build_pipeline(c)
-        return self
-    
-    def __call__(
-        self, prev: Union[List["TransformerStepMixin"], "TransformerStepMixin"]
-    ):
-        self._add_previous(prev)
-        return self.joiner
-                
-            
-
+def gaussian(N: int, mean: float = 50, std: float = 10):
+    return np.random.randn(N) * std + mean
 
 class MockDatasetCategorical(AbstractTimeSeriesDataset):
+    def build_df(self):
+        N  = 50
+        return pd.DataFrame(
+                {
+                    "Categorical": ["a"] * N + ["b"] * N,
+                    "feature1": np.hstack(
+                        (gaussian(N, self.mean_a_f1), gaussian(N, self.mean_b_f1))
+                    ),
+                    "feature2": np.hstack(
+                        (gaussian(N, self.mean_a_f2), gaussian(N, self.mean_b_f2))
+                    ),
+                }
+            )
+
     def __init__(self):
         super().__init__()
-        self.lives = [
-            pd.DataFrame(
-                {
-                    "Categorical": ["a", "a", "b", "b"],
-                    "feature1": [500, 515, -45, -66],
-                    "feature2": [93, 95, 1500, np.nan],
-                }
-            ),
-            pd.DataFrame(
-                {
-                    "Categorical": ["a", "a", "b", "b"],
-                    "feature1": [499, 525, -45, -66],
-                    "feature2": [93, 95, 1500, 1200],
-                }
-            ),
-            pd.DataFrame(
-                {
-                    "Categorical": ["a", "a", "b", "b"],
-                    "feature1": [555500, 5455515, -45, -66],
-                    "feature2": [93, 95, 1500, 1200],
-                }
-            ),
-            pd.DataFrame(
-                {
-                    "Categorical": ["a", "a", "b", "b", "a", "a"],
-                    "feature1": [500, 515, -45, -66, 495, 498],
-                    "feature2": [93, 95, 1500, 1320, 85, np.nan],
-                }
-            ),
-        ]
+        self.mean_a_f1 = 50
+        self.mean_b_f1 = -16
+
+        self.mean_a_f2 = 90
+        self.mean_b_f2 = 250
+
+        self.lives = [self.build_df() for i in range(5)]
+        self.lives[4]['feature1'].iloc[50] = 591212
+        self.lives[4]['feature2'].iloc[21] = 591212
+
+        self.lives[3]['feature1'].iloc[88] = 591212
+        self.lives[3]['feature2'].iloc[25] = 591212
 
     def get_time_series(self, i: int):
         return self.lives[i]
@@ -267,14 +198,38 @@ class TestPipeline:
         dataset = MockDatasetCategorical()
         pipe = ByNameFeatureSelector(["Categorical", "feature1", "feature2"])
         bb = make_pipeline(
-            IQROutlierRemover(lower_quantile=0.05, upper_quantile=0.95),
+            IQROutlierRemover(lower_quantile=0.05, upper_quantile=0.95, clip=True),
             MinMaxScaler((-1, 1)),
             PerColumnImputer(),
         )
         pipe = SplitByCategory("Categorical", bb)(pipe)
-   
+
 
         target_pipe = ByNameFeatureSelector(["RUL"])
 
         test_transformer = Transformer(transformerX=pipe)
         test_transformer.fit(dataset)
+
+        q = np.hstack([d[d['Categorical'] == 'a']['feature1'] for d in dataset])
+        approx_cat_a_feature1_1_quantile = np.quantile(q, 0.05)
+        approx_cat_a_feature1_3_quantile = np.quantile(q, 0.95)
+        r = root_nodes(pipe)[0]
+        IQR_Node = r.next[0].next[1].next[0]
+        real_cat_a_feature1_1_quantile = IQR_Node.Q1['feature1']
+        real_cat_a_feature1_3_quantile = IQR_Node.Q3['feature1']
+
+        assert approx_cat_a_feature1_1_quantile - real_cat_a_feature1_1_quantile < 5
+        assert approx_cat_a_feature1_3_quantile - real_cat_a_feature1_3_quantile < 5
+
+        assert test_transformer.transform(dataset[4])[0]['feature1'].iloc[50] -1 < 0.01
+        assert test_transformer.transform(dataset[4])[0]['feature2'].iloc[21] -1 < 0.01
+
+        d = dataset[4]
+        aa = d[d['Categorical'] == 'a']['feature1']
+        counts_before_transformation, _ = np.histogram(aa)
+        counts_before_transformation = counts_before_transformation / np.sum(counts_before_transformation)
+
+        bb = test_transformer.transform(dataset[4])[0]['feature1']
+        counts_after_transformation, _ = np.histogram(bb[:50])
+        counts_after_transformation = counts_after_transformation / np.sum(counts_after_transformation)
+        assert entropy(counts_before_transformation, counts_after_transformation) < 0.01
