@@ -5,7 +5,7 @@
 # Temporis : Time-series utilities for predictive maintenance
 -----------------
 
-[![Coverage Status](https://coveralls.io/repos/github/lucianolorenti/Temporis/badge.svg?branch=main)](https://coveralls.io/github/lucianolorenti/Temporis?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/lucianolorenti/Temporis/badge.svg)](https://coveralls.io/github/lucianolorenti/Temporis)
 [![Documentation](https://img.shields.io/badge/documentation-dev-brightgreen)](https://lucianolorenti.github.io/Temporis/)
 
 ## What is it?
