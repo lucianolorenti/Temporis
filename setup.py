@@ -26,7 +26,8 @@ setup(
         "dill",
         "mmh3",
         "pyinform",
-        "antropy"
+        "antropy",
+        "pyts"
     ],
     license="MIT",
     include_package_data=True,
