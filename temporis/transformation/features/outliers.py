@@ -53,6 +53,8 @@ class IQROutlierRemover(TransformerStep):
         self.clip = clip
 
     def partial_fit(self, X):
+        if X.shape[0] == 1:
+            return self
         if self.proportion_to_sample < 1:
             sampled_points = np.random.choice(
                 X.shape[0], int(X.shape[0] * self.proportion_to_sample), replace=False
