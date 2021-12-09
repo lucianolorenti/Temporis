@@ -11,11 +11,10 @@ class TransformerStepMixin:
         self.previous = []
         self.next = []
         self.uuid = "".join(str(uuid.uuid4()).split("-"))
-        #self.hash = int(
+        # self.hash = int(
         #    hashlib.sha256((f"{self.name}_{self.uuid}").encode("utf8")).hexdigest(),
         #    base=16,
-        #)
-
+        # )
 
     @property
     def name(self):
@@ -23,6 +22,10 @@ class TransformerStepMixin:
             return self.name_
         else:
             return self.__class__.__name__
+
+    @name.setter
+    def name(self, value: str):
+        self.name_ = value
 
     def __call__(
         self, prev: Union[List["TransformerStepMixin"], "TransformerStepMixin"]
@@ -36,9 +39,8 @@ class TransformerStepMixin:
         if not isinstance(prev, list):
             prev = [prev]
         for p in prev:
-            p.add_next( self)
+            p.add_next(self)
 
-    
     def remove_previous(self, node):
         self.previous.remove(node)
 
@@ -49,15 +51,12 @@ class TransformerStepMixin:
         elif node in self.next:
             self.next.remove(node)
             node.disconnect(self)
-        
-        
 
-
-    def add_next(self, nodes:Union[List["TransformerStepMixin"], "TransformerStepMixin"]):
+    def add_next(
+        self, nodes: Union[List["TransformerStepMixin"], "TransformerStepMixin"]
+    ):
         if not isinstance(nodes, list):
             nodes = [nodes]
         for n in nodes:
             self.next.append(n)
             n.previous.append(self)
-
-

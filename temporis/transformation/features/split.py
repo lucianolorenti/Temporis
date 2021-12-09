@@ -54,7 +54,7 @@ class SplitByCategory(TransformerStep):
         s = Filter(category, self.categorical_feature_name)(self)
         new_pipe = deepcopy(self.orig_pipeline)
         for node in topological_sort_iterator(new_pipe):
-            node._name = "Category: {category} " + node.name
+            node.name = f"Category: {category} " + node.name
         for r in root_nodes(new_pipe):
             r(s)
         self.joiner(new_pipe.final_step)
