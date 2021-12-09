@@ -10,13 +10,15 @@ from temporis import CACHE_PATH
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation.functional.graph_utils import (
     dfs_iterator,
+    edges,
+    nodes,
     root_nodes,
     topological_sort_iterator,
 )
 from temporis.transformation.functional.transformerstep import TransformerStep
 from tqdm.auto import tqdm
 import shutil
-
+import graphviz
 
 def encode_tuple(tup: Tuple):
     def get_hash(x):
@@ -259,9 +261,26 @@ class TemporisPipeline(TransformerMixin):
             data.append(node.description())
         return data
 
+    
+
 
 
 def make_pipeline(*steps):
     for s in range(1, len(steps)):
         steps[s](steps[s-1])
     return TemporisPipeline(steps[-1]) 
+
+
+def plot_pipeline(pipe:TemporisPipeline, name:str):
+    dot = graphviz.Digraph(name, comment='Transformation graph')
+    
+    node_name = {}
+    for i, node in enumerate(nodes(pipe)):
+        node_name[node] = str(i)  + node.name
+        dot.node(str(i)  + node.name, label=node.name)
+        
+
+    for (e1, e2) in edges(pipe):
+        dot.edge(node_name[e1], node_name[e2])
+    
+    return dot

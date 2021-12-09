@@ -101,3 +101,20 @@ class topological_sort_iterator:
         self.traversed.append(self.current_node)
 
         return self.current_node
+
+
+def nodes(pipe : "TemporisPipeline"):
+    _nodes = set()
+    for root in root_nodes(pipe):        
+        for node in topological_sort_iterator(root):
+            _nodes.add(node)
+    return list(_nodes)
+
+
+def edges(pipe: "TemporisPipeline"):
+    _edges = set()
+    for n in nodes(pipe):
+        for n_next in n.next:
+            if (n, n_next) not in _edges and (n_next, n) not in _edges:
+                _edges.add((n, n_next))
+    return _edges
