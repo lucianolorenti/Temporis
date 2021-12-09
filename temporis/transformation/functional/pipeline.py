@@ -18,7 +18,7 @@ from temporis.transformation.functional.graph_utils import (
 from temporis.transformation.functional.transformerstep import TransformerStep
 from tqdm.auto import tqdm
 import shutil
-import graphviz
+
 
 def encode_tuple(tup: Tuple):
     def get_hash(x):
@@ -272,6 +272,7 @@ def make_pipeline(*steps):
 
 
 def plot_pipeline(pipe:TemporisPipeline, name:str):
+    import graphviz
     dot = graphviz.Digraph(name, comment='Transformation graph')
     
     node_name = {}
