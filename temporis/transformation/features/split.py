@@ -1,11 +1,12 @@
 from copy import deepcopy
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
 from temporis.transformation.functional.graph_utils import (
-    root_nodes, topological_sort_iterator)
-from temporis.transformation.functional.pipeline import (TemporisPipeline,
-                                                         make_pipeline)
+    root_nodes,
+    topological_sort_iterator,
+)
+from temporis.transformation.functional.pipeline.pipeline import TemporisPipeline
 from temporis.transformation.functional.transformerstep import TransformerStep
 
 
@@ -21,40 +22,54 @@ class Joiner(TransformerStep):
 class Filter(TransformerStep):
     def __init__(
         self,
-        value: Any,
-        column: str,
+        values: List[Any],
+        columns: Union[List[str], str],
         name: Optional[str] = None,
     ):
+        def prepare_value(v):
+            if isinstance(v, str):
+                return f"'{v}'"
+            else:
+                return v
+
         super().__init__(name)
-        self.value = value
-        self.column = column
+        self.values = values
+        self.columns = columns
+        self.query = " & ".join(
+            [f"({c} == {prepare_value(v)})" for c, v in zip(self.columns, self.values)]
+        )
 
     def transform(self, X):
-        if self.column == "__category_all__":
-            return X.drop(columns=[self.column])
+        if self.values == ["__category_all__"]:
+            return X.drop(columns=self.columns)
         else:
-            return X[X[self.column] == self.value].drop(columns=[self.column])
+            return X.query(self.query).drop(columns=self.columns)
 
 
 class SplitByCategory(TransformerStep):
     def __init__(
         self,
-        categorical_feature_name: str,
+        categorical_feature_names: Union[str, List[str]],
         pipeline: TemporisPipeline,
         name: Optional[str] = None,
     ):
         super().__init__(name)
+        if isinstance(categorical_feature_names, str):
+            categorical_feature_names = [categorical_feature_names]
+
         self.orig_pipeline = deepcopy(pipeline)
-        self.categorical_feature_name = categorical_feature_name
+        self.categorical_feature_names = categorical_feature_names
+
+        self._categorical_feature_names_resolved = None
         self._sub_pipelines = {}
         self.joiner = Joiner()(self)
 
-    def _build_pipeline(self, category):
+    def _build_pipeline(self, categories: Tuple[str]):
         self.disconnect(self.joiner)
-        s = Filter(category, self.categorical_feature_name)(self)
+        s = Filter(categories, self._categorical_feature_names_resolved)(self)
         new_pipe = deepcopy(self.orig_pipeline)
         for node in topological_sort_iterator(new_pipe):
-            node.name = f"Category: {category} " + node.name
+            node.name = f"Category: {categories} " + node.name
         for r in root_nodes(new_pipe):
             r(s)
         self.joiner(new_pipe.final_step)
@@ -64,16 +79,18 @@ class SplitByCategory(TransformerStep):
         return X
 
     def partial_fit(self, X, y=None):
-
+        if self._categorical_feature_names_resolved is None:
+            self._categorical_feature_names_resolved = [
+                self.find_feature(X, f) for f in self.categorical_feature_names
+            ]
         if "default" not in self._sub_pipelines:
-            self._sub_pipelines["default"] = self._build_pipeline("__category_all__")
-        self.categorical_feature_name = self.find_feature(
-            X, self.categorical_feature_name
-        )
-        for c in X[self.categorical_feature_name].unique():
+            self._sub_pipelines["default"] = self._build_pipeline(["__category_all__"])
+        for _, c in (
+            X[self._categorical_feature_names_resolved].drop_duplicates().iterrows()
+        ):
+            c = tuple(c)
             if c not in self._sub_pipelines:
-                pipe = self._build_pipeline(c)
-                self._sub_pipelines[c] = pipe
+                self._sub_pipelines[c] = self._build_pipeline(c)
         return self
 
     def __call__(
