@@ -22,7 +22,9 @@ class TransformerStep(TransformerStepMixin,  TransformerMixin):
         return columns[0]
 
     def find_feature(self, X:pd.DataFrame, name:str) -> Optional[str]:
+        print(name)
         matches = [c for c in X.columns if name in c]
+        print(matches)
         if len(matches) > 0:
             return matches[0]
         else:

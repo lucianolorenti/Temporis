@@ -9,18 +9,18 @@ dataset iterators to transform the data before feeding it to the model.
 """
 import copy
 import logging
-from pathlib import Path
 from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from pandas.core.algorithms import isin
 from sklearn.utils.validation import check_is_fitted
-from temporis.transformation.functional.concatenate import Concatenate
-from temporis.transformation.functional.graph_utils import topological_sort_iterator
-from temporis.transformation.functional.pipeline import TemporisPipeline
+from temporis.transformation.functional.graph_utils import \
+    topological_sort_iterator
+from temporis.transformation.functional.pipeline.cache_store import \
+    CacheStoreType
+from temporis.transformation.functional.pipeline.pipeline import \
+    TemporisPipeline
 from temporis.transformation.functional.transformerstep import TransformerStep
-
 
 logger = logging.getLogger(__name__)
 
@@ -86,19 +86,21 @@ class Transformer:
         transformerX: Union[TemporisPipeline, TransformerStep],
         transformerY: Optional[Union[TemporisPipeline, TransformerStep]] = None,
         transformerMetadata: Optional[Union[TemporisPipeline, TransformerStep]] = None,
+        cache_type: CacheStoreType = CacheStoreType.SHELVE,
+        
     ):
-        def ensure_pipeline(x):
+        def ensure_pipeline(x, cache_type: CacheStoreType):
             if isinstance(x, TemporisPipeline):
                 return x
-            return TemporisPipeline(x)
+            return TemporisPipeline(x, cache_type=cache_type)
 
-        self.transformerX = ensure_pipeline(transformerX)
+        self.transformerX = ensure_pipeline(transformerX, cache_type)
         if transformerY is not None:
-            self.transformerY = ensure_pipeline(transformerY)
+            self.transformerY = ensure_pipeline(transformerY, cache_type)
         else:
             self.transformerY = None
         self.transformerMetadata = (
-            ensure_pipeline(transformerMetadata)
+            ensure_pipeline(transformerMetadata, cache_type)
             if transformerMetadata is not None
             else None
         )
@@ -250,7 +252,8 @@ def TransformerIdentity(rul_column: str = "RUL") -> Transformer:
     Transformer
         [description]
     """
-    from temporis.transformation.features.selection import ByNameFeatureSelector
+    from temporis.transformation.features.selection import \
+        ByNameFeatureSelector
     from temporis.transformation.utils import IdentityTransformerStep
 
     return Transformer(IdentityTransformerStep(), ByNameFeatureSelector([rul_column]))
