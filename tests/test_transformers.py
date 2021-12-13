@@ -555,3 +555,5 @@ class TestQuantileEstimator:
         assert np.abs(s.A) - 5 < 0.1
         assert np.abs(s.B) < 0.1
         assert s.index.tolist() == ["A", "B"]
+
+        assert q.estimate_quantile(0.5, 'A') - 5 < 0.1
