@@ -1,9 +1,10 @@
 from typing import Optional, Union
 
+import numpy as np
 import pandas as pd
 from temporis.transformation import TransformerStep
-import numpy as np
 from temporis.transformation.features.tdigest import TDigest
+from temporis.transformation.utils import QuantileEstimator
 
 
 class RobustMinMaxScaler(TransformerStep):
@@ -37,57 +38,39 @@ class RobustMinMaxScaler(TransformerStep):
         clip: bool = True,
         lower_quantile: float = 0.25,
         upper_quantile: float = 0.75,
-        tdigest_size: Optional[int] = 100,
         name: Optional[str] = None,
     ):
 
         super().__init__(name)
         self.range = range
-        self.min = range[0]
-        self.max = range[1]
-        self.data_min = None
-        self.data_max = None
+        self.Q1 = None
+        self.Q3 = None
         self.clip = clip
+        self.quantile_estimator = QuantileEstimator()
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
-        self.tdigest_size = tdigest_size
-        self.quantile_estimator = {}
-        self.computed_limits = {}
+
+    def _compute_quantiles(self):
+        self.Q1 = self.quantile_estimator.estimate_quantile(self.lower_quantile)
+        self.Q3 = self.quantile_estimator.estimate_quantile(self.upper_quantile)
+
+        self.IQR = self.Q3 - self.Q1
+
+        self.median = self.quantile_estimator.estimate_quantile(0.5)
 
     def partial_fit(self, df: pd.DataFrame, y=None):
-        if len(self.quantile_estimator) == 0:
-            for c in df.columns:
-                self.quantile_estimator[c] = TDigest(self.tdigest_size)
-                self.computed_limits[c] = {"min": 0, "max": 0}
-
-        for c in df.columns:
-            self.quantile_estimator[c] = self.quantile_estimator[c].merge_unsorted(
-                df[c].values
-            )
-            self.quantile_estimator[c] = self.quantile_estimator[c].merge_unsorted(
-                df[c].values
-            )
-
-            self.computed_limits[c]["min"] = self.quantile_estimator[
-                c
-            ].estimate_quantile(self.lower_quantile)
-            self.computed_limits[c]["max"] = self.quantile_estimator[
-                c
-            ].estimate_quantile(self.upper_quantile)
+        self.quantile_estimator.update(df)
+        return self
 
     def transform(self, X: pd.DataFrame):
-        for c in X.columns:
-            lower_limit = self.computed_limits[c]["min"]
-            upper_limit = self.computed_limits[c]["max"]
-
-            if self.clip:
-                X[c].clip(lower=lower_limit, upper=upper_limit, inplace=True)
-
-            t_data_c_std = (X[c] - lower_limit) / (upper_limit - lower_limit)
-
-            X[c] = t_data_c_std * (self.max - self.min) + self.min
-
-        return X
+        if self.Q1 is None:
+            self._compute_quantiles()
+        X_std = (X - self.Q1) / (self.Q3 - self.Q1)
+        new_X = X_std * (self.range[1] - self.range[0]) + self.range[0]
+        if self.clip:
+            return new_X.clip(self.range[0], self.range[1])
+        else:
+            return new_X
 
 
 class MinMaxScaler(TransformerStep):
@@ -163,6 +146,13 @@ class StandardScaler(TransformerStep):
 
     Parameters
     ----------
+    def _compute_quantiles(self):
+        self.Q1 = self.quantile_estimator.estimate_quantile(self.quantile_range[0])
+        self.Q3 = self.quantile_estimator.estimate_quantile(self.quantile_range[1])
+
+        self.IQR = self.Q3 - self.Q1
+
+        self.median = self.quantile_estimator.estimate_quantile(0.5)
     name : Optional[str], optional
         Name of the step, by default None
 
@@ -196,13 +186,13 @@ class StandardScaler(TransformerStep):
         return X - self.mean
 
 
-class RobustScaler(TransformerStep):
-    """Center the data with respect to the mean"""
+class RobustStandardScaler(TransformerStep):
+    """Scale features using statistics that are robust to outliers."""
 
     def __init__(self, *args, quantile_range=(0.25, 0.75), **kwargs):
         super().__init__(*args, **kwargs)
         self.quantile_range = quantile_range
-        self.tdigest_dict = None
+        self.quantile_estimator = QuantileEstimator()
         self.IQR = None
         self.median = None
 
@@ -241,35 +231,17 @@ class RobustScaler(TransformerStep):
         if X.shape[0] < 2:
             return self
 
-        if self.tdigest_dict is None:
-            self.tdigest_dict = {c: TDigest(100) for c in X.columns}
+        self.quantile_estimator.update(X)
 
-        
-        for c in X.columns:
-            self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
-
-
-        Q1 = pd.Series(
-            {
-                c: self.tdigest_dict[c].estimate_quantile(self.quantile_range[0])
-                for c in self.tdigest_dict.keys()
-            }
-        )
-        Q3 = pd.Series(
-            {
-                c: self.tdigest_dict[c].estimate_quantile(self.quantile_range[1])
-                for c in self.tdigest_dict.keys()
-            }
-        )
-        self.IQR = Q3 - Q1
-        
-        self.median = pd.Series(
-            {
-                c: self.tdigest_dict[c].estimate_quantile(0.5)
-                for c in self.tdigest_dict.keys()
-            }
-        )
         return self
+
+    def _compute_quantiles(self):
+        self.Q1 = self.quantile_estimator.estimate_quantile(self.quantile_range[0])
+        self.Q3 = self.quantile_estimator.estimate_quantile(self.quantile_range[1])
+
+        self.IQR = self.Q3 - self.Q1
+
+        self.median = self.quantile_estimator.estimate_quantile(0.5)
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Center the input life
@@ -285,7 +257,8 @@ class RobustScaler(TransformerStep):
             A new DataFrame with the same index as the input with the
             data centered with respect to the mean of the fiited dataset
         """
-
+        if self.IQR is None:
+            self._compute_quantiles()
         return (X - self.median) / self.IQR
 
 
