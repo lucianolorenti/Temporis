@@ -7,8 +7,7 @@ from temporis.transformation.functional.mixin import TransformerStepMixin
 from copy import copy
 
 
-class TransformerStep(TransformerStepMixin,  TransformerMixin):
-
+class TransformerStep(TransformerStepMixin, TransformerMixin):
     def partial_fit(self, X, y=None):
         return self
 
@@ -21,18 +20,12 @@ class TransformerStep(TransformerStepMixin,  TransformerMixin):
             raise ValueError("{cname} is not present in the dataset")
         return columns[0]
 
-    def find_feature(self, X:pd.DataFrame, name:str) -> Optional[str]:
-        print(name)
+    def find_feature(self, X: pd.DataFrame, name: str) -> Optional[str]:
         matches = [c for c in X.columns if name in c]
-        print(matches)
         if len(matches) > 0:
             return matches[0]
         else:
             return None
 
     def description(self):
-        return f'{self.name}'
-
-
-
-
+        return f"{self.name}"
