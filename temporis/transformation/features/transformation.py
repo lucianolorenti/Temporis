@@ -3,6 +3,7 @@ from typing import Optional
 
 import pandas as pd
 from temporis.transformation import TransformerStep
+from temporis.transformation.features.tdigest import TDigest
 
 
 class MeanCentering(TransformerStep):
@@ -66,6 +67,76 @@ class MeanCentering(TransformerStep):
             data centered with respect to the mean of the fiited dataset
         """
         return X - self.mean
+
+
+class MedianCentering(TransformerStep):
+    """Center the data with respect to the mean"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tdigest_dict = None
+        self.median = None
+
+    def fit(self, X: pd.DataFrame, y=None):
+        """Compute the mean of the dataset
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            the input dataset
+
+
+        Returns
+        -------
+        MeanCentering
+            self
+        """
+        self.median = X.median()
+
+    def partial_fit(self, X: pd.DataFrame, y=None):
+        """Compute incrementally the mean of the dataset
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            the input life
+
+        Returns
+        -------
+        MeanCentering
+            self
+        """
+        if X.shape[0] < 2:
+            return self
+
+        if self.tdigest_dict is None:
+            self.tdigest_dict = {c: TDigest(100) for c in X.columns}
+        for c in X.columns:
+            self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
+
+        self.median = pd.Series(
+            {
+                c: self.tdigest_dict[c].estimate_quantile(0.5)
+                for c in self.tdigest_dict.keys()
+            }
+        )
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Center the input life
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            The input life
+
+        Returns
+        -------
+        pd.DataFrame
+            A new DataFrame with the same index as the input with the
+            data centered with respect to the mean of the fiited dataset
+        """
+        return X - self.median
 
 
 class Square(TransformerStep):
