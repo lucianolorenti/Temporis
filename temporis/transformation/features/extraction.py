@@ -596,6 +596,10 @@ class RollingStatistics(TransformerStep):
     def fit(self, X, y=None):
         return self
 
+
+    def _std_atan(self, s: pd.Series):
+        return s.rolling(self.window, self.min_points).apply(lambda x: np.arctan(x)).mean(skipna=True)
+
     def _mean(self, s: pd.Series):
         return s.rolling(self.window, self.min_points).mean(skipna=True)
 
