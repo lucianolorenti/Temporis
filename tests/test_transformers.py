@@ -7,22 +7,27 @@ import scipy.stats
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation.features.entropy import LocalEntropyMeasures
 from temporis.transformation.features.extraction import (
-    EMD, ChangesDetector, Difference, ExpandingStatistics,
-    OneHotCategorical, SimpleEncodingCategorical)
-
-from temporis.transformation.features.outliers import (EWMAOutlierRemover,
-                                                       EWMAOutOfRange,
-                                                       IQROutlierRemover,
-                                                       ZScoreOutlierRemover)
+    EMD,
+    ChangesDetector,
+    Difference,
+    ExpandingStatistics,
+    OneHotCategorical,
+    SimpleEncodingCategorical,
+)
+from temporis.transformation.features.outliers import (
+    EWMAOutlierRemover,
+    EWMAOutOfRange,
+    IQROutlierRemover,
+    ZScoreOutlierRemover,
+)
 from temporis.transformation.features.resamplers import SubSampleTransformer
-
-from temporis.transformation.features.selection import (ByNameFeatureSelector,
-                                                        NullProportionSelector)
+from temporis.transformation.features.selection import (
+    ByNameFeatureSelector,
+    NullProportionSelector,
+)
 from temporis.transformation.features.transformation import Accumulate
-from temporis.transformation.functional.pipeline import (TemporisPipeline)
-
-
-
+from temporis.transformation.functional.pipeline.pipeline import TemporisPipeline
+from temporis.transformation.utils import QuantileEstimator
 
 
 def manual_expanding(df: pd.DataFrame, min_points: int = 1):
@@ -527,8 +532,26 @@ class TestEntropy:
 
         assert np.nansum(df_new["a_local_block_entropy"] - LOCAL_BLOCK_ENTROPY) < 1e-6
 
-        assert np.nansum(
-            df_new["a_local_active_information"] - LOCAL_ACTIVE_INFORMATION
-        ) < 1e-6
+        assert (
+            np.nansum(df_new["a_local_active_information"] - LOCAL_ACTIVE_INFORMATION)
+            < 1e-6
+        )
 
 
+class TestQuantileEstimator:
+    def test_quantile(self):
+        q = QuantileEstimator()
+        A = pd.DataFrame({"A": np.random.randn(300), "B": np.random.randn(300)})
+        q.update(A)
+        s = q.estimate_quantile(0.5)
+        assert s.index.tolist() == ["A", "B"]
+        assert np.abs(s.A) < 0.1
+        assert np.abs(s.B) < 0.1
+
+        B = pd.DataFrame({"A": np.random.randn(15000) + 5, "B": np.random.randn(15000)})
+        q.update(B)
+        s = q.estimate_quantile(0.5)
+        assert s.index.tolist() == ["A", "B"]
+        assert np.abs(s.A) - 5 < 0.1
+        assert np.abs(s.B) < 0.1
+        assert s.index.tolist() == ["A", "B"]

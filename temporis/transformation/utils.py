@@ -5,6 +5,8 @@ import pandas as pd
 from temporis.transformation import TransformerStep
 from sklearn.pipeline import FeatureUnion, _transform_one
 
+from temporis.transformation.features.tdigest import TDigest
+
 
 class PandasToNumpy(TransformerStep):
     def fit(self, X, y=None):
@@ -87,3 +89,27 @@ def column_names_window(columns: list, window: int) -> list:
         for c in columns:
             new_columns.append(f'w_{w}_{c}')
     return new_columns
+
+
+class QuantileEstimator:
+    def __init__(self):
+        self.tdigest_dict = None
+
+    def update(self, X:pd.DataFrame):
+        if  X.shape[0] < 2:
+            return self
+        if self.tdigest_dict is None:
+            self.tdigest_dict = {c: TDigest(100) for c in X.columns}
+
+        
+        for c in X.columns:
+            self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
+        return self
+
+    def estimate_quantile(self, q:float) -> pd.Series:
+        return pd.Series(
+            {
+                c: self.tdigest_dict[c].estimate_quantile(q)
+                for c in self.tdigest_dict.keys()
+            }
+        )
