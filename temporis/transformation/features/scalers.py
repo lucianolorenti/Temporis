@@ -135,7 +135,7 @@ class MinMaxScaler(TransformerStep):
             )
         return self
 
-    def fit(self, df, y=None):        
+    def fit(self, df, y=None):
         self.data_min = df.min()
         self.data_max = df.max()
         return self
@@ -194,6 +194,99 @@ class StandardScaler(TransformerStep):
     def transform(self, X):
         # return (X - self.mean) / (self.std)
         return X - self.mean
+
+
+class RobustScaler(TransformerStep):
+    """Center the data with respect to the mean"""
+
+    def __init__(self, *args, quantile_range=(0.25, 0.75), **kwargs):
+        super().__init__(*args, **kwargs)
+        self.quantile_range = quantile_range
+        self.tdigest_dict = None
+        self.IQR = None
+        self.median = None
+
+    def fit(self, X: pd.DataFrame, y=None):
+        """Compute the mean of the dataset
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            the input dataset
+
+
+        Returns
+        -------
+        MeanCentering
+            self
+        """
+        Q1 = X.quantile(self.quantile_range[0])
+        Q3 = X.quantile(self.quantile_range[1])
+        self.IQR = Q3 - Q1
+        self.median = X.median()
+
+    def partial_fit(self, X: pd.DataFrame, y=None):
+        """Compute incrementally the mean of the dataset
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            the input life
+
+        Returns
+        -------
+        MeanCentering
+            self
+        """
+        if X.shape[0] < 2:
+            return self
+
+        if self.tdigest_dict is None:
+            self.tdigest_dict = {c: TDigest(100) for c in X.columns}
+
+        
+        for c in X.columns:
+            self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
+
+
+        Q1 = pd.Series(
+            {
+                c: self.tdigest_dict[c].estimate_quantile(self.quantile_range[0])
+                for c in self.tdigest_dict.keys()
+            }
+        )
+        Q3 = pd.Series(
+            {
+                c: self.tdigest_dict[c].estimate_quantile(self.quantile_range[1])
+                for c in self.tdigest_dict.keys()
+            }
+        )
+        self.IQR = Q3 - Q1
+        
+        self.median = pd.Series(
+            {
+                c: self.tdigest_dict[c].estimate_quantile(0.5)
+                for c in self.tdigest_dict.keys()
+            }
+        )
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Center the input life
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            The input life
+
+        Returns
+        -------
+        pd.DataFrame
+            A new DataFrame with the same index as the input with the
+            data centered with respect to the mean of the fiited dataset
+        """
+
+        return (X - self.median) / self.IQR
 
 
 class ScaleInvRUL(TransformerStep):
