@@ -79,6 +79,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#More-complex-transformers">More complex transformers</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#It-is-possible-to-visualize-the-transformation-pipeline">It is possible to visualize the transformation pipeline</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Iterators">Iterators</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Lives-iterator">Lives iterator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Transformed-dataset">Transformed dataset</a></li>
@@ -92,7 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#Model">Model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Keras-models">Keras models</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Learning-curves">Learning curves</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Prediction-on-the-training-set">Prediction on the training set</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prediction-on-the-validation-set">Prediction on the validation set</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#Scikit-learn-and-gradient-boosting-models">Scikit-learn and gradient boosting models</a></li>
@@ -418,15 +421,6 @@ properly.</p>
 <p>[1] A. Saxena, M. Ieee, K. Goebel, D. Simon, and N. Eklund, “Damage Propagation Modeling for Aircraft Engine Prognostics,” Response, 2008.</p>
 <section id="Import">
 <h2>Import<a class="headerlink" href="#Import" title="Permalink to this headline"></a></h2>
-<p>import matplotlib.pyplot as plt import numpy as np import pandas as pd import seaborn as sns import tensorflow as tf from sklearn.pipeline import Pipeline from sklearn.preprocessing import MinMaxScaler, RobustScaler from tensorflow.keras.callbacks import ReduceLROnPlateau</p>
-<p>sns.set()</p>
-<div class="line-block">
-<div class="line">from rul_pm.dataset.CMAPSS import (engines, operation_mode, process_file_test, process_file_train, sensor_indices) from rul_pm.dataset.lives_dataset import AbstractLivesDataset from rul_pm.graphics.duration import (add_vertical_line, durations_boxplot, lives_duration_histogram, lives_duration_histogram_from_durations) from rul_pm.graphics.plots import ( hold_out_barplot_errors_wrt_RUL_multiple_models, hold_out_boxplot_errors_wrt_RUL_multiple_models, plot_life, plot_true_and_predicted,
-plot_unexpected_breaks, plot_unexploited_lifetime) from rul_pm.iterators.batcher import Batcher from rul_pm.iterators.iterators import (LifeDatasetIterator, WindowedDatasetIterator) from rul_pm.iterators.utils import true_values from rul_pm.models.baseline import BaselineModel from rul_pm.models.keras.models.simple import FCN from rul_pm.models.keras.models.XiangQiangJianQiao import</div>
-<div class="line">XiangQiangJianQiaoModel from rul_pm.models.sklearn import SKLearnModel from rul_pm.results.results import split_lives, cv_regression_metrics</div>
-</div>
-<p>from rul_pm.transformation.features.imputers import (ForwardFillImputer, PandasMeanImputer, PandasRemoveInf, PerColumnImputer) from rul_pm.transformation.features.outliers import (IQROutlierRemover, ZScoreOutlierRemover) from rul_pm.transformation.features.resamplers import ResamplerTransformer from rul_pm.transformation.features.scalers import PandasMinMaxScaler from rul_pm.transformation.features.selection import ( ByNameFeatureSelector, PandasNullProportionSelector, PandasVarianceThreshold)
-from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformation.target import PicewiseRUL from rul_pm.transformation.transformers import Transformer from rul_pm.transformation.transformerstep import Concatenate from rul_pm.transformation.utils import (IdentityTransformer, PandasTransformerWrapper)</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -447,8 +441,8 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -462,12 +456,12 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 <span class="kn">from</span> <span class="nn">temporis.transformation.features.selection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ByNameFeatureSelector</span><span class="p">,</span>
                                                         <span class="n">PandasNullProportionSelector</span><span class="p">,</span>
                                                         <span class="n">PandasVarianceThreshold</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">temporis.transformation.features.scalers</span> <span class="kn">import</span> <span class="n">PandasMinMaxScaler</span>
+<span class="kn">from</span> <span class="nn">temporis.transformation.features.scalers</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
 <span class="kn">from</span> <span class="nn">temporis.transformation.features.imputers</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ForwardFillImputer</span><span class="p">,</span>
-                                                         <span class="n">PandasMeanImputer</span><span class="p">,</span>
-                                                         <span class="n">PandasRemoveInf</span><span class="p">,</span>
+                                                         <span class="n">MeanImputer</span><span class="p">,</span>
+                                                         <span class="n">RemoveInf</span><span class="p">,</span>
                                                          <span class="n">PerColumnImputer</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">temporis.transformation.features.extraction</span> <span class="kn">import</span> <span class="n">RollingStatisticsPandas</span>
+<span class="kn">from</span> <span class="nn">temporis.transformation.features.extraction</span> <span class="kn">import</span> <span class="n">RollingStatistics</span>
 <span class="kn">from</span> <span class="nn">temporis.transformation</span> <span class="kn">import</span> <span class="n">Transformer</span><span class="p">,</span> <span class="n">Concatenate</span>
 
 <span class="kn">from</span> <span class="nn">temporis.iterators.iterators</span> <span class="kn">import</span> <span class="p">(</span><span class="n">WindowedDatasetIterator</span><span class="p">)</span>
@@ -476,8 +470,18 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 <span class="kn">from</span> <span class="nn">temporis.iterators.utils</span> <span class="kn">import</span> <span class="n">true_values</span>
 
 <span class="kn">from</span> <span class="nn">temporis.models.keras</span> <span class="kn">import</span> <span class="n">tf_regression_dataset</span>
+<span class="kn">from</span> <span class="nn">temporis.transformation.functional.pipeline.utils</span> <span class="kn">import</span> <span class="n">plot_pipeline</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2021-12-16 11:45:15.602872: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libcudart.so.11.0&#39;; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2021-12-16 11:45:15.602890: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+</pre></div></div>
 </div>
 </section>
 <section id="Dataset">
@@ -626,189 +630,189 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
   <tbody>
     <tr>
       <th>0</th>
-      <td>SensorMeasure17</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>SensorMeasure5</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>25</th>
-      <td>SensorMeasure11</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>Cycle</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>23</th>
-      <td>OpMode</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>22</th>
-      <td>SensorMeasure8</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>OpSet1</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>SensorMeasure10</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>SensorMeasure15</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>SensorMeasure12</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>17</th>
       <td>OpSet3</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>16</th>
-      <td>SensorMeasure20</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>15</th>
+      <th>14</th>
       <td>SensorMeasure13</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>13</th>
-      <td>SensorMeasure6</td>
+      <th>25</th>
+      <td>SensorMeasure5</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>1</th>
-      <td>RUL</td>
+      <th>24</th>
+      <td>SensorMeasure11</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>12</th>
-      <td>SensorMeasure18</td>
+      <th>23</th>
+      <td>SensorMeasure10</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>11</th>
-      <td>SensorMeasure2</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>OpSet2</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>SensorMeasure1</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>SensorMeasure9</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>SensorMeasure16</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>SensorMeasure4</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>SensorMeasure19</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>SensorMeasure3</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>3</th>
+      <th>22</th>
       <td>SensorMeasure14</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>2</th>
+      <th>21</th>
       <td>SensorMeasure21</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
     </tr>
     <tr>
-      <th>26</th>
+      <th>20</th>
+      <td>OpMode</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>SensorMeasure6</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>Cycle</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>SensorMeasure18</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>SensorMeasure3</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>SensorMeasure9</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>SensorMeasure17</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>OpSet2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>RUL</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>11</th>
       <td>SensorMeasure7</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>OpSet1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>SensorMeasure19</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>SensorMeasure2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>SensorMeasure15</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>SensorMeasure20</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>SensorMeasure8</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>SensorMeasure16</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>SensorMeasure12</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>SensorMeasure1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>SensorMeasure4</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0</td>
@@ -1008,189 +1012,189 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
   </thead>
   <tbody>
     <tr>
-      <th>12</th>
-      <td>SensorMeasure18</td>
-      <td>0.000000</td>
-      <td>0.000000e+00</td>
-      <td>0.000000e+00</td>
-    </tr>
-    <tr>
-      <th>17</th>
+      <th>0</th>
       <td>OpSet3</td>
       <td>0.000000</td>
       <td>0.000000e+00</td>
       <td>0.000000e+00</td>
     </tr>
     <tr>
-      <th>23</th>
+      <th>17</th>
+      <td>SensorMeasure18</td>
+      <td>0.000000</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>20</th>
       <td>OpMode</td>
       <td>0.000000</td>
       <td>0.000000e+00</td>
       <td>0.000000e+00</td>
     </tr>
     <tr>
-      <th>5</th>
+      <th>9</th>
       <td>SensorMeasure19</td>
       <td>0.000000</td>
       <td>0.000000e+00</td>
       <td>0.000000e+00</td>
     </tr>
     <tr>
-      <th>7</th>
+      <th>4</th>
       <td>SensorMeasure16</td>
       <td>0.000000</td>
       <td>5.321406e-18</td>
       <td>1.393232e-17</td>
     </tr>
     <tr>
-      <th>20</th>
+      <th>23</th>
       <td>SensorMeasure10</td>
       <td>0.000000</td>
       <td>2.203638e-16</td>
       <td>6.677487e-16</td>
     </tr>
     <tr>
-      <th>14</th>
+      <th>25</th>
       <td>SensorMeasure5</td>
       <td>0.000000</td>
       <td>1.264424e-15</td>
       <td>3.566673e-15</td>
     </tr>
     <tr>
-      <th>9</th>
+      <th>2</th>
       <td>SensorMeasure1</td>
       <td>0.000000</td>
       <td>2.280172e-15</td>
       <td>1.141103e-13</td>
     </tr>
     <tr>
-      <th>10</th>
+      <th>1</th>
       <td>OpSet2</td>
       <td>0.000269</td>
       <td>2.897551e-04</td>
       <td>3.239132e-04</td>
     </tr>
     <tr>
-      <th>13</th>
+      <th>19</th>
       <td>SensorMeasure6</td>
       <td>0.000000</td>
       <td>9.590898e-04</td>
       <td>2.881041e-03</td>
     </tr>
     <tr>
-      <th>21</th>
+      <th>10</th>
       <td>OpSet1</td>
       <td>0.001953</td>
       <td>2.186825e-03</td>
       <td>2.539450e-03</td>
     </tr>
     <tr>
-      <th>19</th>
+      <th>7</th>
       <td>SensorMeasure15</td>
       <td>0.027545</td>
       <td>3.446460e-02</td>
       <td>4.259321e-02</td>
     </tr>
     <tr>
-      <th>22</th>
+      <th>5</th>
       <td>SensorMeasure8</td>
       <td>0.028232</td>
       <td>5.659648e-02</td>
       <td>8.952233e-02</td>
     </tr>
     <tr>
-      <th>15</th>
+      <th>14</th>
       <td>SensorMeasure13</td>
       <td>0.031886</td>
       <td>5.727052e-02</td>
       <td>9.244486e-02</td>
     </tr>
     <tr>
-      <th>2</th>
+      <th>21</th>
       <td>SensorMeasure21</td>
       <td>0.078355</td>
       <td>9.955036e-02</td>
       <td>1.208019e-01</td>
     </tr>
     <tr>
-      <th>16</th>
+      <th>6</th>
       <td>SensorMeasure20</td>
       <td>0.136852</td>
       <td>1.664198e-01</td>
       <td>2.046536e-01</td>
     </tr>
     <tr>
-      <th>25</th>
+      <th>24</th>
       <td>SensorMeasure11</td>
       <td>0.174484</td>
       <td>2.374455e-01</td>
       <td>3.051670e-01</td>
     </tr>
     <tr>
-      <th>11</th>
+      <th>8</th>
       <td>SensorMeasure2</td>
       <td>0.372103</td>
       <td>4.628500e-01</td>
       <td>5.770413e-01</td>
     </tr>
     <tr>
-      <th>18</th>
+      <th>3</th>
       <td>SensorMeasure12</td>
       <td>0.448932</td>
       <td>6.481781e-01</td>
       <td>8.570263e-01</td>
     </tr>
     <tr>
-      <th>26</th>
+      <th>11</th>
       <td>SensorMeasure7</td>
       <td>0.567381</td>
       <td>7.864672e-01</td>
       <td>1.058392e+00</td>
     </tr>
     <tr>
-      <th>0</th>
+      <th>13</th>
       <td>SensorMeasure17</td>
       <td>1.145231</td>
       <td>1.450997e+00</td>
       <td>1.740057e+00</td>
     </tr>
     <tr>
-      <th>4</th>
+      <th>16</th>
       <td>SensorMeasure3</td>
       <td>4.589708</td>
       <td>5.788760e+00</td>
       <td>7.060648e+00</td>
     </tr>
     <tr>
-      <th>6</th>
+      <th>26</th>
       <td>SensorMeasure4</td>
       <td>6.281455</td>
       <td>8.118497e+00</td>
       <td>1.004518e+01</td>
     </tr>
     <tr>
-      <th>3</th>
+      <th>22</th>
       <td>SensorMeasure14</td>
       <td>2.920401</td>
       <td>1.180401e+01</td>
       <td>3.387741e+01</td>
     </tr>
     <tr>
-      <th>8</th>
+      <th>15</th>
       <td>SensorMeasure9</td>
       <td>3.845202</td>
       <td>1.418905e+01</td>
       <td>4.043659e+01</td>
     </tr>
     <tr>
-      <th>1</th>
+      <th>12</th>
       <td>RUL</td>
       <td>37.094474</td>
       <td>5.970072e+01</td>
       <td>1.046446e+02</td>
     </tr>
     <tr>
-      <th>24</th>
+      <th>18</th>
       <td>Cycle</td>
       <td>37.094474</td>
       <td>5.970072e+01</td>
@@ -1248,8 +1252,8 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">functional_pipe</span> <span class="o">=</span> <span class="n">ByNameFeatureSelector</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-<span class="n">functional_pipe</span> <span class="o">=</span> <span class="n">PandasMinMaxScaler</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">robust</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">functional_pipe</span><span class="p">)</span>
-<span class="n">functional_pipe</span> <span class="o">=</span> <span class="n">PandasMeanImputer</span><span class="p">()(</span><span class="n">functional_pipe</span><span class="p">)</span>
+<span class="n">functional_pipe</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))(</span><span class="n">functional_pipe</span><span class="p">)</span>
+<span class="n">functional_pipe</span> <span class="o">=</span> <span class="n">MeanImputer</span><span class="p">()(</span><span class="n">functional_pipe</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1296,7 +1300,7 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;temporis.transformation.functional.transformers.Transformer at 0x7f81144b9c70&gt;
+&lt;temporis.transformation.functional.transformers.Transformer at 0x7f2104b0a580&gt;
 </pre></div></div>
 </div>
 </section>
@@ -1343,7 +1347,7 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_ExampleAircraftEngine_36_0.png" src="../_images/examples_ExampleAircraftEngine_36_0.png" />
+<img alt="../_images/examples_ExampleAircraftEngine_35_0.png" src="../_images/examples_ExampleAircraftEngine_35_0.png" />
 </div>
 </div>
 </section>
@@ -1358,12 +1362,12 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">raw_pipe</span> <span class="o">=</span> <span class="n">ByNameFeatureSelector</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
 <span class="n">raw_pipe</span> <span class="o">=</span> <span class="n">ForwardFillImputer</span><span class="p">()(</span><span class="n">raw_pipe</span><span class="p">)</span>
-<span class="n">raw_pipe</span> <span class="o">=</span> <span class="n">PandasMinMaxScaler</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">robust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;raw_scaled&#39;</span><span class="p">)(</span><span class="n">raw_pipe</span><span class="p">)</span>
+<span class="n">raw_pipe</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;raw_scaled&#39;</span><span class="p">)(</span><span class="n">raw_pipe</span><span class="p">)</span>
 
 <span class="n">transformed_pipe</span> <span class="o">=</span> <span class="n">ByNameFeatureSelector</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
-<span class="n">transformed_pipe</span> <span class="o">=</span> <span class="n">RollingStatisticsPandas</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">to_compute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;kurtosis&#39;</span><span class="p">,</span> <span class="s1">&#39;peak&#39;</span><span class="p">])(</span><span class="n">transformed_pipe</span><span class="p">)</span>
-<span class="n">transformed_pipe</span> <span class="o">=</span> <span class="n">PandasMeanImputer</span><span class="p">()(</span><span class="n">transformed_pipe</span><span class="p">)</span>
-<span class="n">transformed_pipe</span> <span class="o">=</span> <span class="n">PandasMinMaxScaler</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">robust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;transformed_scaled&#39;</span><span class="p">)(</span><span class="n">transformed_pipe</span><span class="p">)</span>
+<span class="n">transformed_pipe</span> <span class="o">=</span> <span class="n">RollingStatistics</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">to_compute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;kurtosis&#39;</span><span class="p">,</span> <span class="s1">&#39;peak&#39;</span><span class="p">])(</span><span class="n">transformed_pipe</span><span class="p">)</span>
+<span class="n">transformed_pipe</span> <span class="o">=</span> <span class="n">MeanImputer</span><span class="p">()(</span><span class="n">transformed_pipe</span><span class="p">)</span>
+<span class="n">transformed_pipe</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;transformed_scaled&#39;</span><span class="p">)(</span><span class="n">transformed_pipe</span><span class="p">)</span>
 
 
 <span class="n">pipe</span> <span class="o">=</span> <span class="n">Concatenate</span><span class="p">()([</span><span class="n">raw_pipe</span><span class="p">,</span> <span class="n">transformed_pipe</span><span class="p">])</span>
@@ -1384,11 +1388,32 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;temporis.transformation.functional.transformers.Transformer at 0x7f8114137610&gt;
+&lt;temporis.transformation.functional.transformers.Transformer at 0x7f21049efb50&gt;
 </pre></div></div>
 </div>
-<div class="nbinput nblast docutils container">
+</section>
+</section>
+</section>
+<section id="It-is-possible-to-visualize-the-transformation-pipeline">
+<h1>It is possible to visualize the transformation pipeline<a class="headerlink" href="#It-is-possible-to-visualize-the-transformation-pipeline" title="Permalink to this headline"></a></h1>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plot_pipeline</span><span class="p">(</span><span class="n">pipe</span><span class="p">,</span> <span class="s1">&#39;Complex transformer&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ExampleAircraftEngine_39_0.svg" src="../_images/examples_ExampleAircraftEngine_39_0.svg" /></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1398,7 +1423,7 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </div>
 <p>The number of features as expected is 20 features: 14 from the raw features and 6 from the extracted ones</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1407,7 +1432,7 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1416,7 +1441,7 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1429,12 +1454,12 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_ExampleAircraftEngine_42_0.png" src="../_images/examples_ExampleAircraftEngine_42_0.png" />
+<img alt="../_images/examples_ExampleAircraftEngine_43_0.png" src="../_images/examples_ExampleAircraftEngine_43_0.png" />
 </div>
 </div>
 <p>The name of the obtained features are computed from the step names and the selected features</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1443,7 +1468,7 @@ from rul_pm.transformation.pipeline import LivesPipeline from rul_pm.transformat
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1464,15 +1489,13 @@ Index([&#39;raw_scaled_0_SensorMeasure2&#39;, &#39;raw_scaled_0_SensorMeasure3&#
       dtype=&#39;object&#39;)
 </pre></div></div>
 </div>
-</section>
-</section>
 <section id="Iterators">
 <h2>Iterators<a class="headerlink" href="#Iterators" title="Permalink to this headline"></a></h2>
 <section id="Lives-iterator">
 <h3>Lives iterator<a class="headerlink" href="#Lives-iterator" title="Permalink to this headline"></a></h3>
 <p>The dataset can be iterated. Each element of the iteration is life in stored in <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> which contains all the features</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1481,7 +1504,7 @@ Index([&#39;raw_scaled_0_SensorMeasure2&#39;, &#39;raw_scaled_0_SensorMeasure3&#
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1498,7 +1521,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1512,14 +1535,14 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_ExampleAircraftEngine_48_0.png" src="../_images/examples_ExampleAircraftEngine_48_0.png" />
+<img alt="../_images/examples_ExampleAircraftEngine_49_0.png" src="../_images/examples_ExampleAircraftEngine_49_0.png" />
 </div>
 </div>
 </section>
 <section id="Transformed-dataset">
 <h3>Transformed dataset<a class="headerlink" href="#Transformed-dataset" title="Permalink to this headline"></a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1533,7 +1556,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 <h3>WindowedDatasetIterator<a class="headerlink" href="#WindowedDatasetIterator" title="Permalink to this headline"></a></h3>
 <p>The windowed dataset iterator provides a way of iterating the transformed dataset trough an sliding window. The sample for the i-th element, provides the (window-1) elements of the window. It also provides capabilities to shuffle in diverse ways the how the samples are delivered by the iterator.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1551,7 +1574,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 <p>Since we are using the functional_transformer that only has 14 feature and a window size of 7 samples. The output of one element of the iterator wil be a matrix ox size (7 x14)</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1560,7 +1583,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1574,7 +1597,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 <h2>Batcher<a class="headerlink" href="#Batcher" title="Permalink to this headline"></a></h2>
 <p>The batcher class make use of the <code class="docutils literal notranslate"><span class="pre">WindowedDatasetIterator</span></code> to generate batches of samples.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1592,7 +1615,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 <p>As expected the shape of the input data of one batch is: * 66 due to the batch size * 25 because the lookback window size * 14 for the selected features in the transformer</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1601,7 +1624,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1610,7 +1633,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1619,7 +1642,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1630,7 +1653,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 <section id="How-dos-a-sample-looks-like?">
 <h3>How dos a sample looks like?<a class="headerlink" href="#How-dos-a-sample-looks-like?" title="Permalink to this headline"></a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1645,19 +1668,19 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f8114281580&gt;
+&lt;matplotlib.legend.Legend at 0x7f2106628c10&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_ExampleAircraftEngine_62_1.png" src="../_images/examples_ExampleAircraftEngine_62_1.png" />
+<img alt="../_images/examples_ExampleAircraftEngine_63_1.png" src="../_images/examples_ExampleAircraftEngine_63_1.png" />
 </div>
 </div>
 </section>
@@ -1670,7 +1693,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 <p>Let’s create a simple model in keras with some FC layers.</p>
 <p>First of all we need to create two batchers for feeding the model.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1696,7 +1719,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1713,22 +1736,23 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Model: &#34;model_1&#34;
+Model: &#34;model&#34;
 _________________________________________________________________
-Layer (type)                 Output Shape              Param #
+ Layer (type)                Output Shape              Param #
 =================================================================
-input_2 (InputLayer)         [(None, 7, 20)]           0
-_________________________________________________________________
-flatten_1 (Flatten)          (None, 140)               0
-_________________________________________________________________
-dense_2 (Dense)              (None, 32)                4512
-_________________________________________________________________
-dense_3 (Dense)              (None, 1)                 33
+ input_1 (InputLayer)        [(None, 7, 20)]           0
+
+ flatten (Flatten)           (None, 140)               0
+
+ dense (Dense)               (None, 32)                4512
+
+ dense_1 (Dense)             (None, 1)                 33
+
 =================================================================
 Total params: 4,545
 Trainable params: 4,545
@@ -1736,8 +1760,20 @@ Non-trainable params: 0
 _________________________________________________________________
 </pre></div></div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2021-12-16 11:45:25.381319: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libcuda.so.1&#39;; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory
+2021-12-16 11:45:25.381338: W tensorflow/stream_executor/cuda/cuda_driver.cc:269] failed call to cuInit: UNKNOWN ERROR (303)
+2021-12-16 11:45:25.381352: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (lolo): /proc/driver/nvidia/version does not exist
+2021-12-16 11:45:25.381548: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+</pre></div></div>
+</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1753,35 +1789,35 @@ _________________________________________________________________
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Epoch 1/12
-263/263 [==============================] - 2s 6ms/step - loss: 29.0803 - val_loss: 32.2887
+267/267 [==============================] - 5s 19ms/step - loss: 80.6171 - val_loss: 44.9364
 Epoch 2/12
-263/263 [==============================] - 2s 6ms/step - loss: 29.0063 - val_loss: 32.1880
+267/267 [==============================] - 2s 8ms/step - loss: 36.5534 - val_loss: 31.8730
 Epoch 3/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.9361 - val_loss: 32.0829
+267/267 [==============================] - 2s 8ms/step - loss: 32.0044 - val_loss: 32.5382
 Epoch 4/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.8633 - val_loss: 31.9742
+267/267 [==============================] - 2s 8ms/step - loss: 31.6509 - val_loss: 32.5857
 Epoch 5/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.8027 - val_loss: 31.8734
+267/267 [==============================] - 2s 7ms/step - loss: 31.4467 - val_loss: 32.5764
 Epoch 6/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.7413 - val_loss: 31.7938
+267/267 [==============================] - 2s 8ms/step - loss: 31.2683 - val_loss: 32.5467
 Epoch 7/12
-263/263 [==============================] - 2s 7ms/step - loss: 28.6808 - val_loss: 31.7062
+267/267 [==============================] - 2s 8ms/step - loss: 31.1052 - val_loss: 32.5342
 Epoch 8/12
-263/263 [==============================] - 2s 8ms/step - loss: 28.6208 - val_loss: 31.6139
+267/267 [==============================] - 2s 8ms/step - loss: 30.9527 - val_loss: 32.5273
 Epoch 9/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.5620 - val_loss: 31.5207
+267/267 [==============================] - 2s 8ms/step - loss: 30.7945 - val_loss: 32.4999
 Epoch 10/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.5061 - val_loss: 31.4264
+267/267 [==============================] - 2s 8ms/step - loss: 30.6293 - val_loss: 32.4655
 Epoch 11/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.4490 - val_loss: 31.3402
+267/267 [==============================] - 2s 8ms/step - loss: 30.4720 - val_loss: 32.4534
 Epoch 12/12
-263/263 [==============================] - 2s 6ms/step - loss: 28.3936 - val_loss: 31.2642
+267/267 [==============================] - 2s 8ms/step - loss: 30.3150 - val_loss: 32.4358
 </pre></div></div>
 </div>
 <section id="Learning-curves">
 <h4>Learning curves<a class="headerlink" href="#Learning-curves" title="Permalink to this headline"></a></h4>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1795,44 +1831,26 @@ Epoch 12/12
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f81140dd280&gt;
+&lt;matplotlib.legend.Legend at 0x7f2106804550&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_ExampleAircraftEngine_69_1.png" src="../_images/examples_ExampleAircraftEngine_69_1.png" />
+<img alt="../_images/examples_ExampleAircraftEngine_70_1.png" src="../_images/examples_ExampleAircraftEngine_70_1.png" />
 </div>
 </div>
 </section>
-<section id="Prediction-on-the-training-set">
-<h4>Prediction on the training set<a class="headerlink" href="#Prediction-on-the-training-set" title="Permalink to this headline"></a></h4>
+<section id="Prediction-on-the-validation-set">
+<h4>Prediction on the validation set<a class="headerlink" href="#Prediction-on-the-validation-set" title="Permalink to this headline"></a></h4>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">y_true</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-(3006, 1, 1)
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1845,12 +1863,12 @@ Epoch 12/12
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&lt;matplotlib.lines.Line2D at 0x7f80886ec8b0&gt;]
+[&lt;matplotlib.lines.Line2D at 0x7f210010b2e0&gt;]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1867,7 +1885,7 @@ Epoch 12/12
 <p>Following the same API we can create scikit-learn and XGBoost models for regressing our data.</p>
 <p>In the following example we are going to create a RandomForestRegressor to predict the RUL of the same dataset</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1893,7 +1911,7 @@ Epoch 12/12
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1909,7 +1927,7 @@ Epoch 12/12
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1918,7 +1936,7 @@ RandomForestRegressor(max_depth=5)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[70]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1933,12 +1951,12 @@ RandomForestRegressor(max_depth=5)
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[70]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&lt;matplotlib.lines.Line2D at 0x7f808803f880&gt;]
+[&lt;matplotlib.lines.Line2D at 0x7f20e015bca0&gt;]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
