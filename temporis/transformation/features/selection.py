@@ -66,6 +66,12 @@ class ByNameFeatureSelector(TransformerStep):
         name = super().description()
         return (name, self.features_computed_)
 
+    def __str__(self):
+        name, f = self.description()
+        features = ', '.join(f)[:10]
+        return f'{name} : [{features}]'
+        
+
 
 class LocateFeatures(TransformerStep):
     def __init__(self, features, name: Optional[str] = None):

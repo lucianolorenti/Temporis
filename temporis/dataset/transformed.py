@@ -1,4 +1,7 @@
 
+import gzip
+import pickle
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
@@ -48,4 +51,21 @@ class TransformedDataset(AbstractTimeSeriesDataset):
             X, y, metadata = self.transformer.transform(data)
             self.cache.add(i, (X.values, y.values, metadata))
         return self.cache.get(i)
-    
+
+    def save(self, output_path:Path):
+        TransformedSerializedDataset.save(self, output_path)
+
+
+class TransformedSerializedDataset(AbstractTimeSeriesDataset):
+    @staticmethod
+    def save(dataset:TransformedDataset, output_path:Path):
+        for i, life in enumerate(dataset):
+            with gzip.open(output_path / 'ts_{i}.pkl.gz', 'wb') as file:            
+                pickle.dump(life, file)
+        with open(output_path / 'transformer.pkl.gz', 'wb') as file:
+            pickle.dump(file, dataset.transformer)
+        
+    def __init__(self, dataset_path:Path):
+        self.files = list(dataset_path.glob('ts_*.pkl.gz'))
+
+

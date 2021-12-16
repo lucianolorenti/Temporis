@@ -60,3 +60,9 @@ class TransformerStepMixin:
         for n in nodes:
             self.next.append(n)
             n.previous.append(self)
+
+    def description(self):
+        return self.name
+
+    def __str__(self):
+        return self.name

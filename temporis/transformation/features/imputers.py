@@ -77,12 +77,16 @@ class PerColumnImputer(TransformerStep):
         name = super().description()
         data = []
         for k in self.data_max.index:
-            data.append((k,
-            {
-                'Max': self.data_max[k],
-                'Min': self.data_max[k],
-                'Median': self.data_max[k],
-            }))
+            data.append(
+                (
+                    k,
+                    {
+                        "Max": self.data_max[k],
+                        "Min": self.data_max[k],
+                        "Median": self.data_max[k],
+                    },
+                )
+            )
         return (name, data)
 
 

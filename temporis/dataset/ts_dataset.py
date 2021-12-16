@@ -233,6 +233,13 @@ class FoldedDataset(AbstractTimeSeriesDataset):
         self.dataset = dataset
         self.indices = indices
 
+    def __getattribute__(self, __name: str) -> Any:
+        try:
+            return super().__getattribute__(__name)
+        except:
+            return self.dataset.__getattribute__(__name)
+
+
     @property
     def n_time_series(self):
         return len(self.indices)
@@ -248,3 +255,7 @@ class FoldedDataset(AbstractTimeSeriesDataset):
 
     def original_indices(self):
         return [self._original_index(i) for i in range(len(self.indices))]
+
+    def number_of_samples_of_time_series(self, i: int) -> int:
+        return self[i][0].shape[0]
+
