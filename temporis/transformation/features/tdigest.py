@@ -269,9 +269,6 @@ class TDigest:
     def merge_unsorted(self, unsortedValues: Iterable[float]) -> "TDigest":
         """Merge unsorted values by first sorting them.
 
-        Use radix sort if possible.  This implementation puts all additional memory in the
-        heap, so that if called from fiber context we do not smash the stack.
-        Otherwise it is very similar to boost::spreadsort.
 
         Parameters
         ----------

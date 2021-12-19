@@ -65,6 +65,7 @@ class RobustMinMaxScaler(TransformerStep):
     def transform(self, X: pd.DataFrame):
         if self.Q1 is None:
             self._compute_quantiles()
+        #std = min(self.Q3 - self.Q1) < 
         X_std = (X - self.Q1) / (self.Q3 - self.Q1)
         new_X = X_std * (self.range[1] - self.range[0]) + self.range[0]
         if self.clip:

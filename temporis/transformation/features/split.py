@@ -51,12 +51,13 @@ class SplitByCategory(TransformerStep):
         self,
         categorical_feature_names: Union[str, List[str]],
         pipeline: TemporisPipeline,
+        add_default:bool= True,
         name: Optional[str] = None,
     ):
         super().__init__(name)
         if isinstance(categorical_feature_names, str):
             categorical_feature_names = [categorical_feature_names]
-
+        self.add_default = add_default
         self.orig_pipeline = deepcopy(pipeline)
         self.categorical_feature_names = categorical_feature_names
 
@@ -83,7 +84,7 @@ class SplitByCategory(TransformerStep):
             self._categorical_feature_names_resolved = [
                 self.find_feature(X, f) for f in self.categorical_feature_names
             ]
-        if "default" not in self._sub_pipelines:
+        if self.add_default and "default" not in self._sub_pipelines:
             self._sub_pipelines["default"] = self._build_pipeline(["__category_all__"])
         for _, c in (
             X[self._categorical_feature_names_resolved].drop_duplicates().iterrows()

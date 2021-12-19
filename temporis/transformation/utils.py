@@ -93,15 +93,16 @@ def column_names_window(columns: list, window: int) -> list:
 
 
 class QuantileEstimator:
-    def __init__(self):
+    def __init__(self, tdigest_size:int = 200):
         self.tdigest_dict = None
+        self.tdigest_size = tdigest_size
 
     def update(self, X: pd.DataFrame):
         if X.shape[0] < 2:
             return self
         X = X.dropna()
         if self.tdigest_dict is None:
-            self.tdigest_dict = {c: TDigest(100) for c in X.columns}
+            self.tdigest_dict = {c: TDigest(self.tdigest_size) for c in X.columns}
 
         for c in X.columns:
             self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
