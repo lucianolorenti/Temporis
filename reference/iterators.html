@@ -130,6 +130,22 @@
 <dd></dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="temporis.iterators.iterators.IterationType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.iterators.iterators.</span></span><span class="sig-name descname"><span class="pre">IterationType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.iterators.iterators.IterationType" title="Permalink to this definition"></a></dt>
+<dd><p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="temporis.iterators.iterators.IterationType.FORECAST">
+<span class="sig-name descname"><span class="pre">FORECAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#temporis.iterators.iterators.IterationType.FORECAST" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="temporis.iterators.iterators.IterationType.SEQ_TO_SEQ">
+<span class="sig-name descname"><span class="pre">SEQ_TO_SEQ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#temporis.iterators.iterators.IterationType.SEQ_TO_SEQ" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="temporis.iterators.iterators.NotWeighted">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.iterators.iterators.</span></span><span class="sig-name descname"><span class="pre">NotWeighted</span></span><a class="headerlink" href="#temporis.iterators.iterators.NotWeighted" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -141,7 +157,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="temporis.iterators.iterators.WindowedDatasetIterator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.iterators.iterators.</span></span><span class="sig-name descname"><span class="pre">WindowedDatasetIterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dataset:</span> <span class="pre">temporis.dataset.transformed.TransformedDataset,</span> <span class="pre">window_size:</span> <span class="pre">int,</span> <span class="pre">step:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">output_size:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">shuffler:</span> <span class="pre">temporis.iterators.shufflers.AbstractShuffler</span> <span class="pre">=</span> <span class="pre">&lt;temporis.iterators.shufflers.NotShuffled</span> <span class="pre">object&gt;,</span> <span class="pre">sample_weight:</span> <span class="pre">Union[temporis.iterators.iterators.AbstractSampleWeights,</span> <span class="pre">Callable[[numpy.ndarray,</span> <span class="pre">int,</span> <span class="pre">Any],</span> <span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">&lt;temporis.iterators.iterators.NotWeighted</span> <span class="pre">object&gt;,</span> <span class="pre">add_last:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">padding:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.iterators.iterators.WindowedDatasetIterator" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.iterators.iterators.</span></span><span class="sig-name descname"><span class="pre">WindowedDatasetIterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dataset:</span> <span class="pre">temporis.dataset.transformed.TransformedDataset,</span> <span class="pre">window_size:</span> <span class="pre">int,</span> <span class="pre">step:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">output_size:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">shuffler:</span> <span class="pre">temporis.iterators.shufflers.AbstractShuffler</span> <span class="pre">=</span> <span class="pre">&lt;temporis.iterators.shufflers.NotShuffled</span> <span class="pre">object&gt;,</span> <span class="pre">sample_weight:</span> <span class="pre">Union[temporis.iterators.iterators.AbstractSampleWeights,</span> <span class="pre">Callable[[numpy.ndarray,</span> <span class="pre">int,</span> <span class="pre">Any],</span> <span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">&lt;temporis.iterators.iterators.NotWeighted</span> <span class="pre">object&gt;,</span> <span class="pre">add_last:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">padding:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">iteration_type:</span> <span class="pre">temporis.iterators.iterators.IterationType</span> <span class="pre">=</span> <span class="pre">IterationType.FORECAST</span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.iterators.iterators.WindowedDatasetIterator" title="Permalink to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="temporis.iterators.iterators.WindowedDatasetIterator.get_data">
 <span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#temporis.iterators.iterators.WindowedDatasetIterator.get_data" title="Permalink to this definition"></a></dt>
@@ -177,6 +193,11 @@ dataset information from the WindowedDatasetIterator
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="temporis.iterators.iterators.seq_to_seq_signal_generator">
+<span class="sig-prename descclassname"><span class="pre">temporis.iterators.iterators.</span></span><span class="sig-name descname"><span class="pre">seq_to_seq_signal_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_last</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.iterators.iterators.seq_to_seq_signal_generator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="temporis.iterators.iterators.windowed_signal_generator">
