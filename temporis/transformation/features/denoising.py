@@ -191,10 +191,10 @@ class EWMAFilter(TransformerStep):
     name : Optional[str], optional
         Name of the step, by default None
     """
-    def __init__(self, window: int, min_periods: int = 15, name: Optional[str] = None):
+    def __init__(self, span: float, min_periods: int = 15, name: Optional[str] = None):
         super().__init__(name)
-        self.window = window
+        self.span = span
         self.min_periods = min_periods
 
     def transform(self, X:pd.DataFrame, y=None) -> pd.DataFrame:
-        return X.ewm(self.window).mean(skip_na=True)
+        return X.ewm(span=self.span).mean(skip_na=True)
