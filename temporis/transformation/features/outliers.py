@@ -7,6 +7,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 from temporis.transformation.features.tdigest import TDigest
+from temporis.transformation.utils import QuantileEstimator
 
 
 class IQROutlierRemover(TransformerStep):
@@ -110,6 +111,79 @@ class IQROutlierRemover(TransformerStep):
             else:
                 X.loc[mask, c] = max_value
         return X
+
+    def description(self):
+        name = super().description()
+        data = []
+        for k in self.Q1.keys():
+            data.append( (k, {
+                'Q1': self.Q1[k],
+                'Q3': self.Q3[k],
+                'IQR': self.IQR[k]
+            }))
+        return (name, data)
+
+
+class BeyondQuartileOutlierRemover(TransformerStep):
+    """
+    Impute values outside (Q1, Q3)
+
+    If clip is True the values will be clipped between the range,
+    otherwise the values are going to be replaced by inf and -inf
+
+
+
+    Parameters
+    ----------
+    lower_quantile: float, default 0.25
+        Lower quantile threshold for the non-anomalous values
+    upper_quantile: float, default 0.75
+        Upper quantile threshold for the non-anomalous values
+    clip: bool
+        Wether to clip the values outside the range.
+
+    """
+
+    def __init__(
+        self,
+        lower_quantile: float = 0.25,
+        upper_quantile: float = 0.75,
+        clip: bool = False,
+        name: Optional[str] = None,
+    ):
+
+        super().__init__(name)
+        self.tdigest_dict = None
+        self.lower_quantile = lower_quantile
+        self.upper_quantile = upper_quantile
+        self.clip = clip
+        self.quantile_estimator = QuantileEstimator(tdigest_size=100)
+        self.Q1 = None
+        self.Q3 = None
+
+    def partial_fit(self, X):
+        if X.shape[0] == 1:
+            return self
+        
+        self.quantile_estimator.update(X.select_dtypes(include='number'))
+        return self
+
+
+
+    def transform(self, X):
+        
+        if self.Q1 is None:
+            self.Q1 = self.quantile_estimator.estimate_quantile(self.lower_quantile)
+            self.Q3 = self.quantile_estimator.estimate_quantile(self.upper_quantile)
+        new_X = X.copy()
+        numeric = new_X.select_dtypes(include='number')
+        if self.clip:
+            numeric.clip(self.Q1, self.Q3, inplace=True, axis=0)
+        else:
+            numeric[numeric<self.Q1] = -np.inf
+            numeric[numeric>self.Q3] = np.inf
+        return new_X
+
 
     def description(self):
         name = super().description()
