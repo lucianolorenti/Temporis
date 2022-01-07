@@ -46,7 +46,7 @@ class RobustMinMaxScaler(TransformerStep):
         self.Q1 = None
         self.Q3 = None
         self.clip = clip
-        self.quantile_estimator = QuantileEstimator()
+        self.quantile_estimator = QuantileEstimator(tdigest_size=100)
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
 
