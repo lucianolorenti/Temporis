@@ -196,15 +196,22 @@ class WindowedDatasetIterator:
         )
         return window[0], window[1], [self.sample_weight(y, timestamp, metadata)]
 
-    def get_data(self):
+    def get_data(self, flatten:bool=True, show_progress:bool=False):
         N_points = len(self)
-        dimension = self.window_size * self.n_features
-        X = np.zeros((N_points, dimension), dtype=np.float32)
+        
+        if flatten:
+            dimension = self.window_size * self.n_features
+            X = np.zeros((N_points, dimension), dtype=np.float32)
+        else:
+            X = np.zeros((N_points,  self.window_size, self.n_features), dtype=np.float32)
         y = np.zeros((N_points, self.output_size), dtype=np.float32)
         sample_weight = np.zeros(N_points, dtype=np.float32)
 
         for i, (X_, y_, sample_weight_) in enumerate(self):
-            X[i, :] = X_.flatten()
+            if flatten:
+                X[i, :] = X_.flatten()
+            else:
+                X[i, :, :] = X_
             y[i, :] = y_.flatten()
             sample_weight[i] = sample_weight_[0]
         return X, y, sample_weight
