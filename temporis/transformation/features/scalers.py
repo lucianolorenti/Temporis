@@ -56,6 +56,8 @@ class RobustMinMaxScaler(TransformerStep):
 
         self.IQR = self.Q3 - self.Q1
 
+        self.valid_mask = self.IQR.abs() > 0.000000000001
+  
         self.median = self.quantile_estimator.estimate_quantile(0.5)
 
     def partial_fit(self, df: pd.DataFrame, y=None):
@@ -65,9 +67,10 @@ class RobustMinMaxScaler(TransformerStep):
     def transform(self, X: pd.DataFrame):
         if self.Q1 is None:
             self._compute_quantiles()
-        #std = min(self.Q3 - self.Q1) < 
-        X_std = (X - self.Q1) / (self.Q3 - self.Q1)
-        new_X = X_std * (self.range[1] - self.range[0]) + self.range[0]
+        new_X  = X.copy()
+        X_std = (X.loc[:, self.valid_mask] - self.Q1[self.valid_mask]) / (self.IQR[self.valid_mask])
+        new_X.loc[:, self.valid_mask] = X_std * (self.range[1] - self.range[0]) + self.range[0]
+        new_X.loc[:, ~self.valid_mask] = 0
         if self.clip:
             return new_X.clip(self.range[0], self.range[1])
         else:

@@ -569,22 +569,7 @@ class RollingStatistics(TransformerStep):
             "std_atan" 
         ]
         if to_compute is None:
-            self.to_compute = [
-                "mean",
-                "kurtosis",
-                "skewness",
-                "max",
-                "min",
-                "std",
-                "peak",
-                "impulse",
-                "clearance",
-                "rms",
-                "shape",
-                "crest",
-                "deviance",
-                "std_atan"
-            ]
+            self.to_compute = valid_stats
         else:
             for f in to_compute:
                 if f not in valid_stats:
@@ -662,7 +647,10 @@ class RollingStatistics(TransformerStep):
         abs_rolling = X.abs().rolling(self.window, self.min_points)
         for stats in self.to_compute:
             columns_to_assign = [f"{c}_{stats}" for c in X.columns]
-            X_new.loc[:, columns_to_assign] = getattr(self, f"_{stats}")(X, rolling, abs_rolling)
+            out = getattr(self, f"_{stats}")(X, rolling, abs_rolling)
+            X_new.loc[:, columns_to_assign] = out.values
+            
+            
 
         return X_new
 

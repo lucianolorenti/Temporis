@@ -1,3 +1,4 @@
+from curses import window
 from typing import List, Optional
 
 import numpy as np
@@ -12,6 +13,7 @@ from temporis.transformation.features.extraction import (
     Difference,
     ExpandingStatistics,
     OneHotCategorical,
+    RollingStatistics,
     SimpleEncodingCategorical,
 )
 from temporis.transformation.features.outliers import (
@@ -402,7 +404,7 @@ class TestGenerators:
         pandas_t = expanding.transform(ds_train[0][["a", "b"]])
         fixed_t = manual_expanding(ds_train[0][["a", "b"]], 2)
 
-        return (pandas_t - fixed_t).mean().mean() < 1e-17
+        assert (pandas_t - fixed_t).mean().mean() < 1e-17
 
 
     def test_rolling(self):
@@ -427,17 +429,17 @@ class TestGenerators:
             "shape",
             "crest",
         ]
-        expanding = ExpandingStatistics(to_compute=to_compute)
+        rolling = RollingStatistics(to_compute=to_compute, min_points=2, window=5)
 
         ds_train = DatasetFromPandas(lives[0:2])
         ds_test = DatasetFromPandas(lives[2:2])
 
-        expanding.fit(ds_train)
+        rolling.fit(ds_train)
 
-        pandas_t = expanding.transform(ds_train[0][["a", "b"]])
-        fixed_t = manual_rolling(ds_train[0][["a", "b"]], 2)
-
-        return (pandas_t - fixed_t).mean().mean() < 1e-17
+        pandas_t = rolling.transform(ds_train[0][["a", "b"]])
+        fixed_t = manual_rolling(ds_train[0][["a", "b"]], 2, 5)
+        
+        assert (pandas_t - fixed_t).mean().mean() <  1e-10
 
 
     def test_EWMAOutOfRange(self):
