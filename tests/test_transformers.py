@@ -57,6 +57,32 @@ def manual_expanding(df: pd.DataFrame, min_points: int = 1):
     return pd.concat(dfs, axis=1)
 
 
+def manual_rolling(df: pd.DataFrame, min_points: int = 1, window_size:int = 5):
+    to_compute = [
+        "kurtosis",
+        "skewness",
+        "max",
+        "min",
+        "std",
+        "peak",
+        "impulse",
+        "clearance",
+        "rms",
+        "shape",
+        "crest",
+    ]
+    dfs = []
+    for c in df.columns:
+        d = []
+        for i in range(min_points - 1):
+            d.append([np.nan for f in to_compute])
+        for end in range(min_points, df.shape[0] + 1):
+            data = df[c].iloc[max(end-window_size,0):end]
+            row = [manual_features(data, f) for f in to_compute]
+            d.append(row)
+        dfs.append(pd.DataFrame(d, columns=[f"{c}_{f}" for f in to_compute]))
+    return pd.concat(dfs, axis=1)
+
 def kurtosis(s: pd.Series) -> float:
     return scipy.stats.kurtosis(s.values, bias=False)
 
@@ -65,11 +91,11 @@ def skewness(s: pd.Series) -> float:
     return scipy.stats.skew(s.values, bias=False)
 
 
-def max(s: pd.Series) -> float:
+def _max(s: pd.Series) -> float:
     return np.max(s.values)
 
 
-def min(s: pd.Series) -> float:
+def _min(s: pd.Series) -> float:
     return np.min(s.values)
 
 
@@ -109,8 +135,8 @@ feature_functions = {
     "impulse": impulse,
     "peak": peak,
     "std": std,
-    "min": min,
-    "max": max,
+    "min": _min,
+    "max": _max,
     "skewness": skewness,
     "kurtosis": kurtosis,
 }
@@ -377,6 +403,42 @@ class TestGenerators:
         fixed_t = manual_expanding(ds_train[0][["a", "b"]], 2)
 
         return (pandas_t - fixed_t).mean().mean() < 1e-17
+
+
+    def test_rolling(self):
+        lives = [
+            pd.DataFrame(
+                {
+                    "a": np.random.rand(50) * 100 * np.random.rand(50) ** 3,
+                    "b": np.random.rand(50) * 100 * np.random.rand(50) ** 2,
+                }
+            )
+        ]
+        to_compute = [
+            "kurtosis",
+            "skewness",
+            "max",
+            "min",
+            "std",
+            "peak",
+            "impulse",
+            "clearance",
+            "rms",
+            "shape",
+            "crest",
+        ]
+        expanding = ExpandingStatistics(to_compute=to_compute)
+
+        ds_train = DatasetFromPandas(lives[0:2])
+        ds_test = DatasetFromPandas(lives[2:2])
+
+        expanding.fit(ds_train)
+
+        pandas_t = expanding.transform(ds_train[0][["a", "b"]])
+        fixed_t = manual_rolling(ds_train[0][["a", "b"]], 2)
+
+        return (pandas_t - fixed_t).mean().mean() < 1e-17
+
 
     def test_EWMAOutOfRange(self):
         a = np.random.randn(500) * 0.5 + 2

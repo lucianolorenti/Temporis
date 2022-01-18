@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-import pytest
+
 from temporis.transformation.features.scalers import (RobustMinMaxScaler)
 from sklearn.preprocessing import RobustScaler
 

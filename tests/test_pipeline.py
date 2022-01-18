@@ -43,11 +43,14 @@ class MockDatasetCategorical(AbstractTimeSeriesDataset):
         self.mean_b_f2 = 250
 
         self.lives = [self.build_df() for i in range(5)]
-        self.lives[4]['feature1'].iloc[50] = 591212
-        self.lives[4]['feature2'].iloc[21] = 591212
+        life_4 = self.lives[4]
+        life_4.loc[life_4.index[50], 'feature1'] = 591212
+        life_4.loc[life_4.index[21],'feature2'] = 591212
 
-        self.lives[3]['feature1'].iloc[88] = 591212
-        self.lives[3]['feature2'].iloc[25] = 591212
+        life_3 = self.lives[3]
+        life_3.loc[life_4.index[88],'feature1'] = 591212
+        life_3.loc[life_4.index[25],'feature2'] = 591212
+        
 
     def get_time_series(self, i: int):
         return self.lives[i]
