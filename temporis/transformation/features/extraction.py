@@ -11,10 +11,11 @@ from pandas.core.window.expanding import Expanding
 from pyts.transformation import ROCKET as pyts_ROCKET
 
 
-try:
-    from temporis.transformation.features.hurst import hurst_exponent
-except:
-    pass
+#try:
+#    from temporis.transformation.features.hurst import hurst_exponent
+#except:
+#
+#     pass
 from temporis.transformation import TransformerStep
 from temporis.transformation.utils import SKLearnTransformerWrapper
 
@@ -257,6 +258,7 @@ class SimpleEncodingCategorical(TransformerStep):
             self.feature = X.columns[0]
 
         self.categories.update(set(X[self.feature].unique()))
+
         return self
 
     def fit(self, X: pd.DataFrame, y=None):
@@ -297,7 +299,6 @@ class SimpleEncodingCategorical(TransformerStep):
         """
         categories = sorted(list([c for c in self.categories if c is not None]))
         d = pd.Categorical(X[self.feature], categories=categories)
-        pd.DataFrame({"encoding": d.codes}, index=X.index)
         return pd.DataFrame({"encoding": d.codes}, index=X.index)
 
 
@@ -565,6 +566,7 @@ class RollingStatistics(TransformerStep):
             "shape",
             "crest",
             "deviance",
+            "std_atan" 
         ]
         if to_compute is None:
             self.to_compute = [
@@ -581,6 +583,7 @@ class RollingStatistics(TransformerStep):
                 "shape",
                 "crest",
                 "deviance",
+                "std_atan"
             ]
         else:
             for f in to_compute:
@@ -597,70 +600,69 @@ class RollingStatistics(TransformerStep):
         return self
 
 
-    def _std_atan(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).apply(lambda x: np.arctan(x)).mean(skipna=True)
+    def _std_atan(self, X, rolling, abs_rolling):
+        return X.apply(np.arctan).rolling(self.window, self.min_points).std(skipna=True)
 
-    def _mean(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).mean(skipna=True)
+    def _mean(self, X, rolling, abs_rolling):
+        return rolling.mean(skipna=True)
 
-    def _kurtosis(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).kurt(skipna=True)
+    def _kurtosis(self, X, rolling, abs_rolling):
+        return rolling.kurt(skipna=True)
 
-    def _skewness(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).skew(skipna=True)
+    def _skewness(self, X, rolling, abs_rolling):
+        return rolling.skew(skipna=True)
 
-    def _max(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).max(skipna=True)
+    def _max(self, X, rolling, abs_rolling):
+        return rolling.max(skipna=True)
 
-    def _min(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).min(skipna=True)
+    def _min(self, X, rolling, abs_rolling):
+        return rolling.min(skipna=True)
 
-    def _std(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).std(skipna=True)
+    def _std(self, X, rolling, abs_rolling):
+        return rolling.std(skipna=True)
 
-    def _peak(self, s: pd.Series):
-        return s.rolling(self.window, self.min_points).max(skipna=True) - s.rolling(
-            self.window, self.min_points
-        ).min(skipna=True)
+    def _peak(self, X, rolling, abs_rolling):
+        return rolling.max(skipna=True) - rolling.min(skipna=True)
 
-    def _impulse(self, s: pd.Series):
-        return self._peak(s) / s.abs().rolling(self.window, self.min_points).mean()
+    def _impulse(self, X, rolling, abs_rolling):
+        return self._peak(X, rolling, abs_rolling) / abs_rolling.mean()
 
-    def _deviance(self, s: pd.Series):
-        return (s - s.rolling(self.window, self.min_points).mean()) / s.rolling(
-            self.window, self.min_points
-        ).std()
+    def _deviance(self, X, rolling, abs_rolling):
+        return (X - rolling.mean()) / rolling.std()
 
-    def _clearance(self, s: pd.Series):
-        return self._peak(s) / s.abs().pow(1.0 / 2).rolling(
+    def _clearance(self, X, rolling, abs_rolling):
+        return self._peak(X, rolling, abs_rolling) / X.abs().pow(1.0 / 2).rolling(
             self.window, self.min_points
         ).mean().pow(2)
 
-    def _rms(self, s: pd.Series):
+    def _rms(self, X, rolling, abs_rolling):
         return (
-            s.pow(2)
+            X.pow(2)
             .rolling(self.window, self.min_points)
             .mean(skipna=True)
             .pow(1 / 2.0)
         )
 
-    def _shape(self, s: pd.Series):
-        return self._rms(s) / s.abs().rolling(self.window, self.min_points).mean(
+    def _shape(self, X, rolling, abs_rolling):
+        return self._rms(X, rolling, abs_rolling) / abs_rolling.mean(
             skipna=True
         )
 
-    def _crest(self, s: pd.Series):
-        return self._peak(s) / self._rms(s)
+    def _crest(self, X, rolling, abs_rolling):
+        return self._peak(X, rolling, abs_rolling) / self._rms(X, rolling, abs_rolling)
 
     def transform(self, X):
         columns = []
-        for c in X.columns:
-            for stats in self.to_compute:
+        
+        for stats in self.to_compute:
+            for c in X.columns:
                 columns.append(f"{c}_{stats}")
         X_new = pd.DataFrame(index=X.index, columns=columns)
-        for c in X.columns:
-            for stats in self.to_compute:
-                X_new[f"{c}_{stats}"] = getattr(self, f"_{stats}")(X[c])
+        rolling = X.rolling(self.window, self.min_points)
+        abs_rolling = X.abs().rolling(self.window, self.min_points)
+        for stats in self.to_compute:
+            columns_to_assign = [f"{c}_{stats}" for c in X.columns]
+            X_new.loc[:, columns_to_assign] = getattr(self, f"_{stats}")(X, rolling, abs_rolling)
 
         return X_new
 
@@ -844,15 +846,15 @@ class ExpandingStatistics(TransformerStep):
     ):
         return self._peak(x, s, s_abs, s_abs_sqrt, s_sq) / s_abs_sqrt.mean().pow(2)
 
-    def _hurst(
-        self,
-        x: pd.Series,
-        s: Expanding,
-        s_abs: Expanding,
-        s_abs_sqrt: Expanding,
-        s_sq: Expanding,
-    ):
-        return s.apply(lambda s: hurst_exponent(s, method="RS"))
+    #def _hurst(
+    #    self,
+    #    x: pd.Series,
+    #    s: Expanding,
+    #    s_abs: Expanding,
+    #    s_abs_sqrt: Expanding,
+    #    s_sq: Expanding,
+    #):
+    #    return s.apply(lambda s: hurst_exponent(s, method="RS"))
 
     def _rms(
         self,
