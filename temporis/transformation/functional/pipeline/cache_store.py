@@ -44,7 +44,9 @@ class GraphTraversalCacheShelveStore:
         self.transformed_cache[k] = v
 
     def close(self):
-        shutil.rmtree(self.cache_path.parent)
+        if self.cache_path.parent.is_dir():
+            self.transformed_cache.close()
+            shutil.rmtree(self.cache_path.parent)
 
     def reset(self):
         self.transformed_cache.close()
