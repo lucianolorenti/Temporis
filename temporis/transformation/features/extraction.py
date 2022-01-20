@@ -14,8 +14,7 @@ from pyts.transformation import ROCKET as pyts_ROCKET
 #try:
 #    from temporis.transformation.features.hurst import hurst_exponent
 #except:
-#
-#     pass
+#    pass
 from temporis.transformation import TransformerStep
 from temporis.transformation.utils import SKLearnTransformerWrapper
 
@@ -648,7 +647,9 @@ class RollingStatistics(TransformerStep):
         for stats in self.to_compute:
             columns_to_assign = [f"{c}_{stats}" for c in X.columns]
             out = getattr(self, f"_{stats}")(X, rolling, abs_rolling)
+            
             X_new.loc[:, columns_to_assign] = out.values
+            
             
             
 

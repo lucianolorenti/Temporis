@@ -12,11 +12,14 @@ from temporis.transformation.functional.transformerstep import TransformerStep
 
 class Joiner(TransformerStep):
     def transform(self, X: List[pd.DataFrame]):
-        X_default = X[0]
-        X_q = pd.concat(X[1:])
-        missing_indices = X_default.index.difference(X_q.index)
-        X_q = pd.concat((X_q, X_default.loc[missing_indices, :])).sort_index()
-        return X_q
+        if isinstance(X, list):
+            X_default = X[0]
+            X_q = pd.concat(X[1:])
+            missing_indices = X_default.index.difference(X_q.index)
+            X_q = pd.concat((X_q, X_default.loc[missing_indices, :])).sort_index()
+            return X_q
+        else:
+            return X
 
 
 class Filter(TransformerStep):

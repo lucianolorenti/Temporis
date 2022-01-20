@@ -14,7 +14,7 @@ from temporis.transformation.features.split import SplitByCategory
 from temporis.transformation.features.transformation import MeanCentering
 from temporis.transformation.functional.graph_utils import root_nodes
 from temporis.transformation.functional.pipeline.utils import make_pipeline
-
+from temporis.transformation.functional.concatenate import Concatenate
 
 def gaussian(N: int, mean: float = 50, std: float = 10):
     return np.random.randn(N) * std + mean
@@ -34,7 +34,7 @@ class MockDatasetCategorical(AbstractTimeSeriesDataset):
                 }
             )
 
-    def __init__(self):
+    def __init__(self, N:int = 5):
         super().__init__()
         self.mean_a_f1 = 50
         self.mean_b_f1 = -16
@@ -42,7 +42,7 @@ class MockDatasetCategorical(AbstractTimeSeriesDataset):
         self.mean_a_f2 = 90
         self.mean_b_f2 = 250
 
-        self.lives = [self.build_df() for i in range(5)]
+        self.lives = [self.build_df() for i in range(N)]
         life_4 = self.lives[4]
         life_4.loc[life_4.index[50], 'feature1'] = 591212
         life_4.loc[life_4.index[21],'feature2'] = 591212
@@ -105,6 +105,27 @@ class MockDataset1(AbstractTimeSeriesDataset):
     def n_time_series(self):
         return len(self.lives)
 
+
+
+class MockDataset2(AbstractTimeSeriesDataset):
+    def __init__(self, n:int = 5):
+        super().__init__()
+        self.lives = [
+            pd.DataFrame({"a": ['A', 'A', 'A', 'A'], "b": [1, 2, 3, 4], "RUL": [4, 3, 2, 1]}) 
+            for i in range(n)
+            
+        ]
+
+    def get_time_series(self, i: int):
+        return self.lives[i]
+
+    @property
+    def rul_column(self):
+        return "RUL"
+
+    @property
+    def n_time_series(self):
+        return len(self.lives)
 
 class TestPipeline:
     def test_FitOrder(self):
@@ -236,3 +257,35 @@ class TestPipeline:
         counts_after_transformation, _ = np.histogram(bb[:50])
         counts_after_transformation = counts_after_transformation / np.sum(counts_after_transformation)
         assert entropy(counts_before_transformation, counts_after_transformation) < 0.01
+
+
+    def test_split_one_category(self):
+        dataset_orig = MockDataset2()
+        dataset = dataset_orig[0:5]
+
+        pipe = ByNameFeatureSelector(["a", "b"])
+        scaler_pipe = make_pipeline(MinMaxScaler((-1, 1), name="Scaler"))
+        pipe = SplitByCategory('a', scaler_pipe, add_default=False)(pipe)
+        pipe = MeanCentering()(pipe)
+        
+        pipe = MinMaxScaler((-1, 1), name="Scaler2")(pipe)
+        
+        target_pipe = ByNameFeatureSelector(["RUL"])
+
+
+
+        test_transformer = Transformer(transformerX=pipe, transformerY=target_pipe)
+
+        test_transformer.fit(dataset)
+
+        X, y, sw = test_transformer.transform(dataset[0])
+
+        assert X.shape[1] == 1
+        
+
+        
+
+
+        
+        
+        
