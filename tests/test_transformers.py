@@ -15,6 +15,7 @@ from temporis.transformation.features.extraction import (
     OneHotCategorical,
     RollingStatistics,
     SimpleEncodingCategorical,
+    SlidingNonOverlappingEMD,
 )
 from temporis.transformation.features.outliers import (
     EWMAOutlierRemover,
@@ -30,7 +31,7 @@ from temporis.transformation.features.selection import (
 from temporis.transformation.features.transformation import Accumulate
 from temporis.transformation.functional.pipeline.pipeline import TemporisPipeline
 from temporis.transformation.utils import QuantileEstimator
-
+from pytest import approx
 
 def manual_expanding(df: pd.DataFrame, min_points: int = 1):
     to_compute = [
@@ -604,13 +605,19 @@ class TestEntropy:
 
 class TestQuantileEstimator:
     def test_quantile(self):
+        
+        A = pd.DataFrame({"A": np.random.randn(15000), "B": np.random.randn(15000)})
         q = QuantileEstimator()
-        A = pd.DataFrame({"A": np.random.randn(300), "B": np.random.randn(300)})
         q.update(A)
         s = q.estimate_quantile(0.5)
         assert s.index.tolist() == ["A", "B"]
-        assert np.abs(s.A) < 0.1
-        assert np.abs(s.B) < 0.1
+        assert np.abs(s.A) < 0.05
+        assert np.abs(s.B) < 0.05
+
+        s = q.estimate_quantile(0.1)
+
+        assert (np.abs(s.A - A.quantile(0.1)['A'])) < 0.001
+        assert (np.abs(s.B - A.quantile(0.1)['B'])) < 0.001
 
         B = pd.DataFrame({"A": np.random.randn(15000) + 5, "B": np.random.randn(15000)})
         q.update(B)
@@ -621,3 +628,14 @@ class TestQuantileEstimator:
         assert s.index.tolist() == ["A", "B"]
 
         assert q.estimate_quantile(0.5, 'A') - 5 < 0.1
+
+
+
+
+class TestEMD:
+    def test_emd(self):
+        A = pd.DataFrame({"A": np.random.randn(15000), "B": np.random.randn(15000)})
+        q = SlidingNonOverlappingEMD(300, 5)
+        r = q.transform(A)
+        assert r.shape[0] == A.shape[0]
+        assert r.shape[1] == A.shape[1]*5

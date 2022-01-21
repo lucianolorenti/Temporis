@@ -16,6 +16,7 @@ from pyts.transformation import ROCKET as pyts_ROCKET
 #except:
 #    pass
 from temporis.transformation import TransformerStep
+from temporis.transformation.features.rolling_windows import apply_rolling_data
 from temporis.transformation.utils import SKLearnTransformerWrapper
 
 logger = logging.getLogger(__name__)
@@ -982,6 +983,35 @@ class EMD(TransformerStep):
                     new_X[f"{c}_{j}"] = np.nan
 
         return new_X
+
+
+
+class SlidingNonOverlappingEMD(TransformerStep):
+    def __init__(self, window_size:int,  max_imfs:int, *args):
+        super().__init__(*args)
+        self.window_size = window_size
+        self.strides = window_size
+        self.max_imfs = max_imfs
+
+    def transform(self, X:pd.DataFrame):
+        def _emd(values:np.ndarray):
+            out = np.random.rand(values.shape[0], self.max_imfs)
+            v = emd.sift.sift(values, max_imfs=self.max_imfs)
+            out[:, :v.shape[1]] = v
+            return out
+            
+        column_list = []
+        for c in X.columns:
+            for i in range(self.max_imfs):
+                column_list.append(f'imf_{i}_{c}')
+        out = pd.DataFrame(index=X.index, columns=column_list, dtype=np.float32)
+        for c in X.columns:
+            emd_computed = apply_rolling_data(X[c].values, _emd, self.window_size, self.strides)
+            
+            out.loc[:, [ f'imf_{i}_{c}' for i in range(self.max_imfs)]] = emd_computed
+        return out
+        
+
 
 
 class EMDFilter(TransformerStep):
