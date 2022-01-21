@@ -1044,6 +1044,16 @@ with 1 column</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.extraction.SlidingNonOverlappingEMD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.extraction.</span></span><span class="sig-name descname"><span class="pre">SlidingNonOverlappingEMD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_imfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.SlidingNonOverlappingEMD" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.extraction.SlidingNonOverlappingEMD.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.SlidingNonOverlappingEMD.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="temporis.transformation.features.extraction.Sum">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.extraction.</span></span><span class="sig-name descname"><span class="pre">Sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.extraction.Sum" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the column-wise sum each column</p>
@@ -1382,10 +1392,10 @@ Usually this will be used before a CumSum transformation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>_compute_quantiles</strong><strong>(</strong><strong>self</strong><strong>)</strong> (<em>def</em>) – <p>self.Q1 = self.quantile_estimator.estimate_quantile(self.quantile_range[0])
-self.Q3 = self.quantile_estimator.estimate_quantile(self.quantile_range[1])</p>
+<li><p><strong>_compute_quantiles</strong><strong>(</strong><strong>self</strong><strong>)</strong> (<em>def</em>) – <p>self.Q1 = self.quantile_estimator.quantile(self.quantile_range[0])
+self.Q3 = self.quantile_estimator.quantile(self.quantile_range[1])</p>
 <p>self.IQR = self.Q3 - self.Q1</p>
-<p>self.median = self.quantile_estimator.estimate_quantile(0.5)</p>
+<p>self.median = self.quantile_estimator.quantile(0.5)</p>
 </p></li>
 <li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
 </ul>
