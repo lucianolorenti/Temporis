@@ -6,7 +6,7 @@ from temporis.transformation import TransformerStep
 from sklearn.pipeline import FeatureUnion, _transform_one
 
 from temporis.transformation.features.tdigest import TDigest
-
+from concurrent.futures import ProcessPoolExecutor
 
 class PandasToNumpy(TransformerStep):
     def fit(self, X, y=None):
@@ -92,7 +92,14 @@ def column_names_window(columns: list, window: int) -> list:
     return new_columns
 
 
+def build_tdigest(tdigest, values, column):
+    return column, tdigest.merge_sorted(values)
+
+
 class QuantileEstimator:
+    """Approximate the quantile of each feature in the dataframe
+       using t-digest
+    """
     def __init__(self, tdigest_size:int = 200):
         self.tdigest_dict = None
         self.tdigest_size = tdigest_size
@@ -100,17 +107,38 @@ class QuantileEstimator:
     def update(self, X: pd.DataFrame):
         if X.shape[0] < 2:
             return self
-        X = X.dropna()
-        if self.tdigest_dict is None:
-            self.tdigest_dict = {c: TDigest(self.tdigest_size) for c in X.columns}
 
-        for c in X.columns:
-            self.tdigest_dict[c] = self.tdigest_dict[c].merge_unsorted(X[c].values)
+        columns = X.columns
+        
+        if self.tdigest_dict is None:
+            self.tdigest_dict = {c: TDigest(self.tdigest_size) for c in columns}
+
+        
+        results = []
+        with ProcessPoolExecutor(max_workers=10) as executor:
+            for i, c in enumerate(columns):
+                x = X.iloc[:, i].dropna().sort_values().values
+                t_digest = self.tdigest_dict[c]
+                results.append(executor.submit(build_tdigest, t_digest, x, c))
+
+        for r in results:
+            c, tdigest = r.result()
+            self.tdigest_dict[c] = tdigest
         return self
 
-    def estimate_quantile(
+    def estimate_quantile(self, *args, **kwargs):
+        return self.quantile(*args, **kwargs)
+        
+    def quantile(
         self, q: float, feature: Optional[str] = None
     ) -> Union[pd.Series, float]:
+        """Estimate the quantile for a set of features
+        
+        Parameters
+        ----------
+        q:float
+          The quantile to estimate
+        feature:Optional[Str] """
         if feature is not None:
             return self.tdigest_dict[feature].estimate_quantile(q)
         else:
@@ -120,3 +148,33 @@ class QuantileEstimator:
                     for c in self.tdigest_dict.keys()
                 }
             )
+
+class QuantileComputer:
+    """Approximate the quantile of each feature in the dataframe
+       using t-digest
+    """
+    def __init__(self, subsample_rate:float = 1):
+        self.values = None
+        self.tdigest_size = subsample_rate
+
+    def update(self, X: pd.DataFrame):
+        if X.shape[0] < 2:
+            return self
+
+        columns = X.columns
+        
+        if self.values_dict is None:
+            self.values = X.copy()
+        else:
+            self.values = pd.concat(self.values, X)
+
+        
+        return self
+
+    def quantile(
+        self, q: float, feature: Optional[str] = None
+    ) -> Union[pd.Series, float]:
+        if feature is not None:
+            return self.values.quantile(q)
+        else:
+            return self.values[feature].quantile(q)
