@@ -9,6 +9,7 @@ from temporis.transformation.functional.pipeline.traversal import \
     CachedGraphTraversal
 from temporis.transformation.functional.transformerstep import TransformerStep
 from tqdm.auto import tqdm
+from multiprocessing import Process, Queue
 
 
 class CachedPipelineRunner:
@@ -47,10 +48,25 @@ class CachedPipelineRunner:
                     bar = tqdm(range(dataset_size))
                 else:
                     bar = range(dataset_size)
-                for dataset_element in bar:
-                    if show_progress:
-                        bar.set_description(node.name)
-                    new_element = node.transform(cache.state_up_to(node, dataset_element))
+
+                if show_progress:
+                    bar.set_description(node.name)
+
+                producers = []
+
+                queue = Queue()
+                for dataset_element in range(dataset_size):
+                    def produce(node, cache, dataset_element, queue):
+                        n =  node.transform(cache.state_up_to(node, dataset_element,))
+                        queue.put((dataset_element, n))
+                    producers.append(Process(target=produce, args=(node, cache, dataset_element, queue)))
+                for p in producers:
+                    p.start()               
+                
+                
+                for _ in bar:
+                    dataset_element, new_element = queue.get()
+                     
                     cache.clean_state_up_to(node, dataset_element)
                 
                     if len(node.next) > 0:
@@ -59,6 +75,9 @@ class CachedPipelineRunner:
                     else:
                         cache.store(None, node, dataset_element, new_element)
                 cache.remove_state(node)
+            for p in producers:
+               p.join()
+ 
             last_state_key = cache.get_keys_of(None)[0]
             return cache.transformed_cache[last_state_key]
 
