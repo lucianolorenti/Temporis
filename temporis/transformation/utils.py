@@ -178,3 +178,18 @@ class QuantileComputer:
             return self.values.quantile(q)
         else:
             return self.values[feature].quantile(q)
+
+
+class Literal(TransformerStep):
+    def __init__(self, literal, *args):
+        super().__init__(*args)
+        self.literal = literal 
+        
+    def transform(self, X):
+        return self.literal
+
+
+def ensure_step(step):
+    if isinstance(step, TransformerStep):
+        return step    
+    return Literal(step)
