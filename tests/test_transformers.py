@@ -31,7 +31,7 @@ from temporis.transformation.features.selection import (
 from temporis.transformation.features.transformation import Accumulate
 from temporis.transformation.functional.pipeline.pipeline import TemporisPipeline
 from temporis.transformation.utils import QuantileEstimator
-from pytest import approx
+
 
 def manual_expanding(df: pd.DataFrame, min_points: int = 1):
     to_compute = [
