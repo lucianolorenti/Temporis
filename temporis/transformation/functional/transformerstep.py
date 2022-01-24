@@ -3,8 +3,15 @@ from typing import List, Optional
 
 import pandas as pd
 from sklearn.base import TransformerMixin
+
+
 from temporis.transformation.functional.mixin import TransformerStepMixin
 from copy import copy
+
+
+
+
+
 
 
 class TransformerStep(TransformerStepMixin, TransformerMixin):
@@ -29,3 +36,16 @@ class TransformerStep(TransformerStepMixin, TransformerMixin):
 
     def description(self):
         return f"{self.name}"
+
+
+
+
+    def __add__(self, other):
+        from temporis.transformation.features.operations import Sum
+        from temporis.transformation.utils import ensure_step
+        return Sum()([self, ensure_step(other)])
+
+    def __truediv__(self, other):
+        from temporis.transformation.features.operations import Divide
+        from temporis.transformation.utils import ensure_step
+        return Divide()([self, ensure_step(other)])
