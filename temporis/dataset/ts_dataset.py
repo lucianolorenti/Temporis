@@ -3,7 +3,7 @@
 from collections.abc import Iterable
 from re import S
 
-from typing import Any, List, Tuple, Union
+from typing import Any, List, SupportsIndex, Tuple, Union
 
 import numpy as np
 from numpy.lib.arraysetops import isin
@@ -236,7 +236,7 @@ class FoldedDataset(AbstractTimeSeriesDataset):
     def __getattribute__(self, __name: str) -> Any:
         try:
             return super().__getattribute__(__name)
-        except:
+        except Exception as e:
             return self.dataset.__getattribute__(__name)
 
 
@@ -258,4 +258,7 @@ class FoldedDataset(AbstractTimeSeriesDataset):
 
     def number_of_samples_of_time_series(self, i: int) -> int:
         return self[i][0].shape[0]
+
+    def __reduce_ex__(self, __protocol: SupportsIndex) -> Union[str, tuple[Any, ...]]:
+        return (self.__class__, (self.dataset, self.indices))
 
