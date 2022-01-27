@@ -27,7 +27,8 @@ setup(
         "mmh3",
         "pyinform",
         "antropy",
-        "pyts"
+        "pyts",
+        "pywt"
     ],
     license="MIT",
     include_package_data=True,
