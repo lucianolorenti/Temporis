@@ -68,7 +68,7 @@ class TemporisPipeline(TransformerMixin):
         show_progress: bool = False):
         self.fit(dataset, show_progress=show_progress)
 
-    def transform(self, df: pd.DataFrame):
+    def transform(self, df: Union[pd.DataFrame, Iterable[pd.DataFrame]]):
         return self.runner.transform(df)
 
     def description(self):
