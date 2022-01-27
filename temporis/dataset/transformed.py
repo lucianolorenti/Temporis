@@ -1,5 +1,7 @@
 
+import functools
 import gzip
+from multiprocessing import Pool
 import pickle
 from pathlib import Path
 from typing import Optional
@@ -9,6 +11,12 @@ from sklearn.utils.validation import check_is_fitted
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation.functional.transformers import Transformer
 from temporis.utils.lrucache import LRUDataCache
+from tqdm.auto import tqdm
+
+
+def _transform(transformer, dataset, i:int):
+    data = dataset[i]
+    return (i, transformer.transform(data))
 
 
 class TransformedDataset(AbstractTimeSeriesDataset):
@@ -32,6 +40,19 @@ class TransformedDataset(AbstractTimeSeriesDataset):
         _, y, _ = self[i]
         return y.shape[0]
 
+    def preload(self):
+        transform = functools.partial(_transform, self.transformer, self.dataset)
+        with Pool(6) as p:
+            values = list(
+                tqdm(
+                    p.imap(transform, range(self.n_time_series)), 
+                    total=self.n_time_series,
+                    desc='Preloading'
+                    )
+            )
+        for i, (X, y, metadata) in values:
+             self.cache.add(i, (X.values, y.values, metadata))
+        
 
     def get_time_series(self, i: int) -> pd.DataFrame:
         """
