@@ -4,6 +4,7 @@ from typing import Optional
 import pandas as pd
 from temporis.transformation import TransformerStep
 from temporis.transformation.features.tdigest import TDigest
+import numpy as np
 
 
 class MeanCentering(TransformerStep):
@@ -139,6 +140,8 @@ class MedianCentering(TransformerStep):
         return X - self.median
 
 
+
+
 class Square(TransformerStep):
     """Compute the square of the values of each feature"""
 
@@ -268,7 +271,15 @@ class Accumulate(TransformerStep):
     """Compute the accumulated sum of each feature.
 
     This is useful for binary features to compute count
+
+    Parameters
+    ----------
+    normalize:
+        https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6621413
     """
+    def __init__(self, normalize:bool, *args):
+        super().__init__(*args)
+        self.normalize = normalize
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Transform the input life computing the cumulated sum
@@ -284,7 +295,11 @@ class Accumulate(TransformerStep):
             Return a new DataFrame with the same index as the input
             with the cumulated sum of the features
         """
-        return X.cumsum()
+        X1 =  X.cumsum()
+        if self.normalize:
+            return X1 / X1.abs().apply(np.sqrt)
+        else:
+            return X1
 
 
 class Diff(TransformerStep):
@@ -327,3 +342,29 @@ class StringConcatenate(TransformerStep):
         new_X = pd.DataFrame(index=X.index)
         new_X["concatenation"] = X.agg("-".join, axis=1)
         return new_X
+
+
+
+
+
+class Apply(TransformerStep):
+    """Apply the function element-wise"""
+    def __init__(self, fun, *args):
+        super().__init__(*args)
+        self.fun = fun
+
+    def transform(self, X):
+        """Transform the input life computing the 1 step difference
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            Input life
+
+        Returns
+        -------
+        pd.DataFrame
+            Return a new DataFrame with the same index as the input
+            with the difference of the features
+        """
+        return X.apply(self.fun)
