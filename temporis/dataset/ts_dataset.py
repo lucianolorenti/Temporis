@@ -2,13 +2,12 @@
 """
 from collections.abc import Iterable
 from re import S
-
 from typing import Any, List, SupportsIndex, Tuple, Union
 
 import numpy as np
-from numpy.lib.arraysetops import isin
-import tensorflow as tf
 import pandas as pd
+import tensorflow as tf
+from numpy.lib.arraysetops import isin
 from tqdm.auto import tqdm
 
 
@@ -259,6 +258,6 @@ class FoldedDataset(AbstractTimeSeriesDataset):
     def number_of_samples_of_time_series(self, i: int) -> int:
         return self[i][0].shape[0]
 
-    def __reduce_ex__(self, __protocol: SupportsIndex) -> Union[str, tuple[Any, ...]]:
+    def __reduce_ex__(self, __protocol: SupportsIndex) -> Union[str, Tuple[Any, ...]]:
         return (self.__class__, (self.dataset, self.indices))
 
