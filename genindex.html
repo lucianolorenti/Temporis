@@ -94,6 +94,7 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -144,8 +145,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.categorical_features">categorical_features() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
 </li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ChangesDetector">ChangesDetector (class in temporis.transformation.features.extraction)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ColumnWiseSum">ColumnWiseSum (class in temporis.transformation.features.extraction)</a>
+</li>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.common_features">common_features() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
 </li>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.computed_step">computed_step (temporis.iterators.batcher.Batcher property)</a>
@@ -172,7 +177,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Diff">Diff (class in temporis.transformation.features.transformation)</a>
 </li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.Difference">Difference (class in temporis.transformation.features.extraction)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.DiscardByNameFeatureSelector">DiscardByNameFeatureSelector (class in temporis.transformation.features.selection)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.DoG">DoG (class in temporis.transformation.features.extraction)</a>
 </li>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.duration">duration() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
 </li>
@@ -184,6 +193,10 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.EMD">EMD (class in temporis.transformation.features.extraction)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.EMDFilter">EMDFilter (class in temporis.transformation.features.extraction)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.EWMAFilter">EWMAFilter (class in temporis.transformation.features.denoising)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.EWMAOutlierRemover">EWMAOutlierRemover (class in temporis.transformation.features.outliers)</a>
@@ -196,6 +209,8 @@
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.ExpandingNormalization">ExpandingNormalization (class in temporis.transformation.features.transformation)</a>
 </li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ExpandingStatistics">ExpandingStatistics (class in temporis.transformation.features.extraction)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -204,9 +219,23 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.FillImputer">FillImputer (class in temporis.transformation.features.imputers)</a>
 </li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MeanImputer.fit">fit() (temporis.transformation.features.imputers.MeanImputer method)</a>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ExpandingStatistics.fit">fit() (temporis.transformation.features.extraction.ExpandingStatistics method)</a>
 
       <ul>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.HighFrequencies.fit">(temporis.transformation.features.extraction.HighFrequencies method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.LifeStatistics.fit">(temporis.transformation.features.extraction.LifeStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.LowFrequencies.fit">(temporis.transformation.features.extraction.LowFrequencies method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.OneHotCategorical.fit">(temporis.transformation.features.extraction.OneHotCategorical method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.RollingStatistics.fit">(temporis.transformation.features.extraction.RollingStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SimpleEncodingCategorical.fit">(temporis.transformation.features.extraction.SimpleEncodingCategorical method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MeanImputer.fit">(temporis.transformation.features.imputers.MeanImputer method)</a>
+</li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MedianImputer.fit">(temporis.transformation.features.imputers.MedianImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.PerColumnImputer.fit">(temporis.transformation.features.imputers.PerColumnImputer method)</a>
@@ -271,6 +300,18 @@
   </ul></td>
 </tr></table>
 
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.HashingEncodingCategorical">HashingEncodingCategorical (class in temporis.transformation.features.extraction)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.HighFrequencies">HighFrequencies (class in temporis.transformation.features.extraction)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -284,6 +325,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.Interactions">Interactions (class in temporis.transformation.features.extraction)</a>
+</li>
       <li><a href="reference/iterators.html#temporis.iterators.iterators.InverseToLengthWeighted">InverseToLengthWeighted (class in temporis.iterators.iterators)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.IQROutlierRemover">IQROutlierRemover (class in temporis.transformation.features.outliers)</a>
@@ -296,7 +339,13 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.LifeStatistics">LifeStatistics (class in temporis.transformation.features.extraction)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.selection.LocateFeatures">LocateFeatures (class in temporis.transformation.features.selection)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.LowFrequencies">LowFrequencies (class in temporis.transformation.features.extraction)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -333,6 +382,8 @@
         <li><a href="reference/iterators.html#module-temporis.iterators.iterators">temporis.iterators.iterators</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#module-temporis.transformation.features.denoising">temporis.transformation.features.denoising</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#module-temporis.transformation.features.extraction">temporis.transformation.features.extraction</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#module-temporis.transformation.features.imputers">temporis.transformation.features.imputers</a>
 </li>
@@ -397,10 +448,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.OneDimensionalKMeans">OneDimensionalKMeans (class in temporis.transformation.features.denoising)</a>
 </li>
-      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.FoldedDataset.original_indices">original_indices() (temporis.dataset.ts_dataset.FoldedDataset method)</a>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.OneHotCategorical">OneHotCategorical (class in temporis.transformation.features.extraction)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.FoldedDataset.original_indices">original_indices() (temporis.dataset.ts_dataset.FoldedDataset method)</a>
+</li>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.output_shape">output_shape (temporis.iterators.batcher.Batcher property)</a>
 
       <ul>
@@ -421,6 +474,16 @@
 
       <ul>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.OneDimensionalKMeans.partial_fit">(temporis.transformation.features.denoising.OneDimensionalKMeans method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ExpandingStatistics.partial_fit">(temporis.transformation.features.extraction.ExpandingStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.LifeStatistics.partial_fit">(temporis.transformation.features.extraction.LifeStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.OneHotCategorical.partial_fit">(temporis.transformation.features.extraction.OneHotCategorical method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.RollingStatistics.partial_fit">(temporis.transformation.features.extraction.RollingStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SimpleEncodingCategorical.partial_fit">(temporis.transformation.features.extraction.SimpleEncodingCategorical method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MeanImputer.partial_fit">(temporis.transformation.features.imputers.MeanImputer method)</a>
 </li>
@@ -479,15 +542,21 @@
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustStandardScaler">RobustStandardScaler (class in temporis.transformation.features.scalers)</a>
 </li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingImputer">RollingImputer (class in temporis.transformation.features.imputers)</a>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ROCKET">ROCKET (class in temporis.transformation.features.extraction)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.rolling_kurtosis">rolling_kurtosis() (in module temporis.transformation.features.extraction)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingImputer">RollingImputer (class in temporis.transformation.features.imputers)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMeanImputer">RollingMeanImputer (class in temporis.transformation.features.imputers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.RollingMeanOutlierRemover">RollingMeanOutlierRemover (class in temporis.transformation.features.outliers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMedianImputer">RollingMedianImputer (class in temporis.transformation.features.imputers)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.RollingStatistics">RollingStatistics (class in temporis.transformation.features.extraction)</a>
 </li>
       <li><a href="reference/iterators.html#temporis.iterators.iterators.RULInverseWeighted">RULInverseWeighted (class in temporis.iterators.iterators)</a>
 </li>
@@ -497,6 +566,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SampleNumber">SampleNumber (class in temporis.transformation.features.extraction)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.SavitzkyGolayTransformer">SavitzkyGolayTransformer (class in temporis.transformation.features.denoising)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Scale">Scale (class in temporis.transformation.features.transformation)</a>
@@ -507,9 +578,15 @@
 </li>
       <li><a href="reference/iterators.html#temporis.iterators.iterators.seq_to_seq_signal_generator">seq_to_seq_signal_generator() (in module temporis.iterators.iterators)</a>
 </li>
+      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.shape">shape (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.shape">shape (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset property)</a>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SimpleEncodingCategorical">SimpleEncodingCategorical (class in temporis.transformation.features.extraction)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SlidingNonOverlappingEMD">SlidingNonOverlappingEMD (class in temporis.transformation.features.extraction)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SlidingNonOverlappingWaveletDecomposition">SlidingNonOverlappingWaveletDecomposition (class in temporis.transformation.features.extraction)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Sqrt">Sqrt (class in temporis.transformation.features.transformation)</a>
 </li>
@@ -561,6 +638,13 @@
 </li>
       </ul></li>
       <li>
+    temporis.transformation.features.extraction
+
+      <ul>
+        <li><a href="reference/feature_transformation/transformations.html#module-temporis.transformation.features.extraction">module</a>
+</li>
+      </ul></li>
+      <li>
     temporis.transformation.features.imputers
 
       <ul>
@@ -595,6 +679,10 @@
         <li><a href="reference/feature_transformation/transformations.html#module-temporis.transformation.features.transformation">module</a>
 </li>
       </ul></li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.TimeToPreviousBinaryValue.time_to_previous_event">time_to_previous_event() (temporis.transformation.features.extraction.TimeToPreviousBinaryValue method)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.TimeToPreviousBinaryValue">TimeToPreviousBinaryValue (class in temporis.transformation.features.extraction)</a>
+</li>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.to_pandas">to_pandas() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.EWMAFilter.transform">transform() (temporis.transformation.features.denoising.EWMAFilter method)</a>
@@ -611,6 +699,44 @@
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.OneDimensionalKMeans.transform">(temporis.transformation.features.denoising.OneDimensionalKMeans method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.SavitzkyGolayTransformer.transform">(temporis.transformation.features.denoising.SavitzkyGolayTransformer method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ChangesDetector.transform">(temporis.transformation.features.extraction.ChangesDetector method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ColumnWiseSum.transform">(temporis.transformation.features.extraction.ColumnWiseSum method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.Difference.transform">(temporis.transformation.features.extraction.Difference method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.DoG.transform">(temporis.transformation.features.extraction.DoG method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.EMD.transform">(temporis.transformation.features.extraction.EMD method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.EMDFilter.transform">(temporis.transformation.features.extraction.EMDFilter method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ExpandingStatistics.transform">(temporis.transformation.features.extraction.ExpandingStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.HashingEncodingCategorical.transform">(temporis.transformation.features.extraction.HashingEncodingCategorical method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.HighFrequencies.transform">(temporis.transformation.features.extraction.HighFrequencies method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.Interactions.transform">(temporis.transformation.features.extraction.Interactions method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.LifeStatistics.transform">(temporis.transformation.features.extraction.LifeStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.LowFrequencies.transform">(temporis.transformation.features.extraction.LowFrequencies method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.OneHotCategorical.transform">(temporis.transformation.features.extraction.OneHotCategorical method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.RollingStatistics.transform">(temporis.transformation.features.extraction.RollingStatistics method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SampleNumber.transform">(temporis.transformation.features.extraction.SampleNumber method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SimpleEncodingCategorical.transform">(temporis.transformation.features.extraction.SimpleEncodingCategorical method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SlidingNonOverlappingEMD.transform">(temporis.transformation.features.extraction.SlidingNonOverlappingEMD method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SlidingNonOverlappingWaveletDecomposition.transform">(temporis.transformation.features.extraction.SlidingNonOverlappingWaveletDecomposition method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.TimeToPreviousBinaryValue.transform">(temporis.transformation.features.extraction.TimeToPreviousBinaryValue method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.FillImputer.transform">(temporis.transformation.features.imputers.FillImputer method)</a>
 </li>
@@ -693,11 +819,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.window_size">window_size (temporis.iterators.batcher.Batcher property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.iterators.windowed_signal_generator">windowed_signal_generator() (in module temporis.iterators.iterators)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator">WindowedDatasetIterator (class in temporis.iterators.iterators)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.wrcoef">wrcoef() (in module temporis.transformation.features.extraction)</a>
 </li>
   </ul></td>
 </tr></table>
