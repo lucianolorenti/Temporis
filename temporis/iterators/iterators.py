@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from temporis.dataset.transformed import TransformedDataset
 from temporis.iterators.shufflers import AbstractShuffler, NotShuffled
+from tqdm.auto import tqdm
 
 
 logger = logging.getLogger(__name__)
@@ -198,7 +199,7 @@ class WindowedDatasetIterator:
 
     def get_data(self, flatten:bool=True, show_progress:bool=False):
         N_points = len(self)
-        
+
         if flatten:
             dimension = self.window_size * self.n_features
             X = np.zeros((N_points, dimension), dtype=np.float32)
@@ -207,7 +208,11 @@ class WindowedDatasetIterator:
         y = np.zeros((N_points, self.output_size), dtype=np.float32)
         sample_weight = np.zeros(N_points, dtype=np.float32)
 
-        for i, (X_, y_, sample_weight_) in enumerate(self):
+        iterator = enumerate(self)
+        if show_progress:
+            iterator = tqdm(iterator, total=len(self))
+
+        for i, (X_, y_, sample_weight_) in iterator:
             if flatten:
                 X[i, :] = X_.flatten()
             else:
