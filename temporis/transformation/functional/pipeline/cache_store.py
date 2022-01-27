@@ -1,10 +1,11 @@
 import shelve
+import shutil
 import uuid
 from enum import Enum
 from pathlib import Path
 
 from temporis import CACHE_PATH
-import shutil
+
 
 class GraphTraversalAbstractStore:
     def __enter__(self):
@@ -24,16 +25,12 @@ class GraphTraversalAbstractStore:
 
     def pop(self, k):
         raise NotImplementedError
-    
-
-
-    
 
 
 class GraphTraversalCacheShelveStore:
     def __init__(self, cache_path: Path = CACHE_PATH):
         filename = "".join(str(uuid.uuid4()).split("-"))
-        self.cache_path = cache_path / "GraphTraversalCache" / filename / 'data'
+        self.cache_path = cache_path / "GraphTraversalCache" / filename / "data"
         self.cache_path.parent.mkdir(exist_ok=True, parents=True)
         self.transformed_cache = shelve.open(str(self.cache_path))
 
@@ -61,7 +58,7 @@ class GraphTraversalCacheShelveStore:
 
 class GraphTraversalCacheMemory:
     def __init__(self):
-        self.store = {}    
+        self.store = {}
 
     def __getitem__(self, k):
         return self.store[k]
@@ -81,6 +78,7 @@ class GraphTraversalCacheMemory:
     def pop(self, k):
         return self.store.pop(k)
 
+
 class CacheStoreType(Enum):
-   SHELVE = 1
-   MEMORY = 2
+    SHELVE = 1
+    MEMORY = 2
