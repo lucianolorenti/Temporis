@@ -13,7 +13,8 @@ def _strided_app(a, L, S):  # Window len = L, Stride len/stepsize = S
         writeable=False)
     last = r.shape[0]*r.shape[1]
     l = r.tolist()
-    l.append(a[last:])
+    if last < len(a):
+        l.append(a[last:])
     return l
     
 def apply_rolling_data(values : np.ndarray, function, window, step=1):
