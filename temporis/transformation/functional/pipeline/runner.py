@@ -1,15 +1,20 @@
-
-from typing import Iterable
+from multiprocessing import JoinableQueue, Manager, Process, Queue
+from typing import Iterable, Union
 
 import pandas as pd
 from temporis.transformation.functional.graph_utils import (
     root_nodes, topological_sort_iterator)
-from temporis.transformation.functional.pipeline.cache_store import CacheStoreType
+from temporis.transformation.functional.pipeline.cache_store import \
+    CacheStoreType
 from temporis.transformation.functional.pipeline.traversal import \
     CachedGraphTraversal
 from temporis.transformation.functional.transformerstep import TransformerStep
 from tqdm.auto import tqdm
-from multiprocessing import Process, Queue
+
+
+def _transform(node, old_element, dataset_element, queue):
+    n = node.transform(old_element)
+    queue.put((dataset_element, n))
 
 
 class CachedPipelineRunner:
@@ -23,7 +28,11 @@ class CachedPipelineRunner:
         Last step of the graph
     """
 
-    def __init__(self, final_step: TransformerStep, cache_type:CacheStoreType = CacheStoreType.SHELVE):
+    def __init__(
+        self,
+        final_step: TransformerStep,
+        cache_type: CacheStoreType = CacheStoreType.SHELVE,
+    ):
 
         self.final_step = final_step
         self.root_nodes = root_nodes(final_step)
@@ -37,52 +46,85 @@ class CachedPipelineRunner:
     ):
         dataset_size = len(dataset)
 
-        with CachedGraphTraversal(self.root_nodes, dataset, cache_type=self.cache_type) as cache:
+        with CachedGraphTraversal(
+            self.root_nodes, dataset, cache_type=self.cache_type
+        ) as cache:
             for node in topological_sort_iterator(self.final_step):
                 if isinstance(node, TransformerStep) and fit:
                     for dataset_element in range(dataset_size):
                         d = cache.state_up_to(node, dataset_element)
                         node.partial_fit(d)
 
-                if show_progress:
-                    bar = tqdm(range(dataset_size))
-                else:
-                    bar = range(dataset_size)
+                dataset_size = len(dataset)
+                # if dataset_size > 1:
+                # self._parallel_transform_step(cache, node, dataset_size, show_progress)
+                # else:
+                self._transform_step(cache, node, dataset_size, show_progress)
 
-                if show_progress:
-                    bar.set_description(node.name)
-
-                producers = []
-
-                queue = Queue()
-                for dataset_element in range(dataset_size):
-                    def produce(node, cache, dataset_element, queue):
-                        n =  node.transform(cache.state_up_to(node, dataset_element,))
-                        queue.put((dataset_element, n))
-                    producers.append(Process(target=produce, args=(node, cache, dataset_element, queue)))
-                for p in producers:
-                    p.start()               
-                
-                
-                for _ in bar:
-                    dataset_element, new_element = queue.get()
-                     
-                    cache.clean_state_up_to(node, dataset_element)
-                
-                    if len(node.next) > 0:
-                        for n in node.next:
-                            cache.store(n, node, dataset_element, new_element)
-                    else:
-                        cache.store(None, node, dataset_element, new_element)
-                cache.remove_state(node)
-            for p in producers:
-               p.join()
- 
             last_state_key = cache.get_keys_of(None)[0]
             return cache.transformed_cache[last_state_key]
 
     def fit(self, dataset: Iterable[pd.DataFrame], show_progress: bool = False):
         return self._run(dataset, fit=True, show_progress=show_progress)
 
-    def transform(self, df: pd.DataFrame):
-        return self._run([df], fit=False)
+    def _update_step(self, cache, node, dataset_element, new_element):
+        cache.clean_state_up_to(node, dataset_element)
+
+        if len(node.next) > 0:
+            for n in node.next:
+                cache.store(n, node, dataset_element, new_element)
+        else:
+            cache.store(None, node, dataset_element, new_element)
+
+    def _parallel_transform_step(
+        self, cache: CachedGraphTraversal, node, dataset_size: int, show_progress: bool
+    ):
+        if show_progress:
+            bar = tqdm(range(dataset_size))
+            bar.set_description(node.name)
+        else:
+            bar = range(dataset_size)
+
+        producers = []
+
+        queue = JoinableQueue(dataset_size)
+        for dataset_element in range(dataset_size):
+            old_element = cache.state_up_to(
+                node,
+                dataset_element,
+            )
+            producers.append(
+                Process(
+                    target=_transform, args=(node, old_element, dataset_element, queue)
+                )
+            )
+        for p in producers:
+            p.start()
+
+        for _ in bar:
+            dataset_element, new_element = queue.get()
+            queue.task_done()
+            self._update_step(cache, node, dataset_element, new_element)
+        cache.remove_state(node)
+        for p in producers:
+            p.join()
+        queue.join()
+
+    def _transform_step(
+        self, cache: CachedGraphTraversal, node, dataset_size: int, show_progress: bool
+    ):
+        if show_progress:
+            bar = tqdm(range(dataset_size))
+            bar.set_description(node.name)
+        else:
+            bar = range(dataset_size)
+        for dataset_element in bar:
+            old_element = cache.state_up_to(node, dataset_element)
+            new_element = node.transform(old_element)
+            self._update_step(cache, node, dataset_element, new_element)
+
+    def transform(self, df: Union[pd.DataFrame, Iterable[pd.DataFrame]]):
+        if isinstance(df, pd.DataFrame):
+            return self._run([df], fit=False)
+        else:
+            return self._run(df, fit=False)
