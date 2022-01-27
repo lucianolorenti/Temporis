@@ -198,3 +198,17 @@ class EWMAFilter(TransformerStep):
 
     def transform(self, X:pd.DataFrame, y=None) -> pd.DataFrame:
         return X.ewm(span=self.span).mean(skip_na=True)
+
+
+
+
+class GaussianFilter(TransformerStep):
+    def __init__(self, window_size:int, std:float, min_points:int = 1,center:bool=False, *args):
+        super().__init__(*args)
+        self.window_size = window_size
+        self.std = std 
+        self.center = center
+        self.min_points = min_points
+
+    def transform(self, X:pd.DataFrame) -> pd.DataFrame:
+        return X.rolling(window=self.window_size, win_type='gaussian', center=self.center, min_periods=self.min_points).mean(std=self.std)
