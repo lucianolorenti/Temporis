@@ -1,14 +1,73 @@
 import logging
-from typing import Optional
+from typing import Optional, Union
+
 
 import numpy as np
 import pandas as pd
 from temporis.transformation import TransformerStep
 
 from temporis.transformation.features.tdigest import TDigest
+from temporis.transformation.utils import QuantileEstimator
 
 logger = logging.getLogger(__name__)
 
+
+class RobustImputer(TransformerStep):
+    """Inpute values below and above defined quantiles
+
+    
+    The quantiles are approximated using tdigest
+
+    Parameters
+    ----------
+    range : tuple
+        Desired range of transformed data.
+    clip : bool, optional
+        Set to True to clip transformed values of held-out data to provided, by default True
+    lower_quantile : float, optional
+        Lower limit of the quantile range to compute the scale, by default 0.25
+    upper_quantile : float, optional
+        Upper limit of the quantile range to compute the scale, by default 0.75
+    tdigest_size : Optional[int], optional
+        Size of the t-digest structure, by default 100
+    name : Optional[str], optional
+        Name of the step, by default None
+    """
+
+    def __init__(
+        self,
+        lower_quantile: float = 0.25,
+        upper_quantile: float = 0.75,
+        max_workers: int = 1,
+        subsample:Optional[Union[int, float]] = None,
+        name: Optional[str] = None,
+    ):
+
+        super().__init__(name)
+   
+        self.Q1 = None
+        self.Q3 = None
+
+        self.quantile_estimator = QuantileEstimator(tdigest_size=50, subsample=subsample, max_workers=max_workers)
+        self.lower_quantile = lower_quantile
+        self.upper_quantile = upper_quantile
+
+    def _compute_quantiles(self):
+        self.Q1 = self.quantile_estimator.quantile(self.lower_quantile)
+        self.Q3 = self.quantile_estimator.quantile(self.upper_quantile)
+
+    def partial_fit(self, df: pd.DataFrame, y=None):
+        self.quantile_estimator.update(df)
+        return self
+
+    def transform(self, X: pd.DataFrame):
+        if self.Q1 is None:
+            self._compute_quantiles()
+        new_X  = X.copy()
+        new_X[new_X < self.Q1] = np.nan
+        new_X[new_X > self.Q3] = np.nan
+        return new_X
+            
 
 class PerColumnImputer(TransformerStep):
     """Impute the values of each column following a simple rule
