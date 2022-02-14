@@ -100,9 +100,11 @@ class QuantileEstimator:
     """Approximate the quantile of each feature in the dataframe
        using t-digest
     """
-    def __init__(self, tdigest_size:int = 200):
+    def __init__(self, tdigest_size:int = 200, max_workers:int = 1, subsample:Optional[Union[int, float]] = None):
         self.tdigest_dict = None
         self.tdigest_size = tdigest_size
+        self.max_workers = max_workers
+        self.subsample = subsample
 
     def update(self, X: pd.DataFrame):
         if X.shape[0] < 2:
@@ -115,9 +117,19 @@ class QuantileEstimator:
 
         
         results = []
-        with ProcessPoolExecutor(max_workers=10) as executor:
+        with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             for i, c in enumerate(columns):
-                x = X.iloc[:, i].dropna().sort_values().values
+
+                x = X.iloc[:, i].dropna()
+                if self.subsample is not None:
+
+                    if isinstance( self.subsample, int):
+                        points_to_sample = self.subsample
+                    else:
+                        points_to_sample = self.subsample * X.shape[0]
+                    step = max(int(X.shape[0] / float(points_to_sample)), 1)
+                    x = x.iloc[::step]
+                x = x.sort_values().values
                 t_digest = self.tdigest_dict[c]
                 results.append(executor.submit(build_tdigest, t_digest, x, c))
 

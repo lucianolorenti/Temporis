@@ -23,7 +23,7 @@ from temporis.transformation.features.outliers import (
     IQROutlierRemover,
     ZScoreOutlierRemover,
 )
-from temporis.transformation.features.resamplers import SubSampleTransformer
+from temporis.transformation.features.resamplers import IntegerIndexResamplerTransformer
 from temporis.transformation.features.selection import (
     ByNameFeatureSelector,
     NullProportionSelector,
@@ -60,7 +60,7 @@ def manual_expanding(df: pd.DataFrame, min_points: int = 1):
     return pd.concat(dfs, axis=1)
 
 
-def manual_rolling(df: pd.DataFrame, min_points: int = 1, window_size:int = 5):
+def manual_rolling(df: pd.DataFrame, min_points: int = 1, window_size: int = 5):
     to_compute = [
         "kurtosis",
         "skewness",
@@ -80,11 +80,12 @@ def manual_rolling(df: pd.DataFrame, min_points: int = 1, window_size:int = 5):
         for i in range(min_points - 1):
             d.append([np.nan for f in to_compute])
         for end in range(min_points, df.shape[0] + 1):
-            data = df[c].iloc[max(end-window_size,0):end]
+            data = df[c].iloc[max(end - window_size, 0) : end]
             row = [manual_features(data, f) for f in to_compute]
             d.append(row)
         dfs.append(pd.DataFrame(d, columns=[f"{c}_{f}" for f in to_compute]))
     return pd.concat(dfs, axis=1)
+
 
 def kurtosis(s: pd.Series) -> float:
     return scipy.stats.kurtosis(s.values, bias=False)
@@ -407,7 +408,6 @@ class TestGenerators:
 
         assert (pandas_t - fixed_t).mean().mean() < 1e-17
 
-
     def test_rolling(self):
         lives = [
             pd.DataFrame(
@@ -439,9 +439,8 @@ class TestGenerators:
 
         pandas_t = rolling.transform(ds_train[0][["a", "b"]])
         fixed_t = manual_rolling(ds_train[0][["a", "b"]], 2, 5)
-        
-        assert (pandas_t - fixed_t).mean().mean() <  1e-10
 
+        assert (pandas_t - fixed_t).mean().mean() < 1e-10
 
     def test_EWMAOutOfRange(self):
         a = np.random.randn(500) * 0.5 + 2
@@ -605,7 +604,7 @@ class TestEntropy:
 
 class TestQuantileEstimator:
     def test_quantile(self):
-        
+
         A = pd.DataFrame({"A": np.random.randn(15000), "B": np.random.randn(15000)})
         q = QuantileEstimator()
         q.update(A)
@@ -616,8 +615,8 @@ class TestQuantileEstimator:
 
         s = q.estimate_quantile(0.1)
 
-        assert (np.abs(s.A - A.quantile(0.1)['A'])) < 0.001
-        assert (np.abs(s.B - A.quantile(0.1)['B'])) < 0.001
+        assert (np.abs(s.A - A.quantile(0.1)["A"])) < 0.001
+        assert (np.abs(s.B - A.quantile(0.1)["B"])) < 0.001
 
         B = pd.DataFrame({"A": np.random.randn(15000) + 5, "B": np.random.randn(15000)})
         q.update(B)
@@ -627,9 +626,7 @@ class TestQuantileEstimator:
         assert np.abs(s.B) < 0.1
         assert s.index.tolist() == ["A", "B"]
 
-        assert q.estimate_quantile(0.5, 'A') - 5 < 0.1
-
-
+        assert q.estimate_quantile(0.5, "A") - 5 < 0.1
 
 
 class TestEMD:
@@ -638,4 +635,44 @@ class TestEMD:
         q = SlidingNonOverlappingEMD(300, 5)
         r = q.transform(A)
         assert r.shape[0] == A.shape[0]
-        assert r.shape[1] == A.shape[1]*5
+        assert r.shape[1] == A.shape[1] * 5
+
+
+class TestResamplers:
+    def test_resampler(self):
+
+        A = pd.DataFrame(
+            {
+                "time": np.linspace(500, 0, 25).astype(int),
+                "B": np.linspace(0, 500, 25).astype(int),
+            }
+        )
+        A.loc[5, "time"] = A.loc[4, "time"] - 5
+        A.loc[10, "time"] = A.loc[9, "time"] - 12
+        A.loc[17, "time"] = A.loc[16, "time"] - 35
+
+        resampler = IntegerIndexResamplerTransformer(
+            time_feature="time", steps=15, drop_time_feature=True
+        )
+
+        resampler.partial_fit(A)
+        q = resampler.transform(A)
+        assert q.columns.values.tolist() == ["B"]
+        assert np.all(np.diff(q) == 15)
+
+        resampler = IntegerIndexResamplerTransformer(
+            time_feature="time", steps=15, drop_time_feature=False
+        )
+
+        resampler.partial_fit(A)
+        q = resampler.transform(A)
+        assert q.columns.values.tolist() == ["time", "B"]
+
+        A = pd.DataFrame({"time": [5, 3, 0], "B": [10, 6, 0]})
+        resampler = IntegerIndexResamplerTransformer(
+            time_feature="time", steps=2, drop_time_feature=False
+        )
+
+        resampler.partial_fit(A)
+        q = resampler.transform(A)
+        assert np.sum(q["B"] - np.array([0, 4, 8])) < 0.000005
