@@ -1,3 +1,4 @@
+import logging
 from multiprocessing import JoinableQueue, Manager, Process, Queue
 from typing import Iterable, Union
 
@@ -11,6 +12,7 @@ from temporis.transformation.functional.pipeline.traversal import \
 from temporis.transformation.functional.transformerstep import TransformerStep
 from tqdm.auto import tqdm
 
+logger = logging.getLogger(__name__)
 
 def _transform(node, old_element, dataset_element, queue):
     n = node.transform(old_element)
@@ -118,10 +120,14 @@ class CachedPipelineRunner:
             bar.set_description(node.name)
         else:
             bar = range(dataset_size)
-        for dataset_element in bar:
-            old_element = cache.state_up_to(node, dataset_element)
-            new_element = node.transform(old_element)
-            self._update_step(cache, node, dataset_element, new_element)
+        try:
+            for dataset_element in bar:
+                old_element = cache.state_up_to(node, dataset_element)
+                new_element = node.transform(old_element)
+                self._update_step(cache, node, dataset_element, new_element)
+        except Exception as e:
+            logger.error(f'There was an error when transforming with {node.name}')
+            raise
 
     def transform(self, df: Union[pd.DataFrame, Iterable[pd.DataFrame]]):
         if isinstance(df, pd.DataFrame):
