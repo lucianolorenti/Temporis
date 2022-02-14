@@ -38,6 +38,8 @@ class RobustMinMaxScaler(TransformerStep):
         clip: bool = True,
         lower_quantile: float = 0.25,
         upper_quantile: float = 0.75,
+        max_workers: int = 1,
+        subsample:Optional[Union[int, float]] = None,
         name: Optional[str] = None,
     ):
 
@@ -46,7 +48,7 @@ class RobustMinMaxScaler(TransformerStep):
         self.Q1 = None
         self.Q3 = None
         self.clip = clip
-        self.quantile_estimator = QuantileEstimator(tdigest_size=50)
+        self.quantile_estimator = QuantileEstimator(tdigest_size=50, subsample=subsample, max_workers=max_workers)
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
 
