@@ -24,7 +24,7 @@ class AbstractShuffler:
         return self.current_time_series == self.wditerator.dataset.n_time_series
 
     def next_element(
-        self, valid_timestmap: Optional[Callable[[int], bool]] = None
+        self, valid_timestmap: Optional[Callable[[int, int], bool]] = None
     ) -> Tuple[int, int]:
 
         valid = False
@@ -33,8 +33,10 @@ class AbstractShuffler:
                 raise StopIteration
             ts_index = self.time_series()
             timestamp = self.timestamp()
+
+            samples_until_end = self.time_series_size(ts_index) - timestamp
             if valid_timestmap:
-                valid = valid_timestmap(timestamp)
+                valid = valid_timestmap(timestamp, samples_until_end)
             else:
                 valid = True
 
