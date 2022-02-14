@@ -8,6 +8,7 @@ import pandas as pd
 from temporis.dataset.transformed import TransformedDataset
 from temporis.iterators.shufflers import AbstractShuffler, NotShuffled
 from tqdm.auto import tqdm
+import functools
 
 
 logger = logging.getLogger(__name__)
@@ -34,9 +35,6 @@ class InverseToLengthWeighted(AbstractSampleWeights):
 
 
 SampleWeight = Union[AbstractSampleWeights, Callable[[np.ndarray, int, Any], float]]
-
-
-
 
 
 def seq_to_seq_signal_generator(
@@ -118,10 +116,25 @@ def windowed_signal_generator(
     return (signal_X_1, signal_y_1)
 
 
-
 class IterationType(Enum):
     SEQ_TO_SEQ = 1
     FORECAST = 2
+
+
+def valid_sample(
+    padding,
+    window_size,
+    max_sample_number: Optional[int],
+    current_sample: int,
+    samples_until_end: int,
+):
+    if max_sample_number is not None and samples_until_end > max_sample_number:
+        return False
+    if padding:
+        return current_sample >= window_size - 1
+    else:
+        return True
+
 
 class WindowedDatasetIterator:
     def __init__(
@@ -134,7 +147,8 @@ class WindowedDatasetIterator:
         sample_weight: SampleWeight = NotWeighted(),
         add_last: bool = True,
         padding: bool = False,
-        iteration_type:IterationType = IterationType.FORECAST
+        iteration_type: IterationType = IterationType.FORECAST,
+        max_sample_number: Optional[int] = None,
     ):
 
         self.dataset = dataset
@@ -142,7 +156,7 @@ class WindowedDatasetIterator:
         self.window_size = window_size
         self.step = step
         self.shuffler.initialize(self)
-        self.iteration_type = iteration_type 
+        self.iteration_type = iteration_type
 
         if self.iteration_type == IterationType.FORECAST:
             self.slicing_function = windowed_signal_generator
@@ -163,10 +177,10 @@ class WindowedDatasetIterator:
         self.add_last = add_last
         self.length = None
         self.padding = padding
-        if not self.padding:
-            self.valid_sample = lambda x: x >= self.window_size - 1
-        else:
-            self.valid_sample = lambda x: True
+        self.max_sample_number = max_sample_number
+        self.valid_sample = functools.partial(
+            valid_sample, self.padding, self.window_size, self.max_sample_number
+        )
 
     @property
     def output_shape(self):
@@ -197,14 +211,16 @@ class WindowedDatasetIterator:
         )
         return window[0], window[1], [self.sample_weight(y, timestamp, metadata)]
 
-    def get_data(self, flatten:bool=True, show_progress:bool=False):
+    def get_data(self, flatten: bool = True, show_progress: bool = False):
         N_points = len(self)
 
         if flatten:
             dimension = self.window_size * self.n_features
             X = np.zeros((N_points, dimension), dtype=np.float32)
         else:
-            X = np.zeros((N_points,  self.window_size, self.n_features), dtype=np.float32)
+            X = np.zeros(
+                (N_points, self.window_size, self.n_features), dtype=np.float32
+            )
         y = np.zeros((N_points, self.output_size), dtype=np.float32)
         sample_weight = np.zeros(N_points, dtype=np.float32)
 
