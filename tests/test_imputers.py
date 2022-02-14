@@ -41,9 +41,9 @@ class TestImputers():
         df_new = remover.fit_transform(df)
 
         assert not (pd.isnull(df_new).any().any())
-        assert pytest.approx(df_new['a'][1], a_median)
-        assert pytest.approx(df_new['a'][2], a_median)
-        assert pytest.approx(df_new['b'][2], b_median)
+        assert df_new['a'][1] ==  pytest.approx(a_median)
+        assert df_new['a'][2] == pytest.approx(a_median)
+        assert df_new['b'][2] == pytest.approx(b_median)
 
     def test_PandasMeanImputer(self):
 
@@ -58,10 +58,10 @@ class TestImputers():
         df_new = remover.fit_transform(df)
         assert not (pd.isnull(df_new).any().any())
 
-        assert pytest.approx(df_new['a'][1], a_mean)
-        assert pytest.approx(df_new['a'][2], a_mean)
+        assert df_new['a'][1] == pytest.approx(a_mean)
+        assert df_new['a'][2] == pytest.approx(a_mean)
 
-        assert pytest.approx(df_new['b'][2], b_mean)
+        assert df_new['b'][2] == pytest.approx(b_mean)
 
     def test_ForwardFillImputer(self):
 
@@ -73,7 +73,7 @@ class TestImputers():
         df_new = remover.fit_transform(df)
         assert not (pd.isnull(df_new).any().any())
 
-        assert pytest.approx(df_new['a'][1], 0.5)
-        assert pytest.approx(df_new['a'][2], 0.5)
+        assert df_new['a'][1] == pytest.approx(0.5)
+        assert df_new['a'][2] == pytest.approx(0.5)
 
-        assert pytest.approx(df_new['b'][4], 5)
+        assert df_new['b'][4] == pytest.approx(5)
