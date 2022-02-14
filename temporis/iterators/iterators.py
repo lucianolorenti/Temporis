@@ -130,7 +130,7 @@ def valid_sample(
 ):
     if max_sample_number is not None and samples_until_end > max_sample_number:
         return False
-    if padding:
+    if not padding:
         return current_sample >= window_size - 1
     else:
         return True

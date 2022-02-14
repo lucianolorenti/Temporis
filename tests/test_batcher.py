@@ -63,3 +63,25 @@ class TestBatcher():
         assert X.shape[0] == batch_size
         assert X.shape[1] == window_size
         assert X.shape[2] == 2
+
+
+        features = ['feature1', 'feature2']
+        x = ByNameFeatureSelector(features)
+        x = MinMaxScaler((-1, 1))(x)
+
+        y = ByNameFeatureSelector(['RUL'])
+        transformer = Transformer(x, y)
+        
+        batch_size = 15
+        window_size = 5
+        ds = MockDataset(5)
+        transformer.fit(ds)
+        b = Batcher.new(ds.map(transformer), window_size, batch_size, 1, padding=True)
+
+        expected_size = math.ceil(((5*50)) / 15)
+        assert len(b) == expected_size
+        X, y, w = next(b)
+        assert len(y.ravel()) == batch_size
+        assert X.shape[0] == batch_size
+        assert X.shape[1] == window_size
+        assert X.shape[2] == 2

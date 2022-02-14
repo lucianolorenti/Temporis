@@ -41,6 +41,7 @@ class Batcher:
         shuffler: AbstractShuffler = NotShuffled(),
         sample_weight:  SampleWeight= NotWeighted(),
         add_last: bool = True,
+        padding: bool = False
     ):
         """Batcher constructor from a dataset
 
@@ -68,6 +69,7 @@ class Batcher:
             shuffler=shuffler,
             sample_weight=sample_weight,
             add_last=add_last,
+            padding=padding
         )
         b = Batcher(iterator, batch_size)
         return b

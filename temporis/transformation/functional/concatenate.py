@@ -17,7 +17,6 @@ class Concatenate(TransformerStepMixin):
         X = pd.concat(
             [otherX.add_prefix(f'{name}_{i}_') for i, (name, otherX) in enumerate(zip(names, Xs))], axis=1
         )
-
         return X
 
     def transform(self, Xs: List[pd.DataFrame]):
