@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -27,8 +27,10 @@ class NullProportionSelector(TransformerStep):
 
 
 class ByNameFeatureSelector(TransformerStep):
-    def __init__(self, features=[], name: Optional[str] = None):
+    def __init__(self, features:Union[str, List[str]]= [], name: Optional[str] = None):
         super().__init__(name)
+        if isinstance(features, str):
+            features = [features]
         self.features = features
         self.features_indices = None
         self.features_computed_ = []
