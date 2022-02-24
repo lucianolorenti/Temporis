@@ -4,6 +4,56 @@ from scipy.interpolate import interp1d
 from temporis.transformation import TransformerStep
 
 
+class SubsamplerTransformer(TransformerStep):
+    """IntegerIndexResamplerTransformer
+
+    Resample the time series with an integer index and interpolate linearly the values
+
+    Parameters
+    ----------
+    time_feature : str
+        Time feature
+    steps : int
+        Number of steps
+    drop_time_feature: bool
+        Drop the time feature
+    """
+
+    def __init__(self, *args, time_feature: str, steps: int, drop_time_feature: bool):
+        super().__init__(*args)
+        self._time_feature_name = time_feature
+        self._time_feature = None
+        self.steps = steps
+        self.drop_time_feature = drop_time_feature
+
+    def partial_fit(self, X: pd.DataFrame):
+        """Obtain the name of the feature used as time
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            The current time-series to be fitted
+
+        Returns
+        -------
+        self
+
+        """
+        if self._time_feature is None:
+            self._time_feature = self.find_feature(X, self._time_feature_name)
+            if self._time_feature is None:
+                raise ValueError('Time feature not found')
+
+        return self
+
+    def transform(self, X: pd.DataFrame):
+        X = X.groupby(X[self._time_feature] // self.steps, sort=False).mean()
+        if self.drop_time_feature:
+            X = X.drop(columns=[self._time_feature])
+                    
+        
+        return X
+
 class IntegerIndexResamplerTransformer(TransformerStep):
     """IntegerIndexResamplerTransformer
 
