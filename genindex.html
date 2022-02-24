@@ -116,13 +116,15 @@
 </li>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset">AbstractTimeSeriesDataset (class in temporis.dataset.ts_dataset)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Accumulate">Accumulate (class in temporis.transformation.features.transformation)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.allocate_batch_data">allocate_batch_data() (temporis.iterators.batcher.Batcher method)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Apply">Apply (class in temporis.transformation.features.transformation)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.ApplyRollingImputer">ApplyRollingImputer (class in temporis.transformation.features.imputers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -243,13 +245,13 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SimpleEncodingCategorical.fit">(temporis.transformation.features.extraction.SimpleEncodingCategorical method)</a>
 </li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.ApplyRollingImputer.fit">(temporis.transformation.features.imputers.ApplyRollingImputer method)</a>
+</li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MeanImputer.fit">(temporis.transformation.features.imputers.MeanImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MedianImputer.fit">(temporis.transformation.features.imputers.MedianImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.PerColumnImputer.fit">(temporis.transformation.features.imputers.PerColumnImputer method)</a>
-</li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingImputer.fit">(temporis.transformation.features.imputers.RollingImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.EWMAOutlierRemover.fit">(temporis.transformation.features.outliers.EWMAOutlierRemover method)</a>
 </li>
@@ -445,6 +447,8 @@
         <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.FoldedDataset.n_time_series">(temporis.dataset.ts_dataset.FoldedDataset property)</a>
 </li>
       </ul></li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.NaNtoInf">NaNtoInf (class in temporis.transformation.features.imputers)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.new">new() (temporis.iterators.batcher.Batcher static method)</a>
@@ -510,15 +514,13 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SimpleEncodingCategorical.partial_fit">(temporis.transformation.features.extraction.SimpleEncodingCategorical method)</a>
 </li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.ApplyRollingImputer.partial_fit">(temporis.transformation.features.imputers.ApplyRollingImputer method)</a>
+</li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MeanImputer.partial_fit">(temporis.transformation.features.imputers.MeanImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MedianImputer.partial_fit">(temporis.transformation.features.imputers.MedianImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.PerColumnImputer.partial_fit">(temporis.transformation.features.imputers.PerColumnImputer method)</a>
-</li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RobustImputer.partial_fit">(temporis.transformation.features.imputers.RobustImputer method)</a>
-</li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingImputer.partial_fit">(temporis.transformation.features.imputers.RollingImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.BeyondQuartileOutlierRemover.partial_fit">(temporis.transformation.features.outliers.BeyondQuartileOutlierRemover method)</a>
 </li>
@@ -571,10 +573,6 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RemoveInf">RemoveInf (class in temporis.transformation.features.imputers)</a>
-</li>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RobustImputer">RobustImputer (class in temporis.transformation.features.imputers)</a>
-</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustMinMaxScaler">RobustMinMaxScaler (class in temporis.transformation.features.scalers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustStandardScaler">RobustStandardScaler (class in temporis.transformation.features.scalers)</a>
@@ -585,8 +583,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingImputer">RollingImputer (class in temporis.transformation.features.imputers)</a>
-</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMeanImputer">RollingMeanImputer (class in temporis.transformation.features.imputers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.RollingMeanOutlierRemover">RollingMeanOutlierRemover (class in temporis.transformation.features.outliers)</a>
@@ -813,6 +809,8 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.TimeToPreviousBinaryValue.transform">(temporis.transformation.features.extraction.TimeToPreviousBinaryValue method)</a>
 </li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.ApplyRollingImputer.transform">(temporis.transformation.features.imputers.ApplyRollingImputer method)</a>
+</li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.FillImputer.transform">(temporis.transformation.features.imputers.FillImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.ForwardFillImputer.transform">(temporis.transformation.features.imputers.ForwardFillImputer method)</a>
@@ -821,13 +819,9 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.MedianImputer.transform">(temporis.transformation.features.imputers.MedianImputer method)</a>
 </li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.NaNtoInf.transform">(temporis.transformation.features.imputers.NaNtoInf method)</a>
+</li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.PerColumnImputer.transform">(temporis.transformation.features.imputers.PerColumnImputer method)</a>
-</li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RemoveInf.transform">(temporis.transformation.features.imputers.RemoveInf method)</a>
-</li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RobustImputer.transform">(temporis.transformation.features.imputers.RobustImputer method)</a>
-</li>
-        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingImputer.transform">(temporis.transformation.features.imputers.RollingImputer method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.operations.Divide.transform">(temporis.transformation.features.operations.Divide method)</a>
 </li>
