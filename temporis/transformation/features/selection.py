@@ -202,3 +202,23 @@ class PandasNullProportionSelector(TransformerStep):
         if not isinstance(X, pd.DataFrame):
             raise ValueError("Input array must be a data frame")
         return X[self.selected_columns_].copy()
+
+
+class  MatchFeatureSelector(TransformerStep):
+    def __init__(self, pattern:str, name: Optional[str] = None):
+        super().__init__(name)
+        self.pattern = pattern
+        self.selected_columns_ = None
+
+
+    def partial_fit(self, df, y=None):
+
+        if self.selected_columns_ is None:
+            self.selected_columns_ = [f for f in df.columns if self.pattern in f ]
+
+        return self
+
+    def transform(self, X, y=None):
+        if not isinstance(X, pd.DataFrame):
+            raise ValueError("Input array must be a data frame")
+        return X[self.selected_columns_].copy()
