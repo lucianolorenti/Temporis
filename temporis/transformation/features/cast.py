@@ -9,6 +9,18 @@ logger = logging.getLogger(__name__)
 
 
 class CastTo(TransformerStep):
+    """Cast to a given datatype
+
+    step = CastTo('float32')
+
+    Parameters
+    ----------
+    type : str
+        Type name to conver to
+    name : Optional[str], optional
+        Name of the step, by default None
+
+    """
     def __init__(self, type:str, name:Optional[str]=None):
         super().__init__(name=name)
         self.type = type
