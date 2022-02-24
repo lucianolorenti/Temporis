@@ -10,64 +10,7 @@ from temporis.transformation.features.tdigest import TDigest
 from temporis.transformation.utils import QuantileEstimator
 
 logger = logging.getLogger(__name__)
-
-
-class RobustImputer(TransformerStep):
-    """Inpute values below and above defined quantiles
-
-    
-    The quantiles are approximated using tdigest
-
-    Parameters
-    ----------
-    range : tuple
-        Desired range of transformed data.
-    clip : bool, optional
-        Set to True to clip transformed values of held-out data to provided, by default True
-    lower_quantile : float, optional
-        Lower limit of the quantile range to compute the scale, by default 0.25
-    upper_quantile : float, optional
-        Upper limit of the quantile range to compute the scale, by default 0.75
-    tdigest_size : Optional[int], optional
-        Size of the t-digest structure, by default 100
-    name : Optional[str], optional
-        Name of the step, by default None
-    """
-
-    def __init__(
-        self,
-        lower_quantile: float = 0.25,
-        upper_quantile: float = 0.75,
-        max_workers: int = 1,
-        subsample:Optional[Union[int, float]] = None,
-        name: Optional[str] = None,
-    ):
-
-        super().__init__(name)
-   
-        self.Q1 = None
-        self.Q3 = None
-
-        self.quantile_estimator = QuantileEstimator(tdigest_size=50, subsample=subsample, max_workers=max_workers)
-        self.lower_quantile = lower_quantile
-        self.upper_quantile = upper_quantile
-
-    def _compute_quantiles(self):
-        self.Q1 = self.quantile_estimator.quantile(self.lower_quantile)
-        self.Q3 = self.quantile_estimator.quantile(self.upper_quantile)
-
-    def partial_fit(self, df: pd.DataFrame, y=None):
-        self.quantile_estimator.update(df)
-        return self
-
-    def transform(self, X: pd.DataFrame):
-        if self.Q1 is None:
-            self._compute_quantiles()
-        new_X  = X.copy()
-        new_X[new_X < self.Q1] = np.nan
-        new_X[new_X > self.Q3] = np.nan
-        return new_X
-            
+           
 
 class PerColumnImputer(TransformerStep):
     """Impute the values of each column following a simple rule
@@ -77,10 +20,10 @@ class PerColumnImputer(TransformerStep):
         np.inf -> max
         nan -> median
 
-        Parameters
-        ----------
-        name : Optional[str], optional
-            Step name, by default None
+    Parameters
+    ----------
+    name : Optional[str], optional
+        Step name, by default None
     """
 
     def __init__(self, name: Optional[str] = None):
@@ -149,7 +92,7 @@ class PerColumnImputer(TransformerStep):
         return (name, data)
 
 
-class RemoveInf(TransformerStep):
+class NaNtoInf(TransformerStep):
     """Replace NaN for inf"""
 
     def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
@@ -284,7 +227,7 @@ class MeanImputer(TransformerStep):
         return X.fillna(value=self.mean)
 
 
-class RollingImputer(TransformerStep):
+class ApplyRollingImputer(TransformerStep):
     """Impute missing values using a function over a rolling window
 
     Parameters
@@ -297,13 +240,14 @@ class RollingImputer(TransformerStep):
         The function to call in each window
     """
 
-    def __init__(self, window_size: int, func):
+    def __init__(self, window_size: int, func, *args):
+        super().__init__(*args)
         self.window_size = window_size
         self.function = func
         self.mean_value_list = []
         self.sum = None
 
-    def partial_fit(self, X: pd.DataFrame, y=None):
+    def partial_fit(self, X: pd.DataFrame):
         """Compute incrementally the mean value to use as default value to impute
 
         Parameters
@@ -320,7 +264,7 @@ class RollingImputer(TransformerStep):
         self.default_value = (self.sum / self.counts).to_dict()
         return self
 
-    def fit(self, X: pd.DataFrame, y=None):
+    def fit(self, X: pd.DataFrame):
         """Compute a default value in case there are not valid values in the rolling window
 
         Parameters
@@ -347,20 +291,18 @@ class RollingImputer(TransformerStep):
             replaced by the output of the function supplied
         """
         X = X.copy()
+        
         row, features = np.where(~np.isfinite(X))
         min_limit = np.maximum(row - self.window_size, 0)
         max_limit = np.minimum(row + self.window_size, X.shape[0])
         for r, min_r, max_r, f in zip(row, min_limit, max_limit, features):
-            X[r, f] = self.function(X[min_r:max_r, f])
-            if ~np.isfinite(X[r, f]):
-                X[r, f] = self.default_value[f]
+            X.iloc[r, f] = self.function(X.iloc[min_r:max_r, f].values)
+            if ~np.isfinite(X.iloc[r, f]):
+                X.iloc[r, f] = self.default_value[X.columns[f]]
         return X
 
-    def partial_fit(self, X, y=None):
-        return self
 
-
-class RollingMedianImputer(RollingImputer):
+class RollingMedianImputer(ApplyRollingImputer):
     """Impute missing values with the median value on a rolling window
 
     Parameters
@@ -374,7 +316,7 @@ class RollingMedianImputer(RollingImputer):
         super().__init__(window_size, np.median)
 
 
-class RollingMeanImputer(RollingImputer):
+class RollingMeanImputer(ApplyRollingImputer):
     """Impute missing values with the mean value on a rolling window
 
     Parameters

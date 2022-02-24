@@ -4,16 +4,31 @@ import numpy as np
 import pandas as pd
 import pytest
 from temporis.transformation.features.imputers import (ForwardFillImputer,
-                                                       MeanImputer,
-                                                       MedianImputer,
-                                                       RemoveInf)
+                                                       MeanImputer, ApplyRollingImputer,
+                                                       MedianImputer, NaNtoInf)
 
 
 class TestImputers():
+    def test_ApplyRollingImputer(self):
+        def finite_max(x):
+            return np.max(x[np.isfinite(x)])
+        f = ApplyRollingImputer(3, finite_max)
+        df = pd.DataFrame({
+            'a': [0, np.inf, 12, -np.inf,  0.9, 15, 0.5, 0.3, 0.5],
+            'b': [5, 6,   7,   5,   np.inf,   5,  6,   5,   45],
+        })
+        assert not pd.isnull(df['a'][1])
+        assert not pd.isnull(df['a'][2])
+        assert not pd.isnull(df['b'][4])
+        f.partial_fit(df)
+        df_new = f.transform(df)
+
+        assert np.all(np.isfinite(df_new))
+        assert np.all(df_new['a'] == np.array([0, 12, 12, 15, 0.9, 15, 0.5, 0.3, 0.5]))
 
     def test_PandasRemoveInf(self):
 
-        remover = RemoveInf()
+        remover = NaNtoInf()
         df = pd.DataFrame({
             'a': [0, np.inf, -np.inf, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
             'b': [5, 6,   7,   5,   np.inf,   5,  6,   5,   45],
