@@ -5,7 +5,7 @@ import pandas as pd
 from temporis.transformation import TransformerStep
 from temporis.transformation.features.tdigest import TDigest
 import numpy as np
-
+from scipy.signal import find_peaks
 
 class MeanCentering(TransformerStep):
     """Center the data with respect to the mean"""
@@ -365,3 +365,80 @@ class Apply(TransformerStep):
             with the difference of the features
         """
         return X.apply(self.fun)
+
+class Clip(TransformerStep):
+    """Apply the function element-wise"""
+
+    def __init__(self,lower, upper, *args):
+        super().__init__(*args)
+        self.lower = lower
+        self.upper = upper
+
+    def transform(self, X):
+        """Transform the input life computing the 1 step difference
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            Input life
+
+        Returns
+        -------
+        pd.DataFrame
+            Return a new DataFrame with the same index as the input
+            with the difference of the features
+        """
+        
+        return X.clip(self.lower, self.upper)
+
+
+class SubstractLinebase(TransformerStep):
+    """SubstractLinebase"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+    def transform(self, X):
+        """
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            Input life
+
+        Returns
+        -------
+        pd.DataFrame
+ 
+        """
+        
+        return X - X.iloc[0, :]
+
+
+class Peaks(TransformerStep):
+    """Peaks"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+    def transform(self, X):
+        """
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            Input life
+
+        Returns
+        -------
+        pd.DataFrame
+ 
+        """
+        new_X = pd.DataFrame(np.zeros(X.shape), index=X.index, columns=X.columns)
+        for i, c in enumerate(X.columns):
+            peaks_positions, _ = find_peaks(X[c].values, distance=50)
+            new_X.iloc[peaks_positions, i] = 1
+            
+        return new_X
