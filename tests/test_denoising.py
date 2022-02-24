@@ -7,7 +7,7 @@ from temporis.transformation.features.denoising import (GaussianFilter,
 class TestDenoising:
     def test_SavitzkyGolayTransformer(self):
 
-        remover = SavitzkyGolayTransformer()
+        remover = SavitzkyGolayTransformer(window=25)
         df = pd.DataFrame(
             {
                 "a": np.random.rand(2000),
