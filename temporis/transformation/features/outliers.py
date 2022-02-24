@@ -148,6 +148,7 @@ class BeyondQuartileOutlierRemover(TransformerStep):
         self,
         lower_quantile: float = 0.25,
         upper_quantile: float = 0.75,
+        subsample:float = 0.2,
         clip: bool = False,
         name: Optional[str] = None,
     ):
@@ -157,7 +158,7 @@ class BeyondQuartileOutlierRemover(TransformerStep):
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
         self.clip = clip
-        self.quantile_estimator = QuantileEstimator(tdigest_size=100)
+        self.quantile_estimator = QuantileEstimator(tdigest_size=100, subsample=subsample)
         self.Q1 = None
         self.Q3 = None
 
