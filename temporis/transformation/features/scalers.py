@@ -39,7 +39,7 @@ class RobustMinMaxScaler(TransformerStep):
         lower_quantile: float = 0.25,
         upper_quantile: float = 0.75,
         max_workers: int = 1,
-        subsample:Optional[Union[int, float]] = None,
+        subsample: Optional[Union[int, float]] = None,
         name: Optional[str] = None,
     ):
 
@@ -48,7 +48,9 @@ class RobustMinMaxScaler(TransformerStep):
         self.Q1 = None
         self.Q3 = None
         self.clip = clip
-        self.quantile_estimator = QuantileEstimator(tdigest_size=50, subsample=subsample, max_workers=max_workers)
+        self.quantile_estimator = QuantileEstimator(
+            tdigest_size=50, subsample=subsample, max_workers=max_workers
+        )
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
 
@@ -59,7 +61,7 @@ class RobustMinMaxScaler(TransformerStep):
         self.IQR = self.Q3 - self.Q1
 
         self.valid_mask = self.IQR.abs() > 0.000000000001
-  
+
         self.median = self.quantile_estimator.quantile(0.5)
 
     def partial_fit(self, df: pd.DataFrame, y=None):
@@ -69,9 +71,13 @@ class RobustMinMaxScaler(TransformerStep):
     def transform(self, X: pd.DataFrame):
         if self.Q1 is None:
             self._compute_quantiles()
-        new_X  = X.copy()
-        X_std = (X.loc[:, self.valid_mask] - self.Q1[self.valid_mask]) / (self.IQR[self.valid_mask])
-        new_X.loc[:, self.valid_mask] = X_std * (self.range[1] - self.range[0]) + self.range[0]
+        new_X = X.copy()
+        X_std = (X.loc[:, self.valid_mask] - self.Q1[self.valid_mask]) / (
+            self.IQR[self.valid_mask]
+        )
+        new_X.loc[:, self.valid_mask] = (
+            X_std * (self.range[1] - self.range[0]) + self.range[0]
+        )
         new_X.loc[:, ~self.valid_mask] = 0
         if self.clip:
             return new_X.clip(self.range[0], self.range[1])
@@ -132,9 +138,13 @@ class MinMaxScaler(TransformerStep):
     def transform(self, X):
         try:
             divisor = self.data_max - self.data_min
-            mask = np.abs((divisor)) > 0.0000001
+            mask = np.abs((divisor)) > 1e-25
             X = X.copy()
-            X.loc[:, mask] = ((X.loc[:, mask] - self.data_min[mask]) / divisor[mask] * (self.max - self.min)) + self.min
+            X.loc[:, mask] = (
+                (X.loc[:, mask] - self.data_min[mask])
+                / divisor[mask]
+                * (self.max - self.min)
+            ) + self.min
             X.loc[:, ~mask] = 0
         except:
             raise
@@ -152,13 +162,6 @@ class StandardScaler(TransformerStep):
 
     Parameters
     ----------
-    def _compute_quantiles(self):
-        self.Q1 = self.quantile_estimator.quantile(self.quantile_range[0])
-        self.Q3 = self.quantile_estimator.quantile(self.quantile_range[1])
-
-        self.IQR = self.Q3 - self.Q1
-
-        self.median = self.quantile_estimator.quantile(0.5)
     name : Optional[str], optional
         Name of the step, by default None
 
@@ -188,8 +191,8 @@ class StandardScaler(TransformerStep):
         return self
 
     def transform(self, X):
-        # return (X - self.mean) / (self.std)
-        return X - self.mean
+
+        return (X - self.mean) / (self.std)
 
 
 class RobustStandardScaler(TransformerStep):
