@@ -62,6 +62,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.scalers">Scalers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.outliers">Outliers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id1">Transformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.cast">Casting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.entropy">Entropy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.operations">Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-temporis.transformation.features.resamplers">Resamplers</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="target.html">Target transformation</a></li>
@@ -408,13 +412,12 @@ replaced by the output of the function supplied</p>
 <span id="denoising"></span><h2>Denoising<a class="headerlink" href="#module-temporis.transformation.features.denoising" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="temporis.transformation.features.denoising.EWMAFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">EWMAFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.EWMAFilter" title="Permalink to this definition"></a></dt>
-<dd><p>Filter each feature using a rolling median filter</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">EWMAFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.EWMAFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Filter each feature using EWM</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>window</strong> (<em>int</em>) – Size of the rolling window</p></li>
-<li><p><strong>min_periods</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of points of the rolling window, by default 15</p></li>
+<li><p><strong>window</strong> (<em>int</em>) – Size of  window</p></li>
 <li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
 </ul>
 </dd>
@@ -429,7 +432,18 @@ replaced by the output of the function supplied</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="temporis.transformation.features.denoising.GaussianFilter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.denoising.</span></span><span class="sig-name descname"><span class="pre">GaussianFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.denoising.GaussianFilter" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
+<dd><p>Apply a gaussian filter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>window_size</strong> (<em>int</em>) – Size of the gaussian filter</p></li>
+<li><p><strong>std</strong> (<em>float</em>) – Standard deviation of the filter</p></li>
+<li><p><strong>min_points</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimun nomber of points of the rolling window, by default 1</p></li>
+<li><p><strong>center</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wether the guassian window should be centered, by default False</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="temporis.transformation.features.denoising.GaussianFilter.transform">
 <span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="headerlink" href="#temporis.transformation.features.denoising.GaussianFilter.transform" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1228,6 +1242,21 @@ assert(np.mean(r-X) &lt; 0.00000)</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.selection.MatchFeatureSelector">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.selection.</span></span><span class="sig-name descname"><span class="pre">MatchFeatureSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.selection.MatchFeatureSelector" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.selection.MatchFeatureSelector.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.selection.MatchFeatureSelector.partial_fit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.selection.MatchFeatureSelector.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.selection.MatchFeatureSelector.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="temporis.transformation.features.selection.NullProportionSelector">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.selection.</span></span><span class="sig-name descname"><span class="pre">NullProportionSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_null_proportion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.selection.NullProportionSelector" title="Permalink to this definition"></a></dt>
 <dd><dl class="py method">
@@ -1470,14 +1499,7 @@ Usually this will be used before a CumSum transformation</p>
 <dd><p>Standardize features by removing the mean and scaling to unit variance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>_compute_quantiles</strong><strong>(</strong><strong>self</strong><strong>)</strong> (<em>def</em>) – <p>self.Q1 = self.quantile_estimator.quantile(self.quantile_range[0])
-self.Q3 = self.quantile_estimator.quantile(self.quantile_range[1])</p>
-<p>self.IQR = self.Q3 - self.Q1</p>
-<p>self.median = self.quantile_estimator.quantile(0.5)</p>
-</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
-</ul>
+<dd class="field-odd"><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1502,7 +1524,7 @@ self.Q3 = self.quantile_estimator.quantile(self.quantile_range[1])</p>
 <span id="outliers"></span><h2>Outliers<a class="headerlink" href="#module-temporis.transformation.features.outliers" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="temporis.transformation.features.outliers.BeyondQuartileOutlierRemover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.outliers.</span></span><span class="sig-name descname"><span class="pre">BeyondQuartileOutlierRemover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.outliers.BeyondQuartileOutlierRemover" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.outliers.</span></span><span class="sig-name descname"><span class="pre">BeyondQuartileOutlierRemover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.outliers.BeyondQuartileOutlierRemover" title="Permalink to this definition"></a></dt>
 <dd><p>Impute values outside (Q1, Q3)</p>
 <p>If clip is True the values will be clipped between the range,
 otherwise the values are going to be replaced by inf and -inf</p>
@@ -1678,6 +1700,30 @@ with the cumulated sum of the features</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="temporis.transformation.features.transformation.Apply.transform">
 <span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.Apply.transform" title="Permalink to this definition"></a></dt>
+<dd><p>Transform the input life computing the 1 step difference</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – Input life</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Return a new DataFrame with the same index as the input
+with the difference of the features</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.transformation.Clip">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.transformation.</span></span><span class="sig-name descname"><span class="pre">Clip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.Clip" title="Permalink to this definition"></a></dt>
+<dd><p>Apply the function element-wise</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.transformation.Clip.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.Clip.transform" title="Permalink to this definition"></a></dt>
 <dd><p>Transform the input life computing the 1 step difference</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1890,6 +1936,24 @@ data centered with respect to the mean of the fiited dataset</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.transformation.Peaks">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.transformation.</span></span><span class="sig-name descname"><span class="pre">Peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.Peaks" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.transformation.Peaks.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.Peaks.transform" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – Input life</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="temporis.transformation.features.transformation.Scale">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.transformation.</span></span><span class="sig-name descname"><span class="pre">Scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.Scale" title="Permalink to this definition"></a></dt>
 <dd><p>Scale each feature by a given vaulue</p>
@@ -1989,6 +2053,189 @@ with the difference of the features</p>
 </dd>
 </dl>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.transformation.SubstractLinebase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.transformation.</span></span><span class="sig-name descname"><span class="pre">SubstractLinebase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.SubstractLinebase" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.transformation.SubstractLinebase.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.transformation.SubstractLinebase.transform" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – Input life</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-temporis.transformation.features.cast">
+<span id="casting"></span><h2>Casting<a class="headerlink" href="#module-temporis.transformation.features.cast" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.cast.CastTo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.cast.</span></span><span class="sig-name descname"><span class="pre">CastTo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.cast.CastTo" title="Permalink to this definition"></a></dt>
+<dd><p>Cast to a given datatype</p>
+<p>step = CastTo(‘float32’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>str</em>) – Type name to conver to</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.cast.CastTo.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.cast.CastTo.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-temporis.transformation.features.entropy">
+<span id="entropy"></span><h2>Entropy<a class="headerlink" href="#module-temporis.transformation.features.entropy" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.entropy.LocalEntropyMeasures">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.entropy.</span></span><span class="sig-name descname"><span class="pre">LocalEntropyMeasures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_compute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.entropy.LocalEntropyMeasures" title="Permalink to this definition"></a></dt>
+<dd><p>Compute diverse entropy measures</p>
+<p>For each feature present in the life a number of feature will be computed for each time stamp</p>
+<p>The possible features are:</p>
+<ul class="simple">
+<li><p>Local Active Information</p></li>
+<li><p>Local Block Entropy</p></li>
+<li><p>Local Entropy Rate</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_points</strong> (<em>int</em><em>, </em><em>optional</em>) – The minimun number of points of the expanding window, by default 2</p></li>
+<li><p><strong>to_compute</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – <p>List of the features to compute, by default None
+Valid values are:</p>
+<blockquote>
+<div><p>’local_active_information’
+‘local_block_entropy’
+‘local_entropy_rate’</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name of the step, by default None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.entropy.LocalEntropyMeasures.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.entropy.LocalEntropyMeasures.fit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.entropy.LocalEntropyMeasures.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.entropy.LocalEntropyMeasures.partial_fit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.entropy.LocalEntropyMeasures.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.entropy.LocalEntropyMeasures.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-temporis.transformation.features.operations">
+<span id="operations"></span><h2>Operations<a class="headerlink" href="#module-temporis.transformation.features.operations" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.operations.Divide">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.operations.</span></span><span class="sig-name descname"><span class="pre">Divide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.operations.Divide" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.operations.Divide.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.operations.Divide.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.operations.Sum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.operations.</span></span><span class="sig-name descname"><span class="pre">Sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.operations.Sum" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.operations.Sum.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.operations.Sum.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-temporis.transformation.features.resamplers">
+<span id="resamplers"></span><h2>Resamplers<a class="headerlink" href="#module-temporis.transformation.features.resamplers" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.resamplers.</span></span><span class="sig-name descname"><span class="pre">IntegerIndexResamplerTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_time_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer" title="Permalink to this definition"></a></dt>
+<dd><p>Resample the time series with an integer index and interpolate linearly the values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_feature</strong> (<em>str</em>) – Time feature</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – Number of steps</p></li>
+<li><p><strong>drop_time_feature</strong> (<em>bool</em>) – Drop the time feature</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer.partial_fit" title="Permalink to this definition"></a></dt>
+<dd><p>Obtain the name of the feature used as time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – The current time-series to be fitted</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="temporis.transformation.features.resamplers.SubsamplerTransformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">temporis.transformation.features.resamplers.</span></span><span class="sig-name descname"><span class="pre">SubsamplerTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_time_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.resamplers.SubsamplerTransformer" title="Permalink to this definition"></a></dt>
+<dd><p>IntegerIndexResamplerTransformer</p>
+<p>Resample the time series with an integer index and interpolate linearly the values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_feature</strong> (<em>str</em>) – Time feature</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – Number of steps</p></li>
+<li><p><strong>drop_time_feature</strong> (<em>bool</em>) – Drop the time feature</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.resamplers.SubsamplerTransformer.partial_fit">
+<span class="sig-name descname"><span class="pre">partial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.resamplers.SubsamplerTransformer.partial_fit" title="Permalink to this definition"></a></dt>
+<dd><p>Obtain the name of the feature used as time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>pd.DataFrame</em>) – The current time-series to be fitted</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="temporis.transformation.features.resamplers.SubsamplerTransformer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#temporis.transformation.features.resamplers.SubsamplerTransformer.transform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
