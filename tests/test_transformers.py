@@ -258,9 +258,33 @@ class TestTransformers:
         assert np.isposinf(df_new["a"][5])
         assert np.isneginf(df_new["b"][8])
 
+        remover = IQROutlierRemover(clip=False, prefer_partial_fit=True)
+        df = pd.DataFrame(
+            {
+                "a": [0, 0.5, 0.2, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
+                "b": [5, 6, 7, 5, 9, 5, 6, 5, -45],
+            }
+        )
+        df_new = remover.fit_transform(df)
+        print(df_new["a"][5])
+        assert np.isposinf(df_new["a"][5])
+        assert np.isneginf(df_new["b"][8])
+
     def test_ZScoreOutlierRemover(self):
 
-        remover = ZScoreOutlierRemover(2)
+        remover = ZScoreOutlierRemover(number_of_std_allowed=2)
+        df = pd.DataFrame(
+            {
+                "a": [0, 0.5, 0.2, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
+                "b": [5, 6, 7, 5, 9, 5, 6, 5, 45],
+            }
+        )
+        df_new = remover.fit_transform(df)
+        assert pd.isnull(df_new["a"][5])
+        assert pd.isnull(df_new["b"][8])
+
+
+        remover = ZScoreOutlierRemover(number_of_std_allowed=2, prefer_partial_fit=True)
         df = pd.DataFrame(
             {
                 "a": [0, 0.5, 0.2, 0.1, 0.9, 15, 0.5, 0.3, 0.5],

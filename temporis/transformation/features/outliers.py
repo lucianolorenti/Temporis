@@ -43,9 +43,10 @@ class IQROutlierRemover(TransformerStep):
         proportion_to_sample=1.0,
         clip: bool = False,
         name: Optional[str] = None,
+        prefer_partial_fit: bool = False,
     ):
 
-        super().__init__(name=name, prefer_partial_fit=False)
+        super().__init__(name=name, prefer_partial_fit=prefer_partial_fit)
         self.margin = margin
         self.proportion_to_sample = proportion_to_sample
         self.tdigest_dict = None
@@ -92,7 +93,7 @@ class IQROutlierRemover(TransformerStep):
         self.Q3 = self.Q3.to_dict()
         return self
 
-    def transform(self, X):        
+    def transform(self, X):
         X = X.copy()
         check_is_fitted(self, "Q1")
         check_is_fitted(self, "Q3")
@@ -116,11 +117,7 @@ class IQROutlierRemover(TransformerStep):
         name = super().description()
         data = []
         for k in self.Q1.keys():
-            data.append( (k, {
-                'Q1': self.Q1[k],
-                'Q3': self.Q3[k],
-                'IQR': self.IQR[k]
-            }))
+            data.append((k, {"Q1": self.Q1[k], "Q3": self.Q3[k], "IQR": self.IQR[k]}))
         return (name, data)
 
 
@@ -148,7 +145,7 @@ class BeyondQuartileOutlierRemover(TransformerStep):
         self,
         lower_quantile: float = 0.25,
         upper_quantile: float = 0.75,
-        subsample:float = 0.2,
+        subsample: float = 0.2,
         clip: bool = False,
         name: Optional[str] = None,
     ):
@@ -158,50 +155,45 @@ class BeyondQuartileOutlierRemover(TransformerStep):
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
         self.clip = clip
-        self.quantile_estimator = QuantileEstimator(tdigest_size=100, subsample=subsample)
+        self.quantile_estimator = QuantileEstimator(
+            tdigest_size=100, subsample=subsample
+        )
         self.Q1 = None
         self.Q3 = None
 
     def partial_fit(self, X):
         if X.shape[0] == 1:
             return self
-        
-        self.quantile_estimator.update(X.select_dtypes(include='number'))
+
+        self.quantile_estimator.update(X.select_dtypes(include="number"))
         return self
 
-
-
     def transform(self, X):
-        
+
         if self.Q1 is None:
             self.Q1 = self.quantile_estimator.estimate_quantile(self.lower_quantile)
             self.Q3 = self.quantile_estimator.estimate_quantile(self.upper_quantile)
         print(self.Q3)
         new_X = X.copy()
-        numeric = new_X.select_dtypes(include='number')
-        
+        numeric = new_X.select_dtypes(include="number")
+
         if self.clip:
             numeric.clip(self.Q1, self.Q3, inplace=True, axis=0)
         else:
-            numeric[numeric<self.Q1] = -np.inf
-            numeric[numeric>self.Q3] = np.inf
+            numeric[numeric < self.Q1] = -np.inf
+            numeric[numeric > self.Q3] = np.inf
             print(numeric)
         return new_X
-
 
     def description(self):
         name = super().description()
         data = []
         for k in self.Q1.keys():
-            data.append( (k, {
-                'Q1': self.Q1[k],
-                'Q3': self.Q3[k],
-                'IQR': self.IQR[k]
-            }))
+            data.append((k, {"Q1": self.Q1[k], "Q3": self.Q3[k], "IQR": self.IQR[k]}))
         return (name, data)
 
 
-class ZScoreOutlierRemover(BaseEstimator, TransformerMixin):
+class ZScoreOutlierRemover(TransformerStep):
     """
     X = np.random.rand(500, 5) * np.random.randn(500, 5) * 15
     imput = ZScoreImputer(1.5)
@@ -209,7 +201,14 @@ class ZScoreOutlierRemover(BaseEstimator, TransformerMixin):
     X_t = imput.transform(X)
     """
 
-    def __init__(self, number_of_std_allowed):
+    def __init__(
+        self,
+        *,
+        number_of_std_allowed,
+        name: str = None,
+        prefer_partial_fit: bool = False,
+    ):
+        super().__init__(name=name, prefer_partial_fit=prefer_partial_fit)
         self.number_of_std_allowed = number_of_std_allowed
         self.scaler = StandardScaler()
 
@@ -223,8 +222,6 @@ class ZScoreOutlierRemover(BaseEstimator, TransformerMixin):
         return pd.DataFrame(X_new, columns=X.columns, index=X.index)
 
 
-
-
 class EWMAOutOfRange(TransformerStep):
     """
     Compute the EWMA limits  and mark as NaN points outside UCL and LCL
@@ -236,8 +233,9 @@ class EWMAOutOfRange(TransformerStep):
         lambda_=0.5,
         return_mask: bool = False,
         name: Optional[str] = None,
+        prefer_partial_fit: bool = False,
     ):
-        super().__init__(name=name, prefer_partial_fit=False)
+        super().__init__(name=name, prefer_partial_fit=prefer_partial_fit)
         self.lambda_ = lambda_
         self.UCL = None
         self.LCL = None
