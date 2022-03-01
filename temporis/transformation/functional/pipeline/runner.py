@@ -4,15 +4,16 @@ from typing import Iterable, Union
 
 import pandas as pd
 from temporis.transformation.functional.graph_utils import (
-    root_nodes, topological_sort_iterator)
-from temporis.transformation.functional.pipeline.cache_store import \
-    CacheStoreType
-from temporis.transformation.functional.pipeline.traversal import \
-    CachedGraphTraversal
+    root_nodes,
+    topological_sort_iterator,
+)
+from temporis.transformation.functional.pipeline.cache_store import CacheStoreType
+from temporis.transformation.functional.pipeline.traversal import CachedGraphTraversal
 from temporis.transformation.functional.transformerstep import TransformerStep
 from tqdm.auto import tqdm
 
 logger = logging.getLogger(__name__)
+
 
 def _transform(node, old_element, dataset_element, queue):
     n = node.transform(old_element)
@@ -53,9 +54,18 @@ class CachedPipelineRunner:
         ) as cache:
             for node in topological_sort_iterator(self.final_step):
                 if isinstance(node, TransformerStep) and fit:
-                    for dataset_element in range(dataset_size):
-                        d = cache.state_up_to(node, dataset_element)
-                        node.partial_fit(d)
+                    if node.prefer_partial_fit:
+                        for dataset_element in range(dataset_size):
+                            d = cache.state_up_to(node, dataset_element)
+                            node.partial_fit(d)
+                    else:
+                        data = pd.concat(
+                            [
+                                cache.state_up_to(node, dataset_element)
+                                for dataset_element in range(dataset_size)
+                            ]
+                        )
+                        node.fit(data)
 
                 dataset_size = len(dataset)
                 # if dataset_size > 1:
@@ -126,7 +136,7 @@ class CachedPipelineRunner:
                 new_element = node.transform(old_element)
                 self._update_step(cache, node, dataset_element, new_element)
         except Exception as e:
-            logger.error(f'There was an error when transforming with {node.name}')
+            logger.error(f"There was an error when transforming with {node.name}")
             raise
 
     def transform(self, df: Union[pd.DataFrame, Iterable[pd.DataFrame]]):
