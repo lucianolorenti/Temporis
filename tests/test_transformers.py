@@ -21,6 +21,8 @@ from temporis.transformation.features.outliers import (
     EWMAOutOfRange,
     IQROutlierRemover,
     ZScoreOutlierRemover,
+    IsolationForestOutlierRemover
+    
 )
 from temporis.transformation.features.resamplers import IntegerIndexResamplerTransformer
 from temporis.transformation.features.selection import (
@@ -270,6 +272,8 @@ class TestTransformers:
         assert np.isposinf(df_new["a"][5])
         assert np.isneginf(df_new["b"][8])
 
+
+
     def test_ZScoreOutlierRemover(self):
 
         remover = ZScoreOutlierRemover(number_of_std_allowed=2)
@@ -488,15 +492,29 @@ class TestGenerators:
         assert np.isnan(df_new["a"].iloc[320])
         assert np.isnan(df_new["b"].iloc[215])
 
-        # TODO improve test
-        # ds = MockDataset2(5)
-        # transformer = ByNameFeatureSelector(['feature1', 'feature2'])
-        # transformer = EWMAOutOfRange()(transformer)
-        # transformer = Accumulate()(transformer)
-        # transformer = transformer.build()
+    def test_IsolationForestOutlierRemover(self):
+        a = np.random.randn(500) * 0.5 + 2
+        b = np.random.randn(500) * 0.5 + 5
+        a[120] = 1500
+        a[320] = 5000
 
-        # transformer.fit(ds)
-        # new_life = transformer.transform(ds[-1])
+        b[120] = 1500
+        b[320] = 5000
+        b[215] = 1500
+
+        df = pd.DataFrame(
+            {
+                "a": a,
+                "b": b,
+            }
+        )
+        transformer = ByNameFeatureSelector(features=["a", "b"])
+        transformer = IsolationForestOutlierRemover()(transformer)
+        df_new = TemporisPipeline(transformer).fit_transform(df)
+
+        assert np.isnan(df_new["a"].iloc[320])
+        assert np.isnan(df_new["b"].iloc[215])
+
 
     def test_encodings(self):
         df = pd.DataFrame(

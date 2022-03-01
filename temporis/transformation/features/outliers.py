@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 from temporis.transformation.features.tdigest import TDigest
 from temporis.transformation.utils import QuantileEstimator
+from sklearn.ensemble import IsolationForest
 
 
 class IQROutlierRemover(TransformerStep):
@@ -305,3 +306,22 @@ class RollingMeanOutlierRemover(TransformerStep):
             X = X.copy()
             X[mask] = np.nan
             return X
+
+
+class IsolationForestOutlierRemover(TransformerStep):
+    def __init__(self, *, n_estimators=100, **kwargs):
+        super().__init__(prefer_partial_fit=False, **kwargs)
+        self.n_estimators = n_estimators
+        self.forests = {}
+
+    def fit(self, X: pd.DataFrame):
+        for c in X.columns:
+            self.forests[c] = IsolationForest(n_estimators=self.n_estimators).fit(X[c].values.reshape(-1, 1) )
+        return self
+
+    def transform(self, X: pd.DataFrame):
+        X_new = X.copy()
+        for c in X.columns:
+            r = self.forests[c].predict(X[c].values.reshape(-1, 1) )
+            X_new.loc[r == -1, c] = np.nan
+        return X_new
