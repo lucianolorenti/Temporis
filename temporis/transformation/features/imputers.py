@@ -26,8 +26,8 @@ class PerColumnImputer(TransformerStep):
         Step name, by default None
     """
 
-    def __init__(self, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, name: Optional[str] = None):
+        super().__init__(name=name, prefer_partial_fit=False)
         self.data_min = None
         self.data_max = None
         self.data_median = None
@@ -120,8 +120,8 @@ class MedianImputer(TransformerStep):
         The name of the step
     """
 
-    def __init__(self, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, name: Optional[str] = None):
+        super().__init__(name=name)
         self.tdigest_dict = None
 
     def fit(self, X, y=None):
@@ -178,8 +178,8 @@ class MeanImputer(TransformerStep):
         The name of the step
     """
 
-    def __init__(self, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, name: Optional[str] = None):
+        super().__init__(name=name)
         self.sum = None
 
     def partial_fit(self, X, y=None):
@@ -240,8 +240,8 @@ class ApplyRollingImputer(TransformerStep):
         The function to call in each window
     """
 
-    def __init__(self, window_size: int, func, *args):
-        super().__init__(*args)
+    def __init__(self, *, window_size: int, func, **kwargs):
+        super().__init__(*kwargs)
         self.window_size = window_size
         self.function = func
         self.mean_value_list = []
@@ -312,8 +312,8 @@ class RollingMedianImputer(ApplyRollingImputer):
         Window size of the rolling window
     """
 
-    def __init__(self, window_size: int):
-        super().__init__(window_size, np.median)
+    def __init__(self, *, window_size: int, name:str=None):
+        super().__init__(window_size, np.median, name=name)
 
 
 class RollingMeanImputer(ApplyRollingImputer):
@@ -326,8 +326,8 @@ class RollingMeanImputer(ApplyRollingImputer):
         Window size of the rolling window
     """
 
-    def __init__(self, window_size: int):
-        super().__init__(window_size, np.mean)
+    def __init__(self, *, window_size: int, name:str=None):
+        super().__init__(window_size, np.mean, name=name)
 
 
 class ForwardFillImputer(TransformerStep):
@@ -340,8 +340,8 @@ class ForwardFillImputer(TransformerStep):
 
 
 class FillImputer(TransformerStep):
-    def __init__(self, value, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, value, name: Optional[str] = None):
+        super().__init__(name=name)
         self.value = value
 
     """Impute forward filling the values

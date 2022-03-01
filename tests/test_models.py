@@ -1,8 +1,6 @@
-
-
 import numpy as np
 import pandas as pd
-from temporis.models.scikitlearn import predict, train_model
+from numpy.random import seed
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import make_pipeline
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
@@ -10,8 +8,12 @@ from temporis.iterators.iterators import WindowedDatasetIterator
 from temporis.iterators.shufflers import AllShuffled
 from temporis.iterators.utils import true_values
 from temporis.models.keras import tf_regression_dataset
-from temporis.models.scikitlearn import (EstimatorWrapper,
-                                         SKLearnTimeSeriesWindowTransformer)
+from temporis.models.scikitlearn import (
+    EstimatorWrapper,
+    SKLearnTimeSeriesWindowTransformer,
+    predict,
+    train_model,
+)
 from temporis.transformation import Transformer
 from temporis.transformation.features.scalers import MinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
@@ -19,10 +21,9 @@ from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Dense, Dropout, Flatten
 from xgboost import XGBRegressor
 
-
-from numpy.random import seed
 seed(1)
-import tensorflow as tf 
+import tensorflow as tf
+
 tf.random.set_seed(2)
 
 
@@ -30,18 +31,17 @@ class SimpleDataset(AbstractTimeSeriesDataset):
     def __init__(self):
 
         self.lives = [
-            pd.DataFrame({
-                'feature1': np.array(range(0, 100)),
-                'RUL': np.array(range(0, 100))
-            })]
-
+            pd.DataFrame(
+                {"feature1": np.array(range(0, 100)), "RUL": np.array(range(0, 100))}
+            )
+        ]
 
     def get_time_series(self, i: int):
         return self.lives[i]
 
     @property
     def rul_column(self):
-        return 'RUL'
+        return "RUL"
 
     @property
     def n_time_series(self):
@@ -52,20 +52,25 @@ class MockDataset(AbstractTimeSeriesDataset):
     def __init__(self, nlives: int):
 
         self.lives = [
-            pd.DataFrame({
-                'feature1': np.linspace(0, 5*100, 50),
-                'feature2': np.linspace(-25, 5*500, 50),
-                'RUL': np.linspace(100, 0, 50)
-            })
-            for i in range(nlives-1)]
+            pd.DataFrame(
+                {
+                    "feature1": np.linspace(0, 5 * 100, 50),
+                    "feature2": np.linspace(-25, 5 * 500, 50),
+                    "RUL": np.linspace(100, 0, 50),
+                }
+            )
+            for i in range(nlives - 1)
+        ]
 
         self.lives.append(
-            pd.DataFrame({
-                'feature1': np.linspace(0, 5*100, 50),
-                'feature2': np.linspace(-25, 5*500, 50),
-                'feature3': np.linspace(-25, 5*500, 50),
-                'RUL': np.linspace(100, 0, 50)
-            })
+            pd.DataFrame(
+                {
+                    "feature1": np.linspace(0, 5 * 100, 50),
+                    "feature2": np.linspace(-25, 5 * 500, 50),
+                    "feature3": np.linspace(-25, 5 * 500, 50),
+                    "RUL": np.linspace(100, 0, 50),
+                }
+            )
         )
 
     def get_time_series(self, i: int):
@@ -73,20 +78,20 @@ class MockDataset(AbstractTimeSeriesDataset):
 
     @property
     def rul_column(self):
-        return 'RUL'
+        return "RUL"
 
     @property
     def n_time_series(self):
         return len(self.lives)
 
 
-class TestModels():
+class TestModels:
     def test_models(self):
-        features = ['feature1', 'feature2']
-        x = ByNameFeatureSelector(features)
-        x = MinMaxScaler((-1, 1))(x)
+        features = ["feature1", "feature2"]
+        x = ByNameFeatureSelector(features=features)
+        x = MinMaxScaler(range=(-1, 1))(x)
 
-        y = ByNameFeatureSelector(['RUL'])
+        y = ByNameFeatureSelector(features=["RUL"])
         transformer = Transformer(x, y)
         batch_size = 15
         window_size = 5
@@ -99,41 +104,34 @@ class TestModels():
             output_size=1,
         )
 
-    
         b1 = tf_regression_dataset(iterator).batch(15)
         assert b1.take(1)
 
-
     def test_sklearn(self):
-        features = ['feature1', 'feature2']
-        x = ByNameFeatureSelector(features)
-        x = MinMaxScaler((-1, 1))(x)
+        features = ["feature1", "feature2"]
+        x = ByNameFeatureSelector(features=features)
+        x = MinMaxScaler(range=(-1, 1))(x)
 
-        y = ByNameFeatureSelector(['RUL'])
-        transformer = lambda : Transformer(x, y)
-        ds = MockDataset(5)   
+        y = ByNameFeatureSelector(features=["RUL"])
+        transformer = lambda: Transformer(x, y)
+        ds = MockDataset(5)
 
         transformer = SKLearnTimeSeriesWindowTransformer(transformer, window_size=5)
-        pipe = make_pipeline(
-            transformer,
-            EstimatorWrapper(LinearRegression())
-        )
+        pipe = make_pipeline(transformer, EstimatorWrapper(LinearRegression()))
         pipe.fit(ds)
-        
+
         y_pred = pipe.predict(ds)
         y_true = transformer.true_values(ds)
 
-        mse = np.sum((y_pred -y_true)**2)
+        mse = np.sum((y_pred - y_true) ** 2)
         assert mse < 0.01
-
-        
 
     def test_keras(self):
 
         features = ["feature1", "feature2"]
-        pipe = ByNameFeatureSelector(features)
-        pipe = MinMaxScaler((-1, 1))(pipe)
-        rul_pipe = ByNameFeatureSelector(["RUL"])
+        pipe = ByNameFeatureSelector(features=features)
+        pipe = MinMaxScaler(range=(-1, 1))(pipe)
+        rul_pipe = ByNameFeatureSelector(features=["RUL"])
         transformer = Transformer(pipe, rul_pipe)
         ds = MockDataset(5)
         transformer.fit(ds)
@@ -171,15 +169,13 @@ class TestModels():
 
         assert mae < 3
 
-
-
     def test_xgboost(self):
         features = ["feature1", "feature2"]
 
-        x = ByNameFeatureSelector(features)
-        x = MinMaxScaler((-1, 1))(x)
+        x = ByNameFeatureSelector(features=features)
+        x = MinMaxScaler(range=(-1, 1))(x)
 
-        y = ByNameFeatureSelector(["RUL"])
+        y = ByNameFeatureSelector(features=["RUL"])
         transformer = Transformer(x, y)
 
         ds = MockDataset(5)

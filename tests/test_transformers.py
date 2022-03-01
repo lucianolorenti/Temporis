@@ -18,7 +18,6 @@ from temporis.transformation.features.extraction import (
     SlidingNonOverlappingEMD,
 )
 from temporis.transformation.features.outliers import (
-    EWMAOutlierRemover,
     EWMAOutOfRange,
     IQROutlierRemover,
     ZScoreOutlierRemover,
@@ -272,18 +271,7 @@ class TestTransformers:
         assert pd.isnull(df_new["a"][5])
         assert pd.isnull(df_new["b"][8])
 
-    def test_EWMAOutlierRemover(self):
 
-        remover = EWMAOutlierRemover(0.5)
-        df = pd.DataFrame(
-            {
-                "a": [0, 0.5, 0.2, 0.1, 0.9, 15, 0.5, 0.3, 0.5],
-                "b": [5, 6, 7, 5, 9, 5, 6, 5, 45],
-            }
-        )
-        df_new = remover.fit_transform(df)
-        assert pd.isnull(df_new["a"][5])
-        assert pd.isnull(df_new["b"][8])
 
 
 class TestResamplers:
@@ -311,18 +299,22 @@ class TestSelection:
             }
         )
 
-        selector = NullProportionSelector(0.3)
+        selector = NullProportionSelector(max_null_proportion=0.3)
+        df_new = selector.fit_transform(df)
+        assert set(df_new.columns) == set(["c"])
+
+        selector = NullProportionSelector(max_null_proportion=0.55)
         df_new = selector.fit_transform(df)
         assert set(df_new.columns) == set(["a", "c"])
 
-        selector = NullProportionSelector(0.55)
+        selector = NullProportionSelector(max_null_proportion=0.8)
         df_new = selector.fit_transform(df)
-        assert set(df_new.columns) == set(["c"])
+        assert set(df_new.columns) == set(["a", "b", "c"])
 
 
 class TestGenerators:
     def test_EMD(self):
-        emd = EMD(3)
+        emd = EMD(n=3)
         df = pd.DataFrame(
             {
                 "feature1": np.linspace(-50, 50, 500),
@@ -458,12 +450,19 @@ class TestGenerators:
                 "b": b,
             }
         )
-        transformer = ByNameFeatureSelector(["a", "b"])
-        transformer = EWMAOutOfRange()(transformer)
+        transformer = ByNameFeatureSelector(features=["a", "b"])
+        transformer = EWMAOutOfRange(return_mask=True)(transformer)
         transformer = Accumulate()(transformer)
         df_new = TemporisPipeline(transformer).fit_transform(df)
         assert df_new["a"].iloc[-1] == 2
         assert df_new["b"].iloc[-1] == 3
+
+        transformer = ByNameFeatureSelector(features=["a", "b"])
+        transformer = EWMAOutOfRange(return_mask=False)(transformer)
+        df_new = TemporisPipeline(transformer).fit_transform(df)
+
+        assert np.isnan(df_new["a"].iloc[320])
+        assert np.isnan(df_new["b"].iloc[215])
 
         # TODO improve test
         # ds = MockDataset2(5)
@@ -500,7 +499,7 @@ class TestGenerators:
                 "b": [1, 1, 1, 1, 1],
             }
         )
-        transformer = OneHotCategorical("a")
+        transformer = OneHotCategorical(feature="a")
         transformer.partial_fit(df)
         transformer.partial_fit(df1)
 
@@ -528,7 +527,7 @@ class TestGenerators:
 
         assert (df_t == df_true).all().all()
 
-        transformer = SimpleEncodingCategorical("a")
+        transformer = SimpleEncodingCategorical(feature="a")
         transformer.partial_fit(df)
         transformer.partial_fit(df1)
 
@@ -547,9 +546,9 @@ class TestGenerators:
             {"a": [1, 2, 3, 4], "b": [2, 4, 6, 8], "c": [2, 2, 2, 2], "d": [1, 1, 1, 1]}
         )
         with pytest.raises(ValueError):
-            transformer = Difference(["a", "b"], ["d"])
+            transformer = Difference(feature_set1=["a", "b"], feature_set2=["d"])
 
-        transformer = Difference(["a", "b"], ["c", "d"])
+        transformer = Difference(feature_set1=["a", "b"], feature_set2=["c", "d"])
         df_new = transformer.fit_transform(df)
         assert (df_new["a"].values == np.array([1 - 2, 2 - 2, 3 - 2, 4 - 2])).all()
         assert (df_new["b"].values == np.array([2 - 1, 4 - 1, 6 - 1, 8 - 1])).all()
@@ -632,7 +631,7 @@ class TestQuantileEstimator:
 class TestEMD:
     def test_emd(self):
         A = pd.DataFrame({"A": np.random.randn(15000), "B": np.random.randn(15000)})
-        q = SlidingNonOverlappingEMD(300, 5)
+        q = SlidingNonOverlappingEMD(window_size=300, max_imfs=5)
         r = q.transform(A)
         assert r.shape[0] == A.shape[0]
         assert r.shape[1] == A.shape[1] * 5

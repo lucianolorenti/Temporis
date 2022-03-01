@@ -49,7 +49,7 @@ class TestImputers():
         assert(error < 0.0000000000001)
 
     def test_opeartorOverloading(self):
-        pipe = ByNameFeatureSelector(['a', 'b'])
+        pipe = ByNameFeatureSelector(features=['a', 'b'])
         pipe1 = pipe / 2 
 
         pipe2 = pipe / 3

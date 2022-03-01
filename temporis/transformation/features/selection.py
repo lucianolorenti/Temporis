@@ -8,27 +8,12 @@ from temporis.transformation import TransformerStep
 logger = logging.getLogger(__name__)
 
 
-class NullProportionSelector(TransformerStep):
-    def __init__(self, min_null_proportion=0.5, name: Optional[str] = None):
-        super().__init__(name)
-        self.min_null_proportion = min_null_proportion
 
-    def fit(self, X, y=None):
-        logger.info(f"Features before NullProportionSelector {X.shape[1]}")
-        self.not_null_proportion = np.mean(np.isfinite(X), axis=0)
-        self.mask = self.not_null_proportion > self.min_null_proportion
-
-        logger.info(f"Features before NullProportionSelector {np.sum(self.mask)}")
-        return self
-
-    def transform(self, X):
-
-        return X.loc[:, self.mask].copy()
 
 
 class ByNameFeatureSelector(TransformerStep):
-    def __init__(self, features:Union[str, List[str]]= [], name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, features:Union[str, List[str]]= [], name: Optional[str] = None):
+        super().__init__(name=name)
         if isinstance(features, str):
             features = [features]
         self.features = features
@@ -75,9 +60,9 @@ class ByNameFeatureSelector(TransformerStep):
         
 
 
-class LocateFeatures(TransformerStep):
-    def __init__(self, features, name: Optional[str] = None):
-        super().__init__(name)
+class PositionFeatures(TransformerStep):
+    def __init__(self, *, features, name: Optional[str] = None):
+        super().__init__(name=name)
         self.features = features
 
     def transform(self, X):
@@ -90,8 +75,8 @@ class LocateFeatures(TransformerStep):
 
 
 class DiscardByNameFeatureSelector(TransformerStep):
-    def __init__(self, features=[], name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, features=[], name: Optional[str] = None):
+        super().__init__(name=name)
         self.features = features
         self.features_indices = None
 
@@ -108,8 +93,8 @@ class DiscardByNameFeatureSelector(TransformerStep):
 
 
 class PandasVarianceThreshold(TransformerStep):
-    def __init__(self, min_variance: float, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, min_variance: float, name: Optional[str] = None):
+        super().__init__(name=name)
         self.min_variance = min_variance
         self.selected_columns_ = None
 
@@ -155,9 +140,9 @@ class PandasVarianceThreshold(TransformerStep):
         return X[self.selected_columns_].copy()
 
 
-class PandasNullProportionSelector(TransformerStep):
-    def __init__(self, max_null_proportion: float, name: Optional[str] = None):
-        super().__init__(name)
+class NullProportionSelector(TransformerStep):
+    def __init__(self, *, max_null_proportion: float, name: Optional[str] = None):
+        super().__init__(name=name)
         self.max_null_proportion = max_null_proportion
         self.selected_columns_ = None
 
@@ -172,12 +157,7 @@ class PandasNullProportionSelector(TransformerStep):
             and len(partial_selected_columns_) < len(self.selected_columns_) * 0.5
         ):
             logger.warning(type(self).__name__)
-            logger.warning(
-                f"Life removed more than a half of the columns. Shape {X.shape}"
-            )
-            logger.warning(
-                f"Current: {len(self.selected_columns_)}. New ones: {len(partial_selected_columns_)}"
-            )
+
         if self.selected_columns_ is None:
             self.selected_columns_ = partial_selected_columns_
         else:
@@ -205,8 +185,8 @@ class PandasNullProportionSelector(TransformerStep):
 
 
 class  MatchFeatureSelector(TransformerStep):
-    def __init__(self, pattern:str, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, pattern:str, name: Optional[str] = None):
+        super().__init__(name=name)
         self.pattern = pattern
         self.selected_columns_ = None
 

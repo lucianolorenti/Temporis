@@ -10,11 +10,11 @@ from numpy.lib.arraysetops import isin
 from pandas.core.window.expanding import Expanding
 from pyts.transformation import ROCKET as pyts_ROCKET
 from functools import reduce
-import  pywt
+import pywt
 
-#try:
+# try:
 #    from temporis.transformation.features.hurst import hurst_exponent
-#except:
+# except:
 #    pass
 from temporis.transformation import TransformerStep
 from temporis.transformation.features.rolling_windows import apply_rolling_data
@@ -54,14 +54,11 @@ class ColumnWiseSum(TransformerStep):
     """
 
     def __init__(self, column_name: str, name: Optional[str] = None):
-        super().__init__(name)
+        super().__init__(name=name)
         self.column_name = column_name
 
     def transform(self, X: pd.DataFrame):
         return pd.DataFrame(X.sum(axis=1), columns=[self.column_name])
-
-
-
 
 
 class SampleNumber(TransformerStep):
@@ -99,11 +96,12 @@ class OneHotCategorical(TransformerStep):
 
     def __init__(
         self,
+        *,
         feature: Optional[str] = None,
         categories: Optional[List[any]] = None,
         name: Optional[str] = None,
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.feature = feature
         self.categories = categories
         self.fixed_categories = True
@@ -192,9 +190,9 @@ class HashingEncodingCategorical(TransformerStep):
     """
 
     def __init__(
-        self, nbins: int, feature: Optional[str] = None, name: Optional[str] = None
+        self, *, nbins: int, feature: Optional[str] = None, name: Optional[str] = None
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.nbins = nbins
         self.feature = feature
         self.categories = set()
@@ -240,8 +238,8 @@ class SimpleEncodingCategorical(TransformerStep):
         Step name, by default None
     """
 
-    def __init__(self, feature: Optional[str] = None, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, feature: Optional[str] = None, name: Optional[str] = None):
+        super().__init__(name=name)
         self.feature = feature
         self.categories = set()
         self.encoder = None
@@ -307,52 +305,6 @@ class SimpleEncodingCategorical(TransformerStep):
         return pd.DataFrame({"encoding": d.codes}, index=X.index)
 
 
-class LowFrequencies(TransformerStep):
-    def __init__(self, window, name: Optional[str] = None):
-        super().__init__(name)
-        self.window = window
-
-    def fit(self, X, y=None):
-        return self
-
-    def _low(self, signal, t):
-        a = firwin(self.window + 1, cutoff=0.01, window="hann", pass_zero="lowpass")
-        return lfilter(a, 1, signal)
-
-    def transform(self, X, y=None):
-        cnames = [f"{c}_low" for c in X.columns]
-        new_X = pd.DataFrame(
-            np.zeros((len(X.index), len(cnames)), dtype=np.float32),
-            columns=cnames,
-            index=X.index,
-        )
-        for c in X.columns:
-            new_X.loc[:, f"{c}_low"] = self._low(X[c], 0)
-        return new_X
-
-
-class HighFrequencies(TransformerStep):
-    def __init__(self, window, name: Optional[str] = None):
-        super().__init__(name)
-        self.window = window
-
-    def fit(self, X, y=None):
-        return self
-
-    def _high(self, signal, t):
-        a = firwin(self.window + 1, cutoff=0.2, window="hann", pass_zero="highpass")
-        return lfilter(a, 1, signal)
-
-    def transform(self, X, y=None):
-        cnames = [f"{c}_high" for c in X.columns]
-        new_X = pd.DataFrame(
-            np.zeros((len(X.index), len(cnames)), dtype=np.float32),
-            columns=cnames,
-            index=X.index,
-        )
-        for c in X.columns:
-            new_X.loc[:, f"{c}_high"] = self._high(X[c], 0)
-        return new_X
 
 
 def rolling_kurtosis(s: pd.Series, window, min_periods):
@@ -394,10 +346,10 @@ class LifeStatistics(TransformerStep):
     """
 
     def __init__(
-        self, to_compute: Optional[List[str]] = None, name: Optional[str] = None
+        self, *,to_compute: Optional[List[str]] = None, name: Optional[str] = None
     ):
 
-        super().__init__(name)
+        super().__init__(name=name)
         valid_stats = [
             "kurtosis",
             "skewness",
@@ -412,19 +364,7 @@ class LifeStatistics(TransformerStep):
             "crest",
         ]
         if to_compute is None:
-            self.to_compute = [
-                "kurtosis",
-                "skewness",
-                "max",
-                "min",
-                "std",
-                "peak",
-                "impulse",
-                "clearance",
-                "rms",
-                "shape",
-                "crest",
-            ]
+            self.to_compute = valid_stats
         else:
             for f in to_compute:
                 if f not in valid_stats:
@@ -511,7 +451,7 @@ class LifeStatistics(TransformerStep):
 
 
 class RollingStatistics(TransformerStep):
-    """Compute diverse number of features using an rolling window. 
+    """Compute diverse number of features using an rolling window.
 
     For each feature present in the life a number of feature will be computed for each time stamp
 
@@ -549,12 +489,13 @@ class RollingStatistics(TransformerStep):
 
     def __init__(
         self,
+        *,
         window: int = 15,
         min_points=2,
         to_compute: Optional[List[str]] = None,
         name: Optional[str] = None,
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.window = window
         self.min_points = min_points
         valid_stats = [
@@ -571,10 +512,10 @@ class RollingStatistics(TransformerStep):
             "shape",
             "crest",
             "deviance",
-            "std_atan", 
+            "std_atan",
             "std_acosh",
             "std_asinh",
-            "energy",  
+            "energy",
         ]
         if to_compute is None:
             self.to_compute = valid_stats
@@ -593,14 +534,17 @@ class RollingStatistics(TransformerStep):
         return self
 
     def _std_asinh(self, X, rolling, abs_rolling):
-        return X.apply(np.arcsinh).rolling(self.window, self.min_points).std(skipna=True)
-        
+        return (
+            X.apply(np.arcsinh).rolling(self.window, self.min_points).std(skipna=True)
+        )
+
     def _std_acosh(self, X, rolling, abs_rolling):
-        return X.apply(np.arccosh).rolling(self.window, self.min_points).std(skipna=True)
+        return (
+            X.apply(np.arccosh).rolling(self.window, self.min_points).std(skipna=True)
+        )
 
     def _energy(self, X, rolling, abs_rolling):
         return X.pow(2).rolling(self.window, self.min_points).sum()
-
 
     def _std_atan(self, X, rolling, abs_rolling):
         return X.apply(np.arctan).rolling(self.window, self.min_points).std(skipna=True)
@@ -632,8 +576,6 @@ class RollingStatistics(TransformerStep):
     def _deviance(self, X, rolling, abs_rolling):
         return (X - rolling.mean()) / rolling.std()
 
-
-
     def _clearance(self, X, rolling, abs_rolling):
         return self._peak(X, rolling, abs_rolling) / X.abs().pow(1.0 / 2).rolling(
             self.window, self.min_points
@@ -648,16 +590,14 @@ class RollingStatistics(TransformerStep):
         )
 
     def _shape(self, X, rolling, abs_rolling):
-        return self._rms(X, rolling, abs_rolling) / abs_rolling.mean(
-            skipna=True
-        )
+        return self._rms(X, rolling, abs_rolling) / abs_rolling.mean(skipna=True)
 
     def _crest(self, X, rolling, abs_rolling):
         return self._peak(X, rolling, abs_rolling) / self._rms(X, rolling, abs_rolling)
 
     def transform(self, X):
         columns = []
-        
+
         for stats in self.to_compute:
             for c in X.columns:
                 columns.append(f"{c}_{stats}")
@@ -667,11 +607,8 @@ class RollingStatistics(TransformerStep):
         for stats in self.to_compute:
             columns_to_assign = [f"{c}_{stats}" for c in X.columns]
             out = getattr(self, f"_{stats}")(X, rolling, abs_rolling)
-            
+
             X_new.loc[:, columns_to_assign] = out.values
-            
-            
-            
 
         return X_new
 
@@ -712,9 +649,9 @@ class ExpandingStatistics(TransformerStep):
     """
 
     def __init__(
-        self, min_points=2, to_compute: List[str] = None, name: Optional[str] = None
+        self, *, min_points=2, to_compute: List[str] = None, name: Optional[str] = None
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.min_points = min_points
         valid_stats = [
             "kurtosis",
@@ -733,7 +670,7 @@ class ExpandingStatistics(TransformerStep):
             "std_atan",
             "energy",
             "std_acosh",
-            "std_asinh"
+            "std_asinh",
         ]
         if to_compute is None:
             self.to_compute = valid_stats
@@ -753,36 +690,44 @@ class ExpandingStatistics(TransformerStep):
     def fit(self, X, y=None):
         return self
 
-    def _std_asinh(self,         
+    def _std_asinh(
+        self,
         x: pd.Series,
         s: Expanding,
         s_abs: Expanding,
         s_abs_sqrt: Expanding,
-        s_sq: Expanding):
+        s_sq: Expanding,
+    ):
         return x.apply(np.arcsinh).expanding(self.min_points).std(skipna=True)
-        
-    def _std_acosh(self,         
-        x: pd.Series,
-        s: Expanding,
-        s_abs: Expanding,
-        s_abs_sqrt: Expanding,
-        s_sq: Expanding):
-        return x.apply(np.arccosh).expanding( self.min_points).std(skipna=True)
 
-    def _energy(self,         
+    def _std_acosh(
+        self,
         x: pd.Series,
         s: Expanding,
         s_abs: Expanding,
         s_abs_sqrt: Expanding,
-        s_sq: Expanding):
+        s_sq: Expanding,
+    ):
+        return x.apply(np.arccosh).expanding(self.min_points).std(skipna=True)
+
+    def _energy(
+        self,
+        x: pd.Series,
+        s: Expanding,
+        s_abs: Expanding,
+        s_abs_sqrt: Expanding,
+        s_sq: Expanding,
+    ):
         return x.pow(2).expanding(self.min_points).sum(skipna=True)
 
-    def _std_atan(self,         
+    def _std_atan(
+        self,
         x: pd.Series,
         s: Expanding,
         s_abs: Expanding,
         s_abs_sqrt: Expanding,
-        s_sq: Expanding,):
+        s_sq: Expanding,
+    ):
         return x.apply(np.arctan).expanding(self.min_points).std(skipna=True)
 
     def _kurtosis(
@@ -875,14 +820,14 @@ class ExpandingStatistics(TransformerStep):
     ):
         return self._peak(x, s, s_abs, s_abs_sqrt, s_sq) / s_abs_sqrt.mean().pow(2)
 
-    #def _hurst(
+    # def _hurst(
     #    self,
     #    x: pd.Series,
     #    s: Expanding,
     #    s_abs: Expanding,
     #    s_abs_sqrt: Expanding,
     #    s_sq: Expanding,
-    #):
+    # ):
     #    return s.apply(lambda s: hurst_exponent(s, method="RS"))
 
     def _rms(
@@ -971,9 +916,9 @@ class Difference(TransformerStep):
     """
 
     def __init__(
-        self, feature_set1: list, feature_set2: list, name: Optional[str] = None
+        self, *, feature_set1: list, feature_set2: list, name: Optional[str] = None
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         if len(feature_set1) != len(feature_set2):
             raise ValueError(
                 "Feature set 1 and feature set 2 must have the same length"
@@ -1003,8 +948,8 @@ class EMD(TransformerStep):
         [description], by default 'EMD'
     """
 
-    def __init__(self, n: int, name: Optional[str] = "EMD"):
-        super().__init__(name)
+    def __init__(self, *, n: int, name: Optional[str] = "EMD"):
+        super().__init__(name=name)
         self.n = n
 
     def transform(self, X):
@@ -1024,41 +969,42 @@ class EMD(TransformerStep):
         return new_X
 
 
-
 class SlidingNonOverlappingEMD(TransformerStep):
-    def __init__(self, window_size:int,  max_imfs:int, keep:Optional[int]=None, *args):
-        super().__init__(*args)
+    def __init__(
+        self, *, window_size: int, max_imfs: int, keep: Optional[int] = None, **kwargs
+    ):
+        super().__init__(*kwargs)
         self.window_size = window_size
         self.strides = window_size
         self.max_imfs = max_imfs
         if keep is None:
             keep = self.max_imfs
-        assert(keep <= self.max_imfs)
+        assert keep <= self.max_imfs
         self.keep = keep
 
-    def transform(self, X:pd.DataFrame):
-        def _emd(values:np.ndarray):
+    def transform(self, X: pd.DataFrame):
+        def _emd(values: np.ndarray):
             out = np.zeros((values.shape[0], self.keep))
             try:
                 v = emd.sift.sift(values, max_imfs=self.max_imfs)
-                out[:, :self.keep] = v[:, :self.keep]
+                out[:, : self.keep] = v[:, : self.keep]
             except emd.support.EMDSiftCovergeError:
                 pass
-            
+
             return out
-            
+
         column_list = []
         for c in X.columns:
             for i in range(self.keep):
-                column_list.append(f'imf_{i}_{c}')
+                column_list.append(f"imf_{i}_{c}")
         out = pd.DataFrame(index=X.index, columns=column_list, dtype=np.float32)
         for c in X.columns:
-            emd_computed = apply_rolling_data(X[c].values, _emd, self.window_size, self.strides)
-            
-            out.loc[:, [ f'imf_{i}_{c}' for i in range(self.keep)]] = emd_computed
-        return out
-        
+            emd_computed = apply_rolling_data(
+                X[c].values, _emd, self.window_size, self.strides
+            )
 
+            out.loc[:, [f"imf_{i}_{c}" for i in range(self.keep)]] = emd_computed
+        return out
 
 
 class EMDFilter(TransformerStep):
@@ -1070,8 +1016,8 @@ class EMDFilter(TransformerStep):
        Number of
     """
 
-    def __init__(self, n: int, name: Optional[str] = "EMD"):
-        super().__init__(name)
+    def __init__(self, *, n: int, name: Optional[str] = "EMD"):
+        super().__init__(name=name)
         self.n = n
 
     def transform(self, X):
@@ -1119,44 +1065,68 @@ class Interactions(TransformerStep):
         return X_new
 
 
-
 class ROCKET(SKLearnTransformerWrapper):
-    def __init__(self, n_kernels=1000, kernel_sizes=(7, 9, 11), random_state=None, name: Optional[str] = "ROCKET"):
-        transformer = pyts_ROCKET(n_kernels=n_kernels, kernel_sizes=kernel_sizes, random_state=random_state)
-        super().__init__(transformer, name)
-
+    def __init__(
+        self,
+        *,
+        n_kernels=1000,
+        kernel_sizes=(7, 9, 11),
+        random_state=None,
+        name: Optional[str] = "ROCKET",
+    ):
+        transformer = pyts_ROCKET(
+            n_kernels=n_kernels, kernel_sizes=kernel_sizes, random_state=random_state
+        )
+        super().__init__(transformer=transformer, name=name)
 
     def _column_names(self, X):
-        a =  ['Filter {i}' for i in range(self.transformer.n_kernels*2)]
+        a = ["Filter {i}" for i in range(self.transformer.n_kernels * 2)]
         return a
 
 
-
 class DoG(TransformerStep):
-    def __init__(self, window_size:int, std:List[float], min_points:int = 1,center:bool=False, *args):
-        super().__init__(*args)
+    def __init__(
+        self,
+        *,
+        window_size: int,
+        std: List[float],
+        min_points: int = 1,
+        center: bool = False,
+        **kwargs,
+    ):
+        super().__init__(*kwargs)
         self.window_size = window_size
-        self.std = std 
+        self.std = std
         self.center = center
         self.min_points = min_points
 
-    def transform(self, X:pd.DataFrame) -> pd.DataFrame:
-        X1 =  X.rolling(window=self.window_size, win_type='gaussian', center=self.center, min_periods=self.min_points).mean(std=self.std[0])
-        X2 =  X.rolling(window=self.window_size, win_type='gaussian', center=self.center, min_periods=self.min_points).mean(std=self.std[1])
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        X1 = X.rolling(
+            window=self.window_size,
+            win_type="gaussian",
+            center=self.center,
+            min_periods=self.min_points,
+        ).mean(std=self.std[0])
+        X2 = X.rolling(
+            window=self.window_size,
+            win_type="gaussian",
+            center=self.center,
+            min_periods=self.min_points,
+        ).mean(std=self.std[1])
         return X1 - X2
-
 
 
 def wrcoef(X, coef_type, coeffs, wavename, level):
     N = np.array(X).size
     a, ds = coeffs[0], list(reversed(coeffs[1:]))
 
-    if coef_type =='a':
-        return pywt.upcoef('a', a, wavename, level=level)[:N]
-    elif coef_type == 'd':
-        return pywt.upcoef('d', ds[level-1], wavename, level=level)[:N]
+    if coef_type == "a":
+        return pywt.upcoef("a", a, wavename, level=level)[:N]
+    elif coef_type == "d":
+        return pywt.upcoef("d", ds[level - 1], wavename, level=level)[:N]
     else:
         raise ValueError("Invalid coefficient type: {}".format(coef_type))
+
 
 class SlidingNonOverlappingWaveletDecomposition(TransformerStep):
     """
@@ -1177,30 +1147,37 @@ class SlidingNonOverlappingWaveletDecomposition(TransformerStep):
     TransformerStep : [type]
         [description]
     """
-    def __init__(self, window_size:int, level:int, wavelet:str, keep:List[str], *args):
-        super().__init__(*args)   
+
+    def __init__(
+        self, *, window_size: int, level: int, wavelet: str, keep: List[str], **kwargs
+    ):
+        super().__init__(*kwargs)
         self.wavelet = wavelet
         self.level = level
         self.keep = keep
         self.window_size = window_size
         self.strides = window_size
 
-    def transform(self, X:pd.DataFrame):
-        def _wavelet(values:np.ndarray):
+    def transform(self, X: pd.DataFrame):
+        def _wavelet(values: np.ndarray):
             coeffs = pywt.wavedec(values, self.wavelet, level=self.level)
             out = np.zeros((values.shape[0], len(self.keep)))
             for i, s in enumerate(self.keep):
                 part, level = s
-                out[:, i] = wrcoef(values, part.lower(), coeffs, self.wavelet, int(level))
+                out[:, i] = wrcoef(
+                    values, part.lower(), coeffs, self.wavelet, int(level)
+                )
             return out
-            
+
         column_list = []
         for c in X.columns:
             for name in self.keep:
-                column_list.append(f'wavelet_{name}_{c}')
+                column_list.append(f"wavelet_{name}_{c}")
         out = pd.DataFrame(index=X.index, columns=column_list, dtype=np.float32)
         for c in X.columns:
-            wv_computed = apply_rolling_data(X[c].values, _wavelet, self.window_size, self.strides)
-            
-            out.loc[:, [ f'wavelet_{name}_{c}' for name in self.keep]] = wv_computed
+            wv_computed = apply_rolling_data(
+                X[c].values, _wavelet, self.window_size, self.strides
+            )
+
+            out.loc[:, [f"wavelet_{name}_{c}" for name in self.keep]] = wv_computed
         return out

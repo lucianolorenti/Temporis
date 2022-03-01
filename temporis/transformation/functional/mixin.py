@@ -6,15 +6,13 @@ from numpy.lib.arraysetops import isin
 
 
 class TransformerStepMixin:
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, *, name: Optional[str] = None, prefer_partial_fit:bool =True):
         self.name_ = name
         self.previous = []
         self.next = []
         self.uuid = "".join(str(uuid.uuid4()).split("-"))
-        # self.hash = int(
-        #    hashlib.sha256((f"{self.name}_{self.uuid}").encode("utf8")).hexdigest(),
-        #    base=16,
-        # )
+        self.prefer_partial_fit = prefer_partial_fit
+
 
     @property
     def name(self):

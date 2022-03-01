@@ -22,7 +22,7 @@ class SavitzkyGolayTransformer(TransformerStep):
 
     def __init__(self, window: int, order: int = 2, name: Optional[str] = None):
 
-        super().__init__(name)
+        super().__init__(name=name)
         self.window = window
         self.order = order
 
@@ -71,7 +71,7 @@ class MeanFilter(TransformerStep):
         name: Optional[str] = None,
     ):
 
-        super().__init__(name)
+        super().__init__(name=name)
         self.window = window
         self.min_periods = min_periods
         self.center = center
@@ -96,7 +96,7 @@ class MedianFilter(TransformerStep):
     """
 
     def __init__(self, window: int, min_periods: int = 15, name: Optional[str] = None):
-        super().__init__(name)
+        super().__init__(name=name)
         self.window = window
         self.min_periods = min_periods
 
@@ -114,7 +114,7 @@ class OneDimensionalKMeans(TransformerStep):
     """
 
     def __init__(self, n_clusters: int = 5, name: Optional[str] = None):
-        super().__init__(name)
+        super().__init__(name=name)
         self.clusters = {}
         self.n_clusters = n_clusters
 
@@ -162,7 +162,7 @@ class MultiDimensionalKMeans(TransformerStep):
     """
 
     def __init__(self, n_clusters: int = 5, name: Optional[str] = None):
-        super().__init__(name)
+        super().__init__(name=name)
         self.n_clusters = n_clusters
         self.clusters = MiniBatchKMeans(n_clusters=self.n_clusters)
 
@@ -203,7 +203,7 @@ class EWMAFilter(TransformerStep):
     """
 
     def __init__(self, span: float, name: Optional[str] = None):
-        super().__init__(name)
+        super().__init__(name=name)
         self.span = span
 
     def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
@@ -231,9 +231,10 @@ class GaussianFilter(TransformerStep):
         std: float,
         min_points: int = 1,
         center: bool = False,
-        *args
+        *args,
+        **kwargs
     ):
-        super().__init__(*args)
+        super().__init__(**kwargs)
         self.window_size = window_size
         self.std = std
         self.center = center

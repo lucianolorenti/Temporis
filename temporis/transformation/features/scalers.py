@@ -34,6 +34,7 @@ class RobustMinMaxScaler(TransformerStep):
 
     def __init__(
         self,
+        *,
         range: tuple,
         clip: bool = True,
         lower_quantile: float = 0.25,
@@ -41,9 +42,10 @@ class RobustMinMaxScaler(TransformerStep):
         max_workers: int = 1,
         subsample: Optional[Union[int, float]] = None,
         name: Optional[str] = None,
+        prefer_partial_fit:bool = False
     ):
 
-        super().__init__(name)
+        super().__init__(name=name, prefer_partial_fit=prefer_partial_fit)
         self.range = range
         self.Q1 = None
         self.Q3 = None
@@ -103,11 +105,12 @@ class MinMaxScaler(TransformerStep):
 
     def __init__(
         self,
+        *,
         range: tuple,
         clip: bool = True,
         name: Optional[str] = None,
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.range = range
         self.min = range[0]
         self.max = range[1]
@@ -167,8 +170,8 @@ class StandardScaler(TransformerStep):
 
     """
 
-    def __init__(self, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *, name: Optional[str] = None):
+        super().__init__(name=name)
         self.std = None
         self.mean = None
 
@@ -198,8 +201,8 @@ class StandardScaler(TransformerStep):
 class RobustStandardScaler(TransformerStep):
     """Scale features using statistics that are robust to outliers."""
 
-    def __init__(self, *args, quantile_range=(0.25, 0.75), **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *, quantile_range=(0.25, 0.75), prefer_partial_fit:bool = False, **kwargs):
+        super().__init__( **kwargs,prefer_partial_fit=prefer_partial_fit)
         self.quantile_range = quantile_range
         self.quantile_estimator = QuantileComputer()
         self.IQR = None
@@ -282,8 +285,8 @@ class ScaleInvRUL(TransformerStep):
                 Column with the RUL
     """
 
-    def __init__(self, rul_column: str, name: Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, *,rul_column: str, name: Optional[str] = None):
+        super().__init__(name=name)
         self.RUL_list_per_column = {}
         self.penalty = {}
         self.rul_column_in = rul_column
@@ -343,12 +346,13 @@ class PerCategoricalMinMaxScaler(TransformerStep):
 
     def __init__(
         self,
+        *,
         categorical_feature: str,
         scaler: Optional[Union[MinMaxScaler, RobustMinMaxScaler]] = MinMaxScaler,
         scaler_params: dict = {},
         name: Optional[str] = None,
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.categorical_feature = categorical_feature
         self.categorical_feature_name = None
         self.scaler = scaler

@@ -43,7 +43,7 @@ class LocalEntropyMeasures(TransformerStep):
     def __init__(
         self, window: int = 2, to_compute: List[str] = None, name: Optional[str] = None
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.window = window
 
         if to_compute is None:

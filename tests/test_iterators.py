@@ -65,10 +65,10 @@ class MockDataset(AbstractTimeSeriesDataset):
 class TestIterators():
     def test_iterators(self):
         features = ['feature1', 'feature2']
-        x = ByNameFeatureSelector(features)
-        x = MinMaxScaler((-1, 1))(x)
+        x = ByNameFeatureSelector(features=features)
+        x = MinMaxScaler(range=(-1, 1))(x)
 
-        y = ByNameFeatureSelector(['RUL'])
+        y = ByNameFeatureSelector(features=['RUL'])
         transformer = Transformer(x, y)
         batch_size = 15
         window_size = 5
@@ -84,8 +84,8 @@ class TestIterators():
 
     def test_2(self):
         dataset = SimpleDataset()
-        pipe = ByNameFeatureSelector(['feature1'])
-        y_pipe = ByNameFeatureSelector(['RUL'])
+        pipe = ByNameFeatureSelector(features=['feature1'])
+        y_pipe = ByNameFeatureSelector(features=['RUL'])
         transformer_raw = Transformer(
             transformerX=pipe,    
             transformerY=y_pipe

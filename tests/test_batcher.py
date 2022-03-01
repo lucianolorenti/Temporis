@@ -44,10 +44,10 @@ class MockDataset(AbstractTimeSeriesDataset):
 class TestBatcher():
     def test_batcher(self):
         features = ['feature1', 'feature2']
-        x = ByNameFeatureSelector(features)
-        x = MinMaxScaler((-1, 1))(x)
+        x = ByNameFeatureSelector(features=features)
+        x = MinMaxScaler(range=(-1, 1))(x)
 
-        y = ByNameFeatureSelector(['RUL'])
+        y = ByNameFeatureSelector(features=['RUL'])
         transformer = Transformer(x, y)
         
         batch_size = 15
@@ -66,10 +66,10 @@ class TestBatcher():
 
 
         features = ['feature1', 'feature2']
-        x = ByNameFeatureSelector(features)
-        x = MinMaxScaler((-1, 1))(x)
+        x = ByNameFeatureSelector(features=features)
+        x = MinMaxScaler(range=(-1, 1))(x)
 
-        y = ByNameFeatureSelector(['RUL'])
+        y = ByNameFeatureSelector(features=['RUL'])
         transformer = Transformer(x, y)
         
         batch_size = 15

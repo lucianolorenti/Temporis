@@ -17,6 +17,7 @@ def _strided_app(a, L, S):  # Window len = L, Stride len/stepsize = S
         l.append(a[last:])
     return l
     
+
 def apply_rolling_data(values : np.ndarray, function, window, step=1):
     """Perform a rolling window analysis at the column `col` from `data`
 

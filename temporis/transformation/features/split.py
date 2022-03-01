@@ -25,6 +25,7 @@ class Joiner(TransformerStep):
 class Filter(TransformerStep):
     def __init__(
         self,
+        *,
         values: List[Any],
         columns: Union[List[str], str],
         name: Optional[str] = None,
@@ -35,7 +36,7 @@ class Filter(TransformerStep):
             else:
                 return v
 
-        super().__init__(name)
+        super().__init__(name=name)
         self.values = values
         self.columns = columns
         self.query = " & ".join(
@@ -52,17 +53,18 @@ class Filter(TransformerStep):
 class SplitByCategory(TransformerStep):
     def __init__(
         self,
-        categorical_feature_names: Union[str, List[str]],
+        *,
+        features: Union[str, List[str]],
         pipeline: TemporisPipeline,
-        add_default:bool= True,
+        add_default: bool = True,
         name: Optional[str] = None,
     ):
-        super().__init__(name)
-        if isinstance(categorical_feature_names, str):
-            categorical_feature_names = [categorical_feature_names]
+        super().__init__(name=name)
+        if isinstance(features, str):
+            features = [features]
         self.add_default = add_default
         self.orig_pipeline = deepcopy(pipeline)
-        self.categorical_feature_names = categorical_feature_names
+        self.categorical_feature_names = features
 
         self._categorical_feature_names_resolved = None
         self._sub_pipelines = {}
@@ -70,7 +72,9 @@ class SplitByCategory(TransformerStep):
 
     def _build_pipeline(self, categories: Tuple[str]):
         self.disconnect(self.joiner)
-        s = Filter(categories, self._categorical_feature_names_resolved)(self)
+        s = Filter(values=categories, columns=self._categorical_feature_names_resolved)(
+            self
+        )
         new_pipe = deepcopy(self.orig_pipeline)
         for node in topological_sort_iterator(new_pipe):
             node.name = f"Category: {categories} " + node.name

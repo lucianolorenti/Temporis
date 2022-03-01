@@ -45,7 +45,7 @@ class IQROutlierRemover(TransformerStep):
         name: Optional[str] = None,
     ):
 
-        super().__init__(name)
+        super().__init__(name=name, prefer_partial_fit=False)
         self.margin = margin
         self.proportion_to_sample = proportion_to_sample
         self.tdigest_dict = None
@@ -176,13 +176,16 @@ class BeyondQuartileOutlierRemover(TransformerStep):
         if self.Q1 is None:
             self.Q1 = self.quantile_estimator.estimate_quantile(self.lower_quantile)
             self.Q3 = self.quantile_estimator.estimate_quantile(self.upper_quantile)
+        print(self.Q3)
         new_X = X.copy()
         numeric = new_X.select_dtypes(include='number')
+        
         if self.clip:
             numeric.clip(self.Q1, self.Q3, inplace=True, axis=0)
         else:
             numeric[numeric<self.Q1] = -np.inf
             numeric[numeric>self.Q3] = np.inf
+            print(numeric)
         return new_X
 
 
@@ -220,37 +223,21 @@ class ZScoreOutlierRemover(BaseEstimator, TransformerMixin):
         return pd.DataFrame(X_new, columns=X.columns, index=X.index)
 
 
-class EWMAOutlierRemover(TransformerStep):
-    def __init__(self, lambda_=1.5, name: Optional[str] = None):
-        super().__init__(name)
-        self.lambda_ = lambda_
-
-    def fit(self, X, y=None):
-        mean = np.nanmean(X, axis=0)
-        s = np.sqrt(self.lambda_ / (2 - self.lambda_)) * np.nanstd(X, axis=0)
-        self.UCL = mean + 3 * s
-        self.LCL = mean - 3 * s
-        return self
-
-    def transform(self, X):
-        mask = (X < (self.LCL)) | (X > (self.UCL))
-        X[mask] = np.nan
-        return pd.DataFrame(X, columns=X.columns, index=X.index)
 
 
 class EWMAOutOfRange(TransformerStep):
     """
-    Compute the EWMA limits and accumulate the number of points
-    outsite UCL and LCL
+    Compute the EWMA limits  and mark as NaN points outside UCL and LCL
     """
 
     def __init__(
         self,
+        *,
         lambda_=0.5,
-        return_mask: bool = True,
+        return_mask: bool = False,
         name: Optional[str] = None,
     ):
-        super().__init__(name)
+        super().__init__(name=name, prefer_partial_fit=False)
         self.lambda_ = lambda_
         self.UCL = None
         self.LCL = None
@@ -298,12 +285,13 @@ class EWMAOutOfRange(TransformerStep):
 class RollingMeanOutlierRemover(TransformerStep):
     def __init__(
         self,
+        *,
         window: int = 15,
         lambda_: float = 3,
         return_mask: bool = True,
         name: Optional[str] = None,
     ):
-        super().__init__(name)
+        super().__init__(name=name)
         self.window = window
         self.lambda_ = lambda_
         self.return_mask = return_mask

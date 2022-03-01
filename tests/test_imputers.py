@@ -12,7 +12,7 @@ class TestImputers():
     def test_ApplyRollingImputer(self):
         def finite_max(x):
             return np.max(x[np.isfinite(x)])
-        f = ApplyRollingImputer(3, finite_max)
+        f = ApplyRollingImputer(window_size=3, func=finite_max)
         df = pd.DataFrame({
             'a': [0, np.inf, 12, -np.inf,  0.9, 15, 0.5, 0.3, 0.5],
             'b': [5, 6,   7,   5,   np.inf,   5,  6,   5,   45],
