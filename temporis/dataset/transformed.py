@@ -84,16 +84,18 @@ class TransformedDataset(AbstractTimeSeriesDataset):
 class TransformedSerializedDataset(TransformedDataset):
     @staticmethod
     def save(dataset:TransformedDataset, output_path:Path):
+        if not output_path.is_dir():
+            output_path.mkdir(parents=True, exist_ok=True)
         for i, life in enumerate(dataset):
             with gzip.open(output_path / f'ts_{i}.pkl.gz', 'wb') as file:
                 pickle.dump(life, file)
-        with open(output_path / 'transformer.pkl.gz', 'wb') as file:
+        with open(output_path / 'transformer.pkl', 'wb') as file:
             pickle.dump(dataset.transformer, file)
 
     def __init__(self, dataset_path:Path, cache_size:Optional[int] = None):
         self.dataset_path = dataset_path
         self.files = list(dataset_path.glob('ts_*.pkl.gz'))
-        with open(dataset_path / 'transformer.pkl.gz', 'rb') as file:
+        with open(dataset_path / 'transformer.pkl', 'rb') as file:
             self.transformer = pickle.load(file)
         if cache_size is None:
             cache_size = len(self.files)

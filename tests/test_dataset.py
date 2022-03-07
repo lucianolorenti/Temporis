@@ -1,9 +1,14 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-
 from temporis.dataset.CMAPSS import CMAPSSDataset, sensor_indices
+from temporis.dataset.transformed import TransformedSerializedDataset
 from temporis.dataset.ts_dataset import (AbstractTimeSeriesDataset,
                                          FoldedDataset)
+from temporis.transformation import Transformer
+from temporis.transformation.features.scalers import MinMaxScaler
+from temporis.transformation.features.selection import ByNameFeatureSelector
 
 
 class MockDataset(AbstractTimeSeriesDataset):
@@ -76,6 +81,37 @@ class TestDataset:
         assert len(ds) == 709
         life = ds[0]
         assert len(life.columns) == 28
+
+    def test_transformed_dataset(self):
+        dataset = MockDataset(nlives=5)
+
+        pipe = ByNameFeatureSelector(features=["a"])
+        pipe = MinMaxScaler(range=(-1, 1))(pipe)
+
+        target_pipe = ByNameFeatureSelector(features=["RUL"])
+
+        transformer = Transformer(transformerX=pipe, transformerY=target_pipe)
+
+        transformer.fit(dataset)
+
+        transformed_dataset = dataset.map(transformer)
+        transformed_dataset.preload()
+
+        X = transformed_dataset.get_X(0, pandas=True)
+        assert isinstance(X, pd.DataFrame)
+
+
+        X = transformed_dataset.get_X(0, pandas=False)
+        assert isinstance(X, np.ndarray)
+
+        path = Path('./saved_dataset').resolve()
+        transformed_dataset.save(path)
+
+        transformed_serialized_dataset = TransformedSerializedDataset(path)
+        assert len(transformed_serialized_dataset) == len(transformed_dataset)
+
+        assert np.all(transformed_serialized_dataset[0][0] == transformed_dataset[0][0])
+        
 
 
 class TestAnalysis:

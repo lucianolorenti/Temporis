@@ -628,7 +628,8 @@ class RollingStatistics(TransformerStep):
         for c in self.specific.keys():
             for stats in self.specific[c]: 
                 feature = f"{c}_{stats}"
-                out = getattr(self, f"_{stats}")(X[[c]], rolling[[c]], abs_rolling[[c]])
+                out = getattr(self, f"_{stats}")(X[c], rolling[c], abs_rolling[c])
+                print(out.shape)
                 X_new.loc[:, feature] = out.values
 
     def transform(self, X:pd.DataFrame):

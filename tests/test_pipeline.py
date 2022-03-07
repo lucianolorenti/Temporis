@@ -1,6 +1,6 @@
-from pyexpat import features
 import numpy as np
 import pandas as pd
+from pyexpat import features
 from scipy.stats import entropy
 from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation import Concatenate as TransformationConcatenate
@@ -11,9 +11,9 @@ from temporis.transformation.features.scalers import MinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
 from temporis.transformation.features.split import SplitByCategory
 from temporis.transformation.features.transformation import MeanCentering
+from temporis.transformation.functional.concatenate import Concatenate
 from temporis.transformation.functional.graph_utils import root_nodes
 from temporis.transformation.functional.pipeline.utils import make_pipeline
-from temporis.transformation.functional.concatenate import Concatenate
 
 
 def gaussian(N: int, mean: float = 50, std: float = 10):
