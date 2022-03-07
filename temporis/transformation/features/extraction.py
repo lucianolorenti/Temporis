@@ -1,6 +1,6 @@
 import itertools
 import logging
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import emd
 import mmh3
@@ -493,6 +493,7 @@ class RollingStatistics(TransformerStep):
         window: int = 15,
         min_points=2,
         to_compute: Optional[List[str]] = None,
+        specific: Optional[Dict[str, List[str]]] = None,
         name: Optional[str] = None,
     ):
         super().__init__(name=name)
@@ -517,8 +518,16 @@ class RollingStatistics(TransformerStep):
             "std_asinh",
             "energy",
         ]
+
+        if to_compute is not None and specific is not None:
+            raise ValueError('Only one of to_compute or specific should be used')
+        self.specific = specific
+        self.to_compute = to_compute
         if to_compute is None:
-            self.to_compute = valid_stats
+            if specific is None:
+                self.to_compute = valid_stats
+            else:
+                self.specific = specific
         else:
             for f in to_compute:
                 if f not in valid_stats:
@@ -595,21 +604,43 @@ class RollingStatistics(TransformerStep):
     def _crest(self, X, rolling, abs_rolling):
         return self._peak(X, rolling, abs_rolling) / self._rms(X, rolling, abs_rolling)
 
-    def transform(self, X):
+    def _compute_column_names(self, X:pd.DataFrame):
         columns = []
+        if self.to_compute is not None:
+            for stats in self.to_compute:
+                for c in X.columns:
+                    columns.append(f"{c}_{stats}")
+        else:
+            for c in self.specific.keys():
+                for stats in self.specific[c]:
+                    columns.append(f"{c}_{stats}")
+        return columns 
 
-        for stats in self.to_compute:
-            for c in X.columns:
-                columns.append(f"{c}_{stats}")
-        X_new = pd.DataFrame(index=X.index, columns=columns)
-        rolling = X.rolling(self.window, self.min_points)
-        abs_rolling = X.abs().rolling(self.window, self.min_points)
+    def _transform_all_features(self, X:pd.DataFrame, X_new:pd.DataFrame, rolling, abs_rolling):
+
         for stats in self.to_compute:
             columns_to_assign = [f"{c}_{stats}" for c in X.columns]
             out = getattr(self, f"_{stats}")(X, rolling, abs_rolling)
-
             X_new.loc[:, columns_to_assign] = out.values
 
+
+    def _transform_specific(self,  X:pd.DataFrame, X_new:pd.DataFrame, rolling, abs_rolling):
+        for c in self.specific.keys():
+            for stats in self.specific[c]: 
+                feature = f"{c}_{stats}"
+                out = getattr(self, f"_{stats}")(X[[c]], rolling[[c]], abs_rolling[[c]])
+                X_new.loc[:, feature] = out.values
+
+    def transform(self, X:pd.DataFrame):
+        columns = self._compute_column_names(X)
+        
+        X_new = pd.DataFrame(index=X.index, columns=columns)
+        rolling = X.rolling(self.window, self.min_points)
+        abs_rolling = X.abs().rolling(self.window, self.min_points)
+        if self.to_compute is not None:
+            self._transform_all_features(X, X_new, rolling, abs_rolling)
+        else:
+            self._transform_specific(X, X_new, rolling, abs_rolling)
         return X_new
 
 

@@ -21,8 +21,7 @@ from temporis.transformation.features.outliers import (
     EWMAOutOfRange,
     IQROutlierRemover,
     ZScoreOutlierRemover,
-    IsolationForestOutlierRemover
-    
+    IsolationForestOutlierRemover,
 )
 from temporis.transformation.features.resamplers import IntegerIndexResamplerTransformer
 from temporis.transformation.features.selection import (
@@ -121,7 +120,7 @@ def clearance(s: pd.Series) -> float:
 
 
 def rms(s: pd.Series) -> float:
-    return np.sqrt(np.mean(s ** 2))
+    return np.sqrt(np.mean(s**2))
 
 
 def shape(s: pd.Series) -> float:
@@ -272,8 +271,6 @@ class TestTransformers:
         assert np.isposinf(df_new["a"][5])
         assert np.isneginf(df_new["b"][8])
 
-
-
     def test_ZScoreOutlierRemover(self):
 
         remover = ZScoreOutlierRemover(number_of_std_allowed=2)
@@ -287,7 +284,6 @@ class TestTransformers:
         assert pd.isnull(df_new["a"][5])
         assert pd.isnull(df_new["b"][8])
 
-
         remover = ZScoreOutlierRemover(number_of_std_allowed=2, prefer_partial_fit=True)
         df = pd.DataFrame(
             {
@@ -298,8 +294,6 @@ class TestTransformers:
         df_new = remover.fit_transform(df)
         assert pd.isnull(df_new["a"][5])
         assert pd.isnull(df_new["b"][8])
-
-
 
 
 class TestResamplers:
@@ -462,6 +456,15 @@ class TestGenerators:
 
         assert (pandas_t - fixed_t).mean().mean() < 1e-10
 
+        rolling = RollingStatistics(
+            min_points=2,
+            window=5,
+            specific={"a": ["mean", "kurtosis"], "b": ["peak", "impulse"]},
+        )
+        rolling.fit(ds_train)
+        pandas_t = rolling.transform(ds_train[0][["a", "b"]])
+        assert sorted(pandas_t.columns) == sorted(['a_mean', 'a_kurtosis', 'b_peak', 'b_impulse'])
+
     def test_EWMAOutOfRange(self):
         a = np.random.randn(500) * 0.5 + 2
         b = np.random.randn(500) * 0.5 + 5
@@ -514,7 +517,6 @@ class TestGenerators:
 
         assert np.isnan(df_new["a"].iloc[320])
         assert np.isnan(df_new["b"].iloc[215])
-
 
     def test_encodings(self):
         df = pd.DataFrame(
