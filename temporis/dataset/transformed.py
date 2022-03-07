@@ -4,7 +4,7 @@ import gzip
 from multiprocessing import Pool
 import pickle
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import pandas as pd
 from sklearn.utils.validation import check_is_fitted
@@ -12,6 +12,7 @@ from temporis.dataset.ts_dataset import AbstractTimeSeriesDataset
 from temporis.transformation.functional.transformers import Transformer
 from temporis.utils.lrucache import LRUDataCache
 from tqdm.auto import tqdm
+import numpy as np
 
 
 def _transform(transformer, dataset, i:int):
@@ -51,7 +52,7 @@ class TransformedDataset(AbstractTimeSeriesDataset):
                     )
             )
         for i, (X, y, metadata) in values:
-             self.cache.add(i, (X.values, y.values, metadata))
+             self.cache.add(i, (X, y, metadata))
         
 
     def get_time_series(self, i: int) -> pd.DataFrame:
@@ -65,8 +66,16 @@ class TransformedDataset(AbstractTimeSeriesDataset):
         if i not in self.cache.data:
             data = self.dataset[i]
             X, y, metadata = self.transformer.transform(data)
-            self.cache.add(i, (X.values, y.values, metadata))
-        return self.cache.get(i)
+            self.cache.add(i, (X, y, metadata))
+        X, y, metadata = self.cache.get(i)
+        return X.values, y.values, metadata
+
+    def get_X(self, i:int, pandas:bool =True ) -> Union[np.ndarray, pd.DataFrame]:
+        X, _, _ = self.cache.get(i)
+        if pandas:
+            return X
+        else:
+            return X.values
 
     def save(self, output_path:Path):
         TransformedSerializedDataset.save(self, output_path)
