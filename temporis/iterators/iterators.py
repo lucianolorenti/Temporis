@@ -24,14 +24,6 @@ class NotWeighted(AbstractSampleWeights):
         return 1
 
 
-class RULInverseWeighted(AbstractSampleWeights):
-    def __call__(self, y, i: int, metadata):
-        return 1 / (y[i, 0] + 1)
-
-
-class InverseToLengthWeighted(AbstractSampleWeights):
-    def __call__(self, y, i: int, metadata):
-        return 1 / y[0]
 
 
 SampleWeight = Union[AbstractSampleWeights, Callable[[np.ndarray, int, Any], float]]
