@@ -241,7 +241,7 @@ class ApplyRollingImputer(TransformerStep):
     """
 
     def __init__(self, *, window_size: int, func, **kwargs):
-        super().__init__(*kwargs)
+        super().__init__(**kwargs)
         self.window_size = window_size
         self.function = func
         self.mean_value_list = []
@@ -327,7 +327,7 @@ class RollingMeanImputer(ApplyRollingImputer):
     """
 
     def __init__(self, *, window_size: int, name:str=None):
-        super().__init__(window_size, np.mean, name=name)
+        super().__init__(window_size=window_size, func=np.mean, name=name)
 
 
 class ForwardFillImputer(TransformerStep):
@@ -337,6 +337,15 @@ class ForwardFillImputer(TransformerStep):
         if not isinstance(X, pd.DataFrame):
             raise ValueError("Input array must be a data frame")
         return X.ffill()
+
+
+class BackwardFillImputer(TransformerStep):
+    """Impute forward filling the values"""
+
+    def transform(self, X):
+        if not isinstance(X, pd.DataFrame):
+            raise ValueError("Input array must be a data frame")
+        return X.bfill()
 
 
 class FillImputer(TransformerStep):
