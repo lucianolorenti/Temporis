@@ -37,6 +37,9 @@ def monotonicity(s: np.ndarray):
 def n_unique(s: np.ndarray):
     return len(np.unique(s))
 
+def null(s: np.ndarray):
+    return np.isfinite(s)
+
 def analysis(
     transformed_dataset: TransformedDataset,
     *,
@@ -48,7 +51,9 @@ def analysis(
         "correlation": correlation,
         "autocorrelation": autocorrelation,
         "monotonicity": monotonicity,
-        'number_of_unique_elements': n_unique
+        'number_of_unique_elements': n_unique,
+        'null': null,
+        'entropy': entropy
     }
     if len(what_to_compute) == 0:
         what_to_compute = list(sorted(metrics.keys()))
