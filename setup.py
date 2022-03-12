@@ -28,7 +28,8 @@ setup(
         "pyinform",
         "antropy",
         "pyts",
-        "PyWavelets"
+        "PyWavelets",
+        "pyinform"
     ],
     license="MIT",
     include_package_data=True,

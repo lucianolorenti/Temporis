@@ -1,23 +1,27 @@
-from typing import List
-from pyparsing import col
-from scipy.stats import spearmanr
+from collections import defaultdict
+from typing import Dict, List, Optional
+
+import antropy as ant
 import numpy as np
 import pandas as pd
-from uncertainties import ufloat
 
+from pyparsing import col
+from scipy.stats import spearmanr
 from temporis.dataset.transformed import TransformedDataset
 from tqdm.auto import tqdm
-from collections import defaultdict
-import antropy as ant
+from sklearn.feature_selection import mutual_info_regression
+from uncertainties import ufloat
 
-def entropy(s:np.ndarray):
+
+def entropy(s: np.ndarray):
     return ant.app_entropy(s)
 
-def correlation(s: np.ndarray):
+
+def correlation(s: np.ndarray, y:Optional[np.ndarray]=None):
     N = s.shape[0]
     corr = spearmanr(s, np.arange(N), nan_policy="omit")
     if np.isnan(corr.correlation):
-        corr = -100
+        corr = np.nan
     else:
         corr = corr.correlation
     return corr
@@ -37,31 +41,47 @@ def monotonicity(s: np.ndarray):
 def n_unique(s: np.ndarray):
     return len(np.unique(s))
 
-def analysis(
-    transformed_dataset: TransformedDataset,
-    *,
-    show_progress: bool,
+
+metrics = {
+    "std": lambda x, y: np.std(x),
+    "correlation": lambda x,y: correlation(x, y),
+    "autocorrelation": lambda x,y:autocorrelation(x),
+    "monotonicity": lambda x,y:monotonicity(x),
+    "number_of_unique_elements": lambda x,y:n_unique(x),
+
+    
+    'mutual_information': lambda x, y: mutual_info_regression(x.reshape(-1, 1), y)
+}
+
+# Mutual information
+# Remaining Useful Life Prediction Using Ranking Mutual Information Based Monotonic Health Indicator
+
+
+def analysis_single_time_series(
+    X: np.ndarray,
+    y: np.ndarray,
+    column_names: List[str],
+    data: Optional[Dict] = None,
     what_to_compute: List[str] = [],
 ):
-    metrics = {
-        "std": np.std,
-        "correlation": correlation,
-        "autocorrelation": autocorrelation,
-        "monotonicity": monotonicity,
-        'number_of_unique_elements': n_unique
-    }
+
+    if data is None:
+        data = defaultdict(lambda: defaultdict(list))
     if len(what_to_compute) == 0:
         what_to_compute = list(sorted(metrics.keys()))
-    data = defaultdict(lambda: defaultdict(list))
-    iterator = transformed_dataset
-    if show_progress:
-        iterator = tqdm(iterator)
-    for (X, _, _) in iterator:
-        for column_index in range(X.shape[1]):
-            column_name = transformed_dataset.transformer.column_names[column_index]
-            for what in what_to_compute:
-                data[column_name][what].append(metrics[what](X[:, column_index]))
+    for column_index in range(X.shape[1]):
+        column_name = column_names[column_index]
+        for what in what_to_compute:
+            x_ts = np.squeeze(X[:, column_index])
 
+            m = metrics[what](x_ts, y)
+
+            
+            data[column_name][what].append(m)
+    return data
+
+
+def merge_analysis(data: dict):
     data_df = defaultdict(lambda: defaultdict(list))
     for column_name in data.keys():
         for what in data[column_name]:
@@ -69,63 +89,28 @@ def analysis(
                 np.mean(data[column_name][what]),
                 np.std(data[column_name][what]),
             )
-            data_df[column_name][f"{what} Max"] = np.max(
-                np.mean(data[column_name][what])
-            )
-            data_df[column_name][f"{what} Min"] = np.min(
-                np.mean(data[column_name][what])
-            )
+            data_df[column_name][f"{what} Max"] = np.max(data[column_name][what])
+            data_df[column_name][f"{what} Min"] = np.min(data[column_name][what])
     return pd.DataFrame(data_df).T
 
 
-def feature_analysis(transformed_dataset: TransformedDataset, show_progress: bool):
-    """
+def analysis(
+    transformed_dataset: TransformedDataset,
+    *,
+    show_progress: bool,
+    what_to_compute: List[str] = [],
+):
 
-    Bibliography:
-    Remaining Useful Life Prediction of Machining Tools by 1D-CNN LSTM Network
-    """
-    data = {}
+    if len(what_to_compute) == 0:
+        what_to_compute = list(sorted(metrics.keys()))
+    data = defaultdict(lambda: defaultdict(list))
     iterator = transformed_dataset
     if show_progress:
         iterator = tqdm(iterator)
 
-    for (X, y, sw) in iterator:
-        N = X.shape[0]
-        for j in range(X.shape[1]):
-            corr = spearmanr(X[:, j], np.arange(N), nan_policy="omit")
-            if np.isnan(corr.correlation):
-                corr = -100
-            else:
-                corr = corr.correlation
-            diff = np.diff(X[:, j])
-            autocorrelation = np.sum(diff ** 2) / N
-            monotonicity = 1 / (N - 1) * np.abs(np.sum(diff > 0) - np.sum(diff < 0))
-            column_name = transformed_dataset.transformer.column_names[j]
-            if column_name not in data:
-                data[column_name] = {
-                    "correlation": [],
-                    "autocorrelation": [],
-                    "monotonicity": [],
-                }
-
-            data[column_name]["correlation"].append(corr)
-            data[column_name]["autocorrelation"].append(autocorrelation)
-            data[column_name]["monotonicity"].append(monotonicity)
-    df_data = {}
-    for column_name in data.keys():
-
-        df_data[column_name] = {
-            "Correlation": ufloat(
-                np.mean(data[column_name]["correlation"]),
-                np.std(data[column_name]["correlation"]),
-            ),
-            "Autocorrelation": ufloat(
-                np.mean(data[column_name]["autocorrelation"]),
-                np.std(data[column_name]["autocorrelation"]),
-            ),
-            "Monotonicity": ufloat(
-                np.mean(data[column_name]["monotonicity"]),
-                np.std(data[column_name]["monotonicity"]),
-            ),
-        }
-    return pd.DataFrame(df_data).T
+    for (X, y, _) in iterator:
+        y = np.squeeze(y)
+        data = analysis_single_time_series(
+            X, y, transformed_dataset.transformer.column_names, data, what_to_compute
+        )
+    return merge_analysis(data)
