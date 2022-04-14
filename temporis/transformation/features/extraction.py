@@ -629,7 +629,6 @@ class RollingStatistics(TransformerStep):
             for stats in self.specific[c]: 
                 feature = f"{c}_{stats}"
                 out = getattr(self, f"_{stats}")(X[c], rolling[c], abs_rolling[c])
-                print(out.shape)
                 X_new.loc[:, feature] = out.values
 
     def transform(self, X:pd.DataFrame):
@@ -681,7 +680,7 @@ class ExpandingStatistics(TransformerStep):
     """
 
     def __init__(
-        self, *, min_points=2, to_compute: List[str] = None, name: Optional[str] = None
+        self, *, min_points=2, to_compute: List[str] = None, specific: Optional[Dict[str, List[str]]] = None, name: Optional[str] = None
     ):
         super().__init__(name=name)
         self.min_points = min_points
@@ -704,16 +703,25 @@ class ExpandingStatistics(TransformerStep):
             "std_acosh",
             "std_asinh",
         ]
+        not_default = [
+            'energy',
+            'deviance'
+        ]
+        if to_compute is not None and specific is not None:
+            raise ValueError('Only one of to_compute or specific should be used')
+        self.specific = specific
+        self.to_compute = to_compute
         if to_compute is None:
-            self.to_compute = valid_stats
+            if specific is None:
+                self.to_compute = list(set(valid_stats) - set(not_default))
+            else:
+                self.specific = specific
         else:
             for f in to_compute:
                 if f not in valid_stats:
                     raise ValueError(
                         f"Invalid feature to compute {f}. Valids are {valid_stats}"
                     )
-            if len(set(to_compute)) != len(to_compute):
-                raise ValueError("to_compute has repetead elements")
             self.to_compute = to_compute
 
     def partial_fit(self, X, y=None):
@@ -904,27 +912,50 @@ class ExpandingStatistics(TransformerStep):
             x, s, s_abs, s_abs_sqrt, s_sq
         )
 
-    def transform(self, X):
 
-        X_new_n_columns = len(X.columns) * len(self.to_compute)
-        i = 0
-        columns = np.empty((X_new_n_columns,), dtype=object)
-        for c in X.columns:
+    def _compute_column_names(self, X:pd.DataFrame):
+        columns = []
+        if self.to_compute is not None:
             for stats in self.to_compute:
-                columns[i] = f"{c}_{stats}"
-                i += 1
+                for c in X.columns:
+                    columns.append(f"{c}_{stats}")
+        else:
+            for c in self.specific.keys():
+                for stats in self.specific[c]:
+                    columns.append(f"{c}_{stats}")
+        return columns 
 
+    def _transform_all_features(self, X:pd.DataFrame, X_new:pd.DataFrame, expanding, s_abs, s_abs_sqrt, s_sq):
+
+        for stats in self.to_compute:
+            columns_to_assign = [f"{c}_{stats}" for c in X.columns]
+            out = getattr(self, f"_{stats}")(
+                    X, expanding, s_abs, s_abs_sqrt, s_sq
+                )
+            X_new.loc[:, columns_to_assign] = out.values
+
+
+    def _transform_specific(self,  X:pd.DataFrame, X_new:pd.DataFrame, expanding, s_abs, s_abs_sqrt, s_sq):
+        for c in self.specific.keys():
+            for stats in self.specific[c]: 
+                feature = f"{c}_{stats}"
+                out = getattr(self, f"_{stats}")(
+                    X[c], expanding[c], s_abs[c], s_abs_sqrt[c], s_sq[c]
+                )
+                X_new.loc[:, feature] = out.values
+
+    def transform(self, X:pd.DataFrame):
+        columns = self._compute_column_names(X)
+        
         X_new = pd.DataFrame(index=X.index, columns=columns)
         expanding = X.expanding(self.min_points)
         s_abs = X.abs().expanding(self.min_points)
         s_abs_sqrt = X.abs().pow(1.0 / 2).expanding(self.min_points)
         s_sq = X.pow(2).expanding(self.min_points)
-        for c in X.columns:
-            for stats in self.to_compute:
-                X_new[f"{c}_{stats}"] = getattr(self, f"_{stats}")(
-                    X[c], expanding[c], s_abs[c], s_abs_sqrt[c], s_sq[c]
-                )
-        X_new[np.isinf(X_new) | np.isnan(X_new)] = np.nan
+        if self.to_compute is not None:
+            self._transform_all_features(X, X_new, expanding, s_abs, s_abs_sqrt, s_sq)
+        else:
+            self._transform_specific(X, X_new, expanding, s_abs, s_abs_sqrt, s_sq)
         return X_new
 
 
