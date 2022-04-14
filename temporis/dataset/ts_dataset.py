@@ -52,7 +52,7 @@ class AbstractTimeSeriesDataset:
         v = life.index
         return v.max() - v.min()
 
-    def durations(self) -> List[float]:
+    def durations(self, show_progress: bool = False) -> List[float]:
         """Obtain the length of each life
 
         Returns
@@ -61,7 +61,11 @@ class AbstractTimeSeriesDataset:
             List of durations
         """
         if self._durations is None:
-            self._durations = [self.duration(life) for life in self]
+            if show_progress:
+                iterator = tqdm(self)
+            else:
+                iterator = self
+            self._durations = [self.duration(life) for life in iterator]
             # [self.rul_column].iloc[0]
         return self._durations
 
