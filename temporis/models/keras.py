@@ -16,7 +16,7 @@ def tf_regression_dataset(iterator: WindowedDatasetIterator):
             tf.TensorSpec(
                 shape=(iterator.window_size, n_features), dtype=tf.float32
             ),
-            tf.TensorSpec(shape=(iterator.output_shape, 1), dtype=tf.float32),
+            tf.TensorSpec(shape=(iterator.horizon, iterator.output_dimension), dtype=tf.float32),
             tf.TensorSpec(shape=(1), dtype=tf.float32),
         ),
     )
@@ -30,7 +30,6 @@ def tf_seq_to_seq_dataset(iterator: WindowedDatasetIterator):
     def generator_function():
         for X, y, sw in iterator:
             yield X, y, sw
-
     a = tf.data.Dataset.from_generator(
         generator_function,
         output_signature=(
