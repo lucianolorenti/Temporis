@@ -259,6 +259,8 @@
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.MinMaxScaler.fit">(temporis.transformation.features.scalers.MinMaxScaler method)</a>
 </li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustMinMaxScaler.fit">(temporis.transformation.features.scalers.RobustMinMaxScaler method)</a>
+</li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustStandardScaler.fit">(temporis.transformation.features.scalers.RobustStandardScaler method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.StandardScaler.fit">(temporis.transformation.features.scalers.StandardScaler method)</a>
@@ -292,10 +294,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.denoising.GaussianFilter">GaussianFilter (class in temporis.transformation.features.denoising)</a>
 </li>
-      <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator.get_data">get_data() (temporis.iterators.iterators.WindowedDatasetIterator method)</a>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.RelativePosition.get">get() (temporis.iterators.iterators.RelativePosition method)</a>
+
+      <ul>
+        <li><a href="reference/iterators.html#temporis.iterators.iterators.RelativeToEnd.get">(temporis.iterators.iterators.RelativeToEnd method)</a>
 </li>
+        <li><a href="reference/iterators.html#temporis.iterators.iterators.RelativeToStart.get">(temporis.iterators.iterators.RelativeToStart method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator.get_data">get_data() (temporis.iterators.iterators.WindowedDatasetIterator method)</a>
+</li>
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.AbstractTimeSeriesDataset.get_time_series">get_time_series() (temporis.dataset.ts_dataset.AbstractTimeSeriesDataset method)</a>
 
       <ul>
@@ -468,11 +478,7 @@
       <li><a href="reference/dataset.html#temporis.dataset.ts_dataset.FoldedDataset.original_indices">original_indices() (temporis.dataset.ts_dataset.FoldedDataset method)</a>
 </li>
       <li><a href="reference/iterators.html#temporis.iterators.batcher.Batcher.output_shape">output_shape (temporis.iterators.batcher.Batcher property)</a>
-
-      <ul>
-        <li><a href="reference/iterators.html#temporis.iterators.iterators.WindowedDatasetIterator.output_shape">(temporis.iterators.iterators.WindowedDatasetIterator property)</a>
 </li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -559,16 +565,22 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.RelativePosition">RelativePosition (class in temporis.iterators.iterators)</a>
+</li>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.RelativeToEnd">RelativeToEnd (class in temporis.iterators.iterators)</a>
+</li>
+      <li><a href="reference/iterators.html#temporis.iterators.iterators.RelativeToStart">RelativeToStart (class in temporis.iterators.iterators)</a>
+</li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustMinMaxScaler">RobustMinMaxScaler (class in temporis.transformation.features.scalers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.RobustStandardScaler">RobustStandardScaler (class in temporis.transformation.features.scalers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.ROCKET">ROCKET (class in temporis.transformation.features.extraction)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.rolling_kurtosis">rolling_kurtosis() (in module temporis.transformation.features.extraction)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.imputers.RollingMeanImputer">RollingMeanImputer (class in temporis.transformation.features.imputers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.RollingMeanOutlierRemover">RollingMeanOutlierRemover (class in temporis.transformation.features.outliers)</a>
@@ -599,10 +611,10 @@
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SimpleEncodingCategorical">SimpleEncodingCategorical (class in temporis.transformation.features.extraction)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SlidingNonOverlappingEMD">SlidingNonOverlappingEMD (class in temporis.transformation.features.extraction)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.extraction.SlidingNonOverlappingWaveletDecomposition">SlidingNonOverlappingWaveletDecomposition (class in temporis.transformation.features.extraction)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.Sqrt">Sqrt (class in temporis.transformation.features.transformation)</a>
@@ -612,6 +624,8 @@
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.scalers.StandardScaler">StandardScaler (class in temporis.transformation.features.scalers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.transformation.StringConcatenate">StringConcatenate (class in temporis.transformation.features.transformation)</a>
+</li>
+      <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.resamplers.Subsample">Subsample (class in temporis.transformation.features.resamplers)</a>
 </li>
       <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.resamplers.SubsamplerTransformer">SubsamplerTransformer (class in temporis.transformation.features.resamplers)</a>
 </li>
@@ -822,6 +836,8 @@
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.outliers.ZScoreOutlierRemover.transform">(temporis.transformation.features.outliers.ZScoreOutlierRemover method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer.transform">(temporis.transformation.features.resamplers.IntegerIndexResamplerTransformer method)</a>
+</li>
+        <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.resamplers.Subsample.transform">(temporis.transformation.features.resamplers.Subsample method)</a>
 </li>
         <li><a href="reference/feature_transformation/transformations.html#temporis.transformation.features.resamplers.SubsamplerTransformer.transform">(temporis.transformation.features.resamplers.SubsamplerTransformer method)</a>
 </li>
