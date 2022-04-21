@@ -2,7 +2,7 @@
 """
 from collections.abc import Iterable
 from re import S
-from typing import Any, List, SupportsIndex, Tuple, Union
+from typing import Any, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -262,6 +262,6 @@ class FoldedDataset(AbstractTimeSeriesDataset):
     def number_of_samples_of_time_series(self, i: int) -> int:
         return self[i][0].shape[0]
 
-    def __reduce_ex__(self, __protocol: SupportsIndex) -> Union[str, Tuple[Any, ...]]:
+    def __reduce_ex__(self, __protocol) -> Union[str, Tuple[Any, ...]]:
         return (self.__class__, (self.dataset, self.indices))
 
