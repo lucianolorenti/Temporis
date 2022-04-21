@@ -23,23 +23,12 @@ class AbstractShuffler:
     def at_end(self) -> bool:
         return self.current_time_series == self.wditerator.dataset.n_time_series
 
-    def next_element(
-        self, valid_timestmap: Optional[Callable[[int, int], bool]] = None
-    ) -> Tuple[int, int]:
+    def next_element(self) -> Tuple[int, int]:
 
-        valid = False
-        while not valid:
-            if self.at_end():
-                raise StopIteration
-            ts_index = self.time_series()
-            timestamp = self.timestamp()
-
-            samples_until_end = self.time_series_size(ts_index) - timestamp
-            if valid_timestmap:
-                valid = valid_timestmap(timestamp, samples_until_end)
-            else:
-                valid = True
-
+        if self.at_end():
+            raise StopIteration
+        ts_index = self.time_series()
+        timestamp = self.timestamp()
         return ts_index, timestamp
 
     def start(self, iterator: "WindowedDatasetIterator"):
@@ -59,11 +48,16 @@ class AbstractShuffler:
         self.current_time_series = 0
 
     def load_time_series(self, time_series_index: int):
-        N = self.wditerator.dataset.number_of_samples_of_time_series(time_series_index)
+        total_length = self.wditerator.dataset.number_of_samples_of_time_series(
+            time_series_index
+        )
+        start_index = self.wditerator.start_index.get(total_length)
+        end_index = self.wditerator.end_index.get(total_length)
+        N = end_index - start_index
         self._samples_per_time_series[time_series_index] = math.ceil(
             N / self.wditerator.step
         )
-        self._time_series_sizes[time_series_index] = N
+        self._time_series_sizes[time_series_index] = total_length
 
     def number_samples_of_time_series(self, time_series_index: int) -> int:
         if self._samples_per_time_series[time_series_index] == -1:
@@ -294,9 +288,12 @@ class AllShuffled(AbstractShuffler):
     def load_time_series(self, time_series_index: int):
         super().load_time_series(time_series_index)
         if self.evenly_sampled:
+            total_length = self.time_series_size(time_series_index)
+            final_index = self.wditerator.end_index.get(total_length)
+            
             self.timestamps_per_ts[time_series_index] = np.arange(
-                start=0,
-                stop=self.time_series_size(time_series_index),
+                start=self.wditerator.start_index.get(total_length),
+                stop=final_index,
                 step=self.wditerator.step,
                 dtype=np.int64,
             )
@@ -319,15 +316,23 @@ class NotShuffled(AbstractShuffler):
     def initialize(self, iterator: "WindowedDatasetIterator"):
         super().initialize(iterator)
         self.current_time_series = 0
-        self.current_timestamp = 0
+        
+        self.current_timestamp = self.wditerator.start_index.get(
+            self.current_time_series_size()
+        )
+        
 
     def time_series_changed(self):
         self.current_time_series += 1
-        self.current_timestamp = 0
+        if not self.at_end():
+            self.current_timestamp = self.wditerator.start_index.get(
+                    self.current_time_series_size()
+            )        
 
     def timestamp(self) -> int:
         ret = self.current_timestamp
         self.current_timestamp += self.wditerator.step
-        if self.current_timestamp >= self.current_time_series_size():
+        final_timestamp = self.wditerator.end_index.get(self.current_time_series_size())
+        if self.current_timestamp >= final_timestamp:
             self.time_series_changed()
         return ret
