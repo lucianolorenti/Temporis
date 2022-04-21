@@ -111,6 +111,7 @@ class TestDataset:
         assert len(transformed_serialized_dataset) == len(transformed_dataset)
 
         assert np.all(transformed_serialized_dataset[0][0] == transformed_dataset[0][0])
+        assert np.all(transformed_serialized_dataset[1][0] == transformed_dataset[1][0])
         
 
 
