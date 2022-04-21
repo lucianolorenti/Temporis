@@ -213,7 +213,10 @@ class WindowedDatasetIterator:
             X = np.zeros(
                 (N_points, self.window_size, self.n_features), dtype=np.float32
             )
-        y = np.zeros((N_points, self.output_size), dtype=np.float32)
+        if self.iteration_type == IterationType.FORECAST:
+            y = np.zeros((N_points, self.output_size), dtype=np.float32)
+        else:
+            y = np.zeros((N_points, self.window_size, self.output_size), dtype=np.float32)
         sample_weight = np.zeros(N_points, dtype=np.float32)
 
         iterator = enumerate(self)
@@ -225,7 +228,10 @@ class WindowedDatasetIterator:
                 X[i, :] = X_.flatten()
             else:
                 X[i, :, :] = X_
-            y[i, :] = y_.flatten()
+            if self.iteration_type == IterationType.FORECAST:
+                y[i, :] = y_.flatten()
+            else:
+                y[i, :, :] = y_
             sample_weight[i] = sample_weight_[0]
         return X, y, sample_weight
 
