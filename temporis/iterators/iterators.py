@@ -1,6 +1,8 @@
+from abc import abstractmethod
 from enum import Enum
 import logging
 import random
+from signal import signal
 from typing import Any, Callable, Optional, Tuple, Union
 
 import numpy as np
@@ -24,8 +26,6 @@ class NotWeighted(AbstractSampleWeights):
         return 1
 
 
-
-
 SampleWeight = Union[AbstractSampleWeights, Callable[[np.ndarray, int, Any], float]]
 
 
@@ -38,14 +38,16 @@ def seq_to_seq_signal_generator(
     add_last: bool = True,
 ):
     initial = max(i - window_size + 1, 0)
+
     signal_X_1 = signal_X[initial : i + (1 if add_last else 0), :]
     signal_y_1 = signal_y[initial : i + (1 if add_last else 0), :]
+
     return (signal_X_1, signal_y_1)
 
 
 def windowed_signal_generator(
-    signal_X,
-    signal_y,
+    data: pd.DataFrame,
+    target: pd.DataFrame,
     i: int,
     window_size: int,
     output_size: int = 1,
@@ -56,9 +58,9 @@ def windowed_signal_generator(
 
     Parameters
     ----------
-    signal_X:
+    data:
              Matrix of size (life_length, n_features) with the information of the life
-    signal_y:
+    target:
              Target feature of size (life_length)
     i: int
        Position of the value to predict
@@ -77,20 +79,21 @@ def windowed_signal_generator(
     tuple (np.array, float)
     """
     initial = max(i - window_size + 1, 0)
-    signal_X_1 = signal_X[initial : i + (1 if add_last else 0), :]
+    signal_X_1 = data.iloc[initial : i + (1 if add_last else 0), :].values
 
-    if len(signal_y.shape) == 1:
+    if len(target.shape) == 1:
 
-        signal_y_1 = signal_y[i : min(i + output_size, signal_y.shape[0])]
+        signal_y_1 = target.iloc[i : min(i + output_size, target.shape[0])].values
 
         if signal_y_1.shape[0] < output_size:
             padding = np.zeros(output_size - signal_y_1.shape[0])
             signal_y_1 = np.hstack((signal_y_1, padding))
         signal_y_1 = np.expand_dims(signal_y_1, axis=1)
     else:
-        signal_y_1 = signal_y[i : min(i + output_size, signal_y.shape[0]), :]
+        signal_y_1 = target.iloc[i : min(i + output_size, target.shape[0]), :].values
 
         if signal_y_1.shape[0] < output_size:
+
             padding = np.zeros(
                 ((output_size - signal_y_1.shape[0]), signal_y_1.shape[1])
             )
@@ -114,18 +117,36 @@ class IterationType(Enum):
 
 
 def valid_sample(
-    padding,
-    window_size,
-    max_sample_number: Optional[int],
+    padding: int,
+    window_size: int,
     current_sample: int,
-    samples_until_end: int,
+    y: int,
 ):
-    if max_sample_number is not None and samples_until_end > max_sample_number:
-        return False
     if not padding:
         return current_sample >= window_size - 1
     else:
         return True
+
+
+class RelativePosition:
+    def __init__(self, i: int):
+        self.i = i
+
+    @abstractmethod
+    def get(self, time_series_length: int):
+        raise NotImplementedError
+
+
+class RelativeToEnd(RelativePosition):
+    def get(self, time_series_length: int):
+        
+        return max(time_series_length - self.i, 0)
+        
+
+
+class RelativeToStart(RelativePosition):
+    def get(self, time_series_length: int):
+        return self.i
 
 
 class WindowedDatasetIterator:
@@ -134,21 +155,33 @@ class WindowedDatasetIterator:
         dataset: TransformedDataset,
         window_size: int,
         step: int = 1,
-        output_size: int = 1,
+        horizon: int = 1,
+        output_dimension: int = 1,
         shuffler: AbstractShuffler = NotShuffled(),
         sample_weight: SampleWeight = NotWeighted(),
         add_last: bool = True,
         padding: bool = False,
         iteration_type: IterationType = IterationType.FORECAST,
-        max_sample_number: Optional[int] = None,
+        start_index: Union[int, RelativePosition] = 0,
+        end_index: Optional[Union[int, RelativePosition]] = None,
+        valid_sample: Callable[[int, int, int, int, int], bool] = valid_sample,
     ):
 
+        if isinstance(start_index, int):
+            start_index = RelativeToStart(start_index)
+        self.start_index = start_index
+        if end_index is None:
+            end_index = RelativeToEnd(0)
+        elif isinstance(end_index, int):
+            end_index = RelativeToStart(end_index)
+        self.end_index = end_index
         self.dataset = dataset
         self.shuffler = shuffler
         self.window_size = window_size
         self.step = step
         self.shuffler.initialize(self)
         self.iteration_type = iteration_type
+
 
         if self.iteration_type == IterationType.FORECAST:
             self.slicing_function = windowed_signal_generator
@@ -165,18 +198,16 @@ class WindowedDatasetIterator:
         self.sample_weight = sample_weight
 
         self.i = 0
-        self.output_size = output_size
+        self.horizon = horizon
+        self.output_dimension = output_dimension
         self.add_last = add_last
         self.length = None
         self.padding = padding
-        self.max_sample_number = max_sample_number
         self.valid_sample = functools.partial(
-            valid_sample, self.padding, self.window_size, self.max_sample_number
+            valid_sample, self.padding, self.window_size
         )
 
-    @property
-    def output_shape(self):
-        return self.output_size
+
 
     def __len__(self):
         """
@@ -196,12 +227,17 @@ class WindowedDatasetIterator:
         return self
 
     def __next__(self):
-        life, timestamp = self.shuffler.next_element(self.valid_sample)
+        life, timestamp = self.shuffler.next_element()
         X, y, metadata = self.dataset[life]
-        window = self.slicing_function(
-            X, y, timestamp, self.window_size, self.output_size, self.add_last
+        valid = self.valid_sample(timestamp, y.iloc[timestamp])
+        while not valid:
+            life, timestamp = self.shuffler.next_element()
+            X, y, metadata = self.dataset[life]
+            valid = self.valid_sample(timestamp, y.iloc[timestamp])
+        curr_X, curr_y = self.slicing_function(
+            X, y, timestamp, self.window_size, self.horizon, self.add_last
         )
-        return window[0], window[1], [self.sample_weight(y, timestamp, metadata)]
+        return curr_X, curr_y, [self.sample_weight(y, timestamp, metadata)]
 
     def get_data(self, flatten: bool = True, show_progress: bool = False):
         N_points = len(self)
@@ -213,7 +249,7 @@ class WindowedDatasetIterator:
             X = np.zeros(
                 (N_points, self.window_size, self.n_features), dtype=np.float32
             )
-        y = np.zeros((N_points, self.output_size), dtype=np.float32)
+        y = np.zeros((N_points, self.horizon), dtype=np.float32)
         sample_weight = np.zeros(N_points, dtype=np.float32)
 
         iterator = enumerate(self)
