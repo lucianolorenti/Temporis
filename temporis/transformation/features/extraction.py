@@ -1048,9 +1048,11 @@ class EMDFilter(TransformerStep):
        Number of
     """
 
-    def __init__(self, *, n: int, name: Optional[str] = "EMD"):
+    def __init__(self, *, n: int, min_imf:int, max_imf:int, name: Optional[str] = "EMD"):
         super().__init__(name=name)
         self.n = n
+        self.min_imf = min_imf
+        self.max_imf = max_imf
 
     def transform(self, X):
         new_X = pd.DataFrame(index=X.index)
@@ -1058,8 +1060,9 @@ class EMDFilter(TransformerStep):
         for c in X.columns:
             try:
                 imf = emd.sift.sift(X[c].values, max_imfs=self.n)
-                new_X[c] = np.sum(imf[:, 1:], axis=1)
+                new_X[c] = np.sum(imf[:, self.min_imf:self.max_imf], axis=1)
             except Exception as e:
+                print(e)
                 new_X[c] = X[c]
 
         return new_X
