@@ -37,7 +37,7 @@ class Batcher:
         window: int,
         batch_size: int,
         step: int,
-        output_size: int = 1,
+        horizon: int = 1,
         shuffler: AbstractShuffler = NotShuffled(),
         sample_weight:  SampleWeight= NotWeighted(),
         add_last: bool = True,
@@ -55,6 +55,14 @@ class Batcher:
             Dataset from which the batcher will be created
         batch_size : int
             Batch size
+        step: int 
+            strides
+        horizon: int
+            Size of the horizon to predict. By default 1
+        shuffle: AbstractShuffler
+        sample_weight: SampleWeight
+        add_last: bool
+        padding: bool
 
         Returns
         -------
@@ -65,7 +73,7 @@ class Batcher:
             dataset,
             window,
             step=step,
-            output_size=output_size,
+            horizon=horizon,
             shuffler=shuffler,
             sample_weight=sample_weight,
             add_last=add_last,

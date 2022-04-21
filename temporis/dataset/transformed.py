@@ -75,7 +75,7 @@ class TransformedDataset(AbstractTimeSeriesDataset):
         if pandas:
             return X
         else:
-            return X
+            return X.values
 
     def save(self, output_path:Path):
         TransformedSerializedDataset.save(self, output_path)
