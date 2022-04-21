@@ -10,22 +10,6 @@ from itertools import combinations
 logger = logging.getLogger(__name__)
 
 
-def numerical_features(ds: AbstractTimeSeriesDataset) -> pd.DataFrame:
-    features = ds.numeric_features()
-    data = {c: {"minimum": [], "maximum": [], 'mean':[]} for c in features}
-    for life in ds:
-        for c in features:
-            data[c]['minimum'].append(life[c].min())
-            data[c]['maximum'].append(life[c].max())
-            data[c]['mean'].append(life[c].mean())
-    for k in data.keys():
-        data[k]['minimum'] = np.mean(data[k]['minimum'])
-        data[k]['maximum'] = np.mean(data[k]['maximum'])
-        data[k]['mean'] = np.mean(data[k]['mean'])
-    df= pd.DataFrame(data)
-
-    return df.T
-
 
 def sample_rate(ds: AbstractTimeSeriesDataset, unit:Optional[str] = 's') -> np.ndarray:
     """Obtain an array of time difference between two consecutive samples

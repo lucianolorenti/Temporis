@@ -19,11 +19,11 @@ def entropy(s: np.ndarray):
 
 def correlation(s: np.ndarray, y:Optional[np.ndarray]=None):
     N = s.shape[0]
-    corr = spearmanr(s, np.arange(N), nan_policy="omit")
-    if np.isnan(corr.correlation):
-        corr = np.nan
-    else:
+    if np.all(s[0] == s):
+        corr = spearmanr(s, np.arange(N), nan_policy="omit")
         corr = corr.correlation
+    else:
+        corr = np.nan
     return corr
 
 
@@ -87,11 +87,11 @@ def merge_analysis(data: dict):
     for column_name in data.keys():
         for what in data[column_name]:
             data_df[column_name][f"{what} Mean"] = ufloat(
-                np.mean(data[column_name][what]),
-                np.std(data[column_name][what]),
+                np.nanmean(data[column_name][what]),
+                np.nanstd(data[column_name][what]),
             )
-            data_df[column_name][f"{what} Max"] = np.max(data[column_name][what])
-            data_df[column_name][f"{what} Min"] = np.min(data[column_name][what])
+            data_df[column_name][f"{what} Max"] = np.nanmax(data[column_name][what])
+            data_df[column_name][f"{what} Min"] = np.nanmin(data[column_name][what])
     return pd.DataFrame(data_df).T
 
 

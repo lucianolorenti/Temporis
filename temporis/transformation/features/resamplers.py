@@ -4,6 +4,14 @@ from scipy.interpolate import interp1d
 from temporis.transformation import TransformerStep
 
 
+class Subsample(TransformerStep):
+    def __init__(self, * ,steps:int, **kwargs):
+        super().__init__(**kwargs)
+        self.steps = steps 
+
+    def transform(self, X: pd.DataFrame):
+        return X.iloc[::self.steps, :]
+        
 class SubsamplerTransformer(TransformerStep):
     """IntegerIndexResamplerTransformer
 
@@ -49,8 +57,7 @@ class SubsamplerTransformer(TransformerStep):
     def transform(self, X: pd.DataFrame):
         X = X.groupby(X[self._time_feature] // self.steps, sort=False).mean()
         if self.drop_time_feature:
-            X = X.drop(columns=[self._time_feature])
-                    
+            X = X.drop(columns=[self._time_feature])           
         
         return X
 

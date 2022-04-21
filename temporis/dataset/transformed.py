@@ -68,14 +68,14 @@ class TransformedDataset(AbstractTimeSeriesDataset):
             X, y, metadata = self.transformer.transform(data)
             self.cache.add(i, (X, y, metadata))
         X, y, metadata = self.cache.get(i)
-        return X.values, y.values, metadata
+        return X, y, metadata
 
     def get_X(self, i:int, pandas:bool =True ) -> Union[np.ndarray, pd.DataFrame]:
         X, _, _ = self.cache.get(i)
         if pandas:
             return X
         else:
-            return X.values
+            return X
 
     def save(self, output_path:Path):
         TransformedSerializedDataset.save(self, output_path)

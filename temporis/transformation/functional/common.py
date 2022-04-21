@@ -4,7 +4,7 @@ from temporis.transformation.functional.transformerstep import TransformerStep
 
 class TransformerLambda(TransformerStep):
     def __init__(self, function:Callable,  name:Optional[str]=None):
-        super().__init__(name)
+        super().__init__(name=name)
         self.function = function
 
     def transform(self, X, y=None):
