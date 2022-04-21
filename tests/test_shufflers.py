@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-from temporis.iterators.iterators import WindowedDatasetIterator
+from temporis.iterators.iterators import RelativeToEnd, RelativeToStart, WindowedDatasetIterator
 from temporis.iterators.shufflers import (
     AbstractShuffler,
     AllShuffled,
@@ -71,6 +71,8 @@ class MockIterator:
     def __init__(self,  step: int = 1, dataset=MockDataset(),):
         self.dataset = dataset
         self.step = step
+        self.start_index = RelativeToStart(0)
+        self.end_index = RelativeToEnd(0)
 
 
 class TestShufflers:

@@ -85,7 +85,7 @@ class TestDataset:
     def test_transformed_dataset(self):
         dataset = MockDataset(nlives=5)
 
-        pipe = ByNameFeatureSelector(features=["a"])
+        pipe = ByNameFeatureSelector(features=["feature1"])
         pipe = MinMaxScaler(range=(-1, 1))(pipe)
 
         target_pipe = ByNameFeatureSelector(features=["RUL"])
@@ -111,6 +111,7 @@ class TestDataset:
         assert len(transformed_serialized_dataset) == len(transformed_dataset)
 
         assert np.all(transformed_serialized_dataset[0][0] == transformed_dataset[0][0])
+        assert np.all(transformed_serialized_dataset[1][0] == transformed_dataset[1][0])
         
 
 

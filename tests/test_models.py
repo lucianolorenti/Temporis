@@ -101,7 +101,7 @@ class TestModels:
             ds.map(transformer),
             window_size,
             step=1,
-            output_size=1,
+            horizon=1,
         )
 
         b1 = tf_regression_dataset(iterator).batch(15)

@@ -48,27 +48,23 @@ class SKLearnTimeSeriesWindowTransformer(TransformerMixin, BaseEstimator):
         self.transformer.fit(dataset)
         return self
        
-
-    def transform(self, dataset: AbstractTimeSeriesDataset):
-        iterator = WindowedDatasetIterator(
+    def _iterator(self, dataset: AbstractTimeSeriesDataset):
+        return WindowedDatasetIterator(
             dataset.map(self.transformer),
             self.window_size,
             self.step,
             self.output_size,
-            self.shuffler,self.sample_weight,self.add_last
+            shuffler=self.shuffler,
+            sample_weight=self.sample_weight,
+            add_last=self.add_last
         )
-        X, y, sw = iterator.get_data()
+
+    def transform(self, dataset: AbstractTimeSeriesDataset):
+        X, y, sw = self._iterator(dataset).get_data()
         return X, y
 
     def true_values(self, dataset: AbstractTimeSeriesDataset):
-        iterator = WindowedDatasetIterator(
-            dataset.map(self.transformer),
-            self.window_size,
-            self.step,
-            self.output_size,
-            self.shuffler,self.sample_weight,self.add_last
-        )
-        X, y, sw = iterator.get_data()
+        X, y, sw = self._iterator(dataset).get_data()
         return y
 
 

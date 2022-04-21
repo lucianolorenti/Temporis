@@ -79,18 +79,27 @@ def windowed_signal_generator(
     tuple (np.array, float)
     """
     initial = max(i - window_size + 1, 0)
-    signal_X_1 = data.iloc[initial : i + (1 if add_last else 0), :].values
+    is_df = isinstance(data, pd.DataFrame)
+    if is_df:
+        signal_X_1 = data.iloc[initial : i + (1 if add_last else 0), :].values
+    else:
+        signal_X_1 = data[initial : i + (1 if add_last else 0), :]
 
     if len(target.shape) == 1:
-
-        signal_y_1 = target.iloc[i : min(i + output_size, target.shape[0])].values
+        if is_df:
+            signal_y_1 = target.iloc[i : min(i + output_size, target.shape[0])].values
+        else:
+            signal_y_1 = target[i : min(i + output_size, target.shape[0])]
 
         if signal_y_1.shape[0] < output_size:
             padding = np.zeros(output_size - signal_y_1.shape[0])
             signal_y_1 = np.hstack((signal_y_1, padding))
         signal_y_1 = np.expand_dims(signal_y_1, axis=1)
     else:
-        signal_y_1 = target.iloc[i : min(i + output_size, target.shape[0]), :].values
+        if is_df:
+            signal_y_1 = target.iloc[i : min(i + output_size, target.shape[0]), :].values
+        else:
+            signal_y_1 = target[i : min(i + output_size, target.shape[0]), :]
 
         if signal_y_1.shape[0] < output_size:
 
@@ -250,9 +259,9 @@ class WindowedDatasetIterator:
                 (N_points, self.window_size, self.n_features), dtype=np.float32
             )
         if self.iteration_type == IterationType.FORECAST:
-            y = np.zeros((N_points, self.output_size), dtype=np.float32)
+            y = np.zeros((N_points, self.horizon), dtype=np.float32)
         else:
-            y = np.zeros((N_points, self.window_size, self.output_size), dtype=np.float32)
+            y = np.zeros((N_points, self.window_size, self.horizon), dtype=np.float32)
         sample_weight = np.zeros(N_points, dtype=np.float32)
 
         iterator = enumerate(self)

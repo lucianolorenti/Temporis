@@ -75,7 +75,7 @@ class TransformedDataset(AbstractTimeSeriesDataset):
         if pandas:
             return X
         else:
-            return X
+            return X.values
 
     def save(self, output_path:Path):
         TransformedSerializedDataset.save(self, output_path)
@@ -102,7 +102,7 @@ class TransformedSerializedDataset(TransformedDataset):
         self.cache = LRUDataCache(cache_size)
 
     def _open_file(self, i:int):
-        with gzip.open(self.dataset_path / self.files[i], 'rb') as file:
+        with gzip.open(self.dataset_path / f'ts_{i}.pkl.gz', 'rb') as file:
             return pickle.load(file)
 
     def get_time_series(self, i: int) -> pd.DataFrame:
