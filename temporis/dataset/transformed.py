@@ -126,7 +126,6 @@ class TransformedSerializedDataset(TransformedDataset):
 
     @property
     def n_time_series(self):
-        print()
         return len(self.files)
 
     def __len__(self):
