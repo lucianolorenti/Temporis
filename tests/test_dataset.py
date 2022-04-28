@@ -9,7 +9,7 @@ from temporis.dataset.ts_dataset import (AbstractTimeSeriesDataset,
 from temporis.transformation import Transformer
 from temporis.transformation.features.scalers import MinMaxScaler
 from temporis.transformation.features.selection import ByNameFeatureSelector
-
+from sklearn.model_selection import train_test_split
 
 class MockDataset(AbstractTimeSeriesDataset):
     def __init__(self, nlives: int):
@@ -113,6 +113,46 @@ class TestDataset:
         assert np.all(transformed_serialized_dataset[0][0] == transformed_dataset[0][0])
         assert np.all(transformed_serialized_dataset[1][0] == transformed_dataset[1][0])
         
+        dataset = MockDataset(nlives=30)
+        train_ds, test_ds = train_test_split(dataset, train_size=0.8)
+        train_ds, val_ds = train_test_split(train_ds, train_size=0.8)
+
+        len_train_ds = len(train_ds)
+        len_val_ds = len(val_ds)
+        len_test_ds = len(test_ds)
+
+        pipe = ByNameFeatureSelector(features=["feature1"])
+        pipe = MinMaxScaler(range=(-1, 1))(pipe)
+
+        target_pipe = ByNameFeatureSelector(features=["RUL"])
+
+        transformer = Transformer(transformerX=pipe, transformerY=target_pipe)
+
+        transformer.fit(train_ds)
+
+        train_path = Path('./saved_dataset/train/').resolve()
+        val_path = Path('./saved_dataset/val/').resolve()
+        test_path = Path('./saved_dataset/test/').resolve()
+        train_ds.map(transformer).save(train_path)
+        val_ds.map(transformer).save(val_path)
+        test_ds.map(transformer).save(test_path)
+
+        transformed_serialized_dataset = TransformedSerializedDataset(train_path)
+        n = []
+        for X, y, sw in transformed_serialized_dataset:
+            n.append(y.shape[0])
+
+        assert len(n) == len_train_ds
+        assert len(transformed_serialized_dataset) == len_train_ds
+
+        transformed_serialized_dataset = TransformedSerializedDataset(val_path)
+        assert len(transformed_serialized_dataset) == len_val_ds
+
+        transformed_serialized_dataset = TransformedSerializedDataset(test_path)
+        assert len(transformed_serialized_dataset) == len_test_ds
+
+
+
 
 
 class TestAnalysis:

@@ -11,10 +11,26 @@ from numpy.lib.arraysetops import isin
 from tqdm.auto import tqdm
 
 
+class DatasetIterator:
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.i = 0
+
+    def __next__(self):
+        if self.i == self.dataset.n_time_series:
+            raise StopIteration
+        a = self.dataset[self.i]
+        self.i += 1
+        return a
+
+
 class AbstractTimeSeriesDataset:
     def __init__(self):
         self._common_features = None
         self._durations = None
+
+    def __iter__(self):
+        return DatasetIterator(self)
 
     @property
     def n_time_series(self) -> int:
@@ -33,8 +49,10 @@ class AbstractTimeSeriesDataset:
     def number_of_samples_of_time_series(self, i: int) -> int:
         return self[i].shape[0]
 
-    def number_of_samples(self) ->  List[int]:
-        return [self.number_of_samples_of_time_series(i) for i in tqdm(range(len(self)))]
+    def number_of_samples(self) -> List[int]:
+        return [
+            self.number_of_samples_of_time_series(i) for i in tqdm(range(len(self)))
+        ]
 
     def duration(self, life: pd.DataFrame) -> float:
         """Obtain the duration of the time-series
@@ -242,7 +260,6 @@ class FoldedDataset(AbstractTimeSeriesDataset):
         except Exception as e:
             return self.dataset.__getattribute__(__name)
 
-
     @property
     def n_time_series(self):
         return len(self.indices)
@@ -264,4 +281,3 @@ class FoldedDataset(AbstractTimeSeriesDataset):
 
     def __reduce_ex__(self, __protocol) -> Union[str, Tuple[Any, ...]]:
         return (self.__class__, (self.dataset, self.indices))
-

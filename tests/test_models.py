@@ -156,18 +156,21 @@ class TestModels:
         x = Dense(5, activation="relu")(x)
         x = Dense(1)(x)
         model = Model(inputs=[input], outputs=[x])
-        model.compile(loss="mae", optimizer="sgd")
+        model.compile(loss="mae", optimizer=tf.keras.optimizers.SGD(0.01))
+        y_true = true_values(val_iterator)
+        y_pred_before_fit = model.predict(tf_regression_dataset(val_iterator).batch(64))
+        mae_before_fit = np.mean(np.abs(y_pred_before_fit.ravel() - y_true.ravel()))
         model.fit(
             tf_regression_dataset(train_iterator).batch(4),
             validation_data=tf_regression_dataset(val_iterator).batch(64),
             epochs=15,
         )
         y_pred = model.predict(tf_regression_dataset(val_iterator).batch(64))
-        y_true = true_values(val_iterator)
+        
 
         mae = np.mean(np.abs(y_pred.ravel() - y_true.ravel()))
 
-        assert mae < 3
+        assert mae < mae_before_fit
 
     def test_xgboost(self):
         features = ["feature1", "feature2"]

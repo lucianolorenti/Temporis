@@ -238,11 +238,19 @@ class WindowedDatasetIterator:
     def __next__(self):
         life, timestamp = self.shuffler.next_element()
         X, y, metadata = self.dataset[life]
-        valid = self.valid_sample(timestamp, y.iloc[timestamp])
+        is_df = isinstance(y, pd.DataFrame)
+        if is_df:
+            valid = self.valid_sample(timestamp, y.iloc[timestamp])
+        else:
+            valid = self.valid_sample(timestamp, y[timestamp])
         while not valid:
             life, timestamp = self.shuffler.next_element()
             X, y, metadata = self.dataset[life]
-            valid = self.valid_sample(timestamp, y.iloc[timestamp])
+            if is_df:
+                valid = self.valid_sample(timestamp, y.iloc[timestamp])
+            else:
+                valid = self.valid_sample(timestamp, y[timestamp])
+
         curr_X, curr_y = self.slicing_function(
             X, y, timestamp, self.window_size, self.horizon, self.add_last
         )
