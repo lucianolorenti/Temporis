@@ -1093,7 +1093,6 @@ class EMDFilter(TransformerStep):
                 imf = emd.sift.sift(X[c].values, max_imfs=self.n)
                 new_X[c] = np.sum(imf[:, self.min_imf:self.max_imf], axis=1)
             except Exception as e:
-                print(e)
                 new_X[c] = X[c]
 
         return new_X

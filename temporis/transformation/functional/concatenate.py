@@ -9,13 +9,30 @@ from temporis.transformation.functional.mixin import TransformerStepMixin
 
 
 class Concatenate(TransformerStepMixin):
+    """Join two transformers
+
+    Parameters
+    ----------
+    add_prefix : bool, optional
+        Whether to add prefix , by default True
+    """
+    def __init__(self, *, add_prefix:bool= True):
+
+        super().__init__()
+        self.add_prefix = add_prefix 
+
+
     def merge_dataframes_by_column(self, Xs):
         # indices = [X.index for X in Xs]
         # TODO: Check equal indices
         names = [n.name for n in self.previous]
-
+        def new_feature_name(otherX, name, i):
+            if self.add_prefix:
+                return otherX.add_prefix(f'{name}_{i}_')
+            else:
+                return otherX
         X = pd.concat(
-            [otherX.add_prefix(f'{name}_{i}_') for i, (name, otherX) in enumerate(zip(names, Xs))], axis=1
+            [new_feature_name(otherX, name, i) for i, (name, otherX) in enumerate(zip(names, Xs))], axis=1
         )
         return X
 
