@@ -2,7 +2,7 @@
   <img src="doc/images/logo.png"><br>
 </div>
 
-# Temporis : Time-series utilities for predictive maintenance
+# Temporis: Feature Engineering 
 -----------------
 
 [![Coverage Status](https://coveralls.io/repos/github/lucianolorenti/Temporis/badge.svg)](https://coveralls.io/github/lucianolorenti/Temporis)
@@ -10,15 +10,16 @@
 
 ## What is it?
 
-**Temporis** is a Python package that provides a set of tool for handling time-series datasets in the context of predictive maintenance.
+**Temporis** is a Python package to facilitate feature engineering.
 
 
 ## Main Features
 
-* PM Time series dataset handling
-* Feature extraction in a time-series-wise approach
+* Multiple transformers for extracting features
+* Time-series feature extraction
+* 
 
-The main part of the library if the transformation graph that can be define in order to select, extract and transform features of each of the time series.
+The main part of the library if the transformation graph, similar to the scikit-learn pipeline, that can be define in order to select, extract and transform features of each of the time series.
 
 In the following example 2 features (featureA and featureB) are the input and the target is the column price. 
 For transforming the input features:

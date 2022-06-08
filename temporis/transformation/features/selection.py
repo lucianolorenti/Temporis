@@ -12,6 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class ByNameFeatureSelector(TransformerStep):
+    """Select a subset of feature by name
+
+    Parameters
+    ----------
+            
+    features : Union[str, List[str]], optional
+               Feature name or List of features name to select, by default []
+    """
     def __init__(self, *, features:Union[str, List[str]]= [], name: Optional[str] = None):
         super().__init__(name=name)
         if isinstance(features, str):

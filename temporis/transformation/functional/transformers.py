@@ -138,7 +138,10 @@ class Transformer:
         if self.transformerMetadata is not None:
             self.transformerMetadata.fit(dataset)
 
-        self.minimal_df = dataset[0].head(n=20)
+        if isinstance(dataset, list):
+            self.minimal_df = dataset[0].head(n=20)
+        else:
+            self.minimal_df = dataset.head(n=20)
         X = self.transformerX.transform(self.minimal_df)
         self.number_of_features_ = X.shape[1]
         self.fitted_ = True
