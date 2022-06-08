@@ -24,7 +24,7 @@ class TestWindowGeneratorTest:
 
         assert (np.squeeze(y[[3, 4]]) == np.squeeze(y_w)).all()
 
-        X_w, y_w = windowed_signal_generator(X, y, 3, 6, 2, add_last=False)
+        X_w, y_w = windowed_signal_generator(X, y, 3, 6, 2, right_closed=False)
 
         assert X_w[-1, 0] == X[2, 0]
         assert (np.squeeze(y[[3, 4]]) == np.squeeze(y_w)).all()

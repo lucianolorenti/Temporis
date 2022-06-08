@@ -420,7 +420,7 @@ class TestGenerators:
         pandas_t = expanding.transform(ds_train[0][["a", "b"]])
         fixed_t = manual_expanding(ds_train[0][["a", "b"]], 2)
 
-        assert (pandas_t - fixed_t).mean().mean() < 1e-17
+        assert (pandas_t - fixed_t).mean().mean() < 1e-15
 
     def test_rolling(self):
         lives = [
@@ -648,18 +648,18 @@ class TestEntropy:
 class TestQuantileEstimator:
     def test_quantile(self):
 
-        A = pd.DataFrame({"A": np.random.randn(15000), "B": np.random.randn(15000)})
-        q = QuantileEstimator()
+        A = pd.DataFrame({"A": np.random.randn(15000)*10, "B": np.random.randn(15000)*10})
+        q = QuantileEstimator(tdigest_size=200)
         q.update(A)
         s = q.estimate_quantile(0.5)
         assert s.index.tolist() == ["A", "B"]
-        assert np.abs(s.A) < 0.05
-        assert np.abs(s.B) < 0.05
+        assert (np.abs(s.A - A.quantile(0.5)["A"])) < 0.1
+        assert (np.abs(s.B - A.quantile(0.5)["B"])) < 0.1
 
         s = q.estimate_quantile(0.1)
 
-        assert (np.abs(s.A - A.quantile(0.1)["A"])) < 0.001
-        assert (np.abs(s.B - A.quantile(0.1)["B"])) < 0.001
+        assert (np.abs(s.A - A.quantile(0.1)["A"])) < 0.1
+        assert (np.abs(s.B - A.quantile(0.1)["B"])) < 0.1
 
         B = pd.DataFrame({"A": np.random.randn(15000) + 5, "B": np.random.randn(15000)})
         q.update(B)

@@ -38,8 +38,8 @@ class MockDataset:
 
 
 class MockDatasetBig:
-    def __init__(self):
-        self.sizes = [55, 32, 59, 125, 6046]
+    def __init__(self, N:int = 6046):
+        self.sizes = [55, 32, 59, 125, N]
 
     def __getitem__(self, id: int):
         return MockDataFrame(self.sizes[id])
@@ -68,11 +68,12 @@ class MockDatasetMedium:
 
 
 class MockIterator:
-    def __init__(self,  step: int = 1, dataset=MockDataset(),):
+    def __init__(self,  step: int = 1, dataset=MockDataset(), last_point:bool = True):
         self.dataset = dataset
         self.step = step
         self.start_index = RelativeToStart(0)
         self.end_index = RelativeToEnd(0)
+        self.last_point = last_point
 
 
 class TestShufflers:
@@ -219,14 +220,16 @@ class TestShufflers:
 
         step = 5
         x = AllShuffled()
-        it = WindowedDatasetIterator(MockDatasetBig(), window_size=5, step=step)
+        it = WindowedDatasetIterator(MockDatasetBig(673), window_size=5, step=step)
         values1 = [e for e in x.iterator(it)]
         assert len(set(values1)) == len(values1)
 
         step = 5
         x = NotShuffled()
-        it = WindowedDatasetIterator(MockDatasetBig(), window_size=5, step=step)
+        it = WindowedDatasetIterator(MockDatasetBig(673), window_size=5, step=step)
         values2 = [e for e in x.iterator(it)]
         assert len(set(values2)) == len(values2)
         assert (sorted(values1, key=lambda x: (x[0], x[1])) == sorted(values2, key=lambda x: (x[0], x[1])))
+
+        
 

@@ -132,21 +132,23 @@ class MinMaxScaler(TransformerStep):
             self.data_max = partial_data_max
         else:
             self.data_min = pd.concat([self.data_min, partial_data_min], axis=1).min(
-                axis=1
+                axis=1, skipna=True
             )
             self.data_max = pd.concat([self.data_max, partial_data_max], axis=1).max(
-                axis=1
+                axis=1, skipna=True
             )
         return self
 
     def fit(self, df, y=None):
-        self.data_min = df.min()
-        self.data_max = df.max()
+        self.data_min = df.min(skipna=True)
+        self.data_max = df.max(skipna=True)
+
         return self
 
     def transform(self, X):
         try:
             divisor = self.data_max - self.data_min
+            
             mask = np.abs((divisor)) > 1e-25
             X = X.copy()
             X.loc[:, mask] = (

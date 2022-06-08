@@ -73,7 +73,7 @@ class TestIterators():
         batch_size = 15
         window_size = 5
         ds = MockDataset(5)
-        print(len(ds))
+        
         transformer.fit(ds)
         b = Batcher.new(ds.map(transformer), window_size, batch_size, 1)
         X, y, w = next(b)

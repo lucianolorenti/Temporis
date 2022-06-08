@@ -35,14 +35,14 @@ class SKLearnTimeSeriesWindowTransformer(TransformerMixin, BaseEstimator):
                  output_size: int = 1,
                  shuffler: AbstractShuffler = NotShuffled(),
                  sample_weight:  SampleWeight= NotWeighted(),
-                 add_last: bool = True):
+                 right_closed: bool = True):
         self.transformer = transformer_builder()
         self.window_size=window_size
         self.output_size = output_size
         self.step = step
         self.shuffler = shuffler 
         self.sample_weight = sample_weight
-        self.add_last = add_last
+        self.right_closed = right_closed
 
     def fit(self, dataset: AbstractTimeSeriesDataset):
         self.transformer.fit(dataset)
@@ -56,7 +56,7 @@ class SKLearnTimeSeriesWindowTransformer(TransformerMixin, BaseEstimator):
             self.output_size,
             shuffler=self.shuffler,
             sample_weight=self.sample_weight,
-            add_last=self.add_last
+            right_closed=self.right_closed
         )
 
     def transform(self, dataset: AbstractTimeSeriesDataset):

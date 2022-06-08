@@ -146,27 +146,43 @@ class BeyondQuartileOutlierRemover(TransformerStep):
         self,
         lower_quantile: float = 0.25,
         upper_quantile: float = 0.75,
-        subsample: float = 0.2,
+        subsample: float = 1.0,
         clip: bool = False,
         name: Optional[str] = None,
+        prefer_partial_fit:bool=False
     ):
 
-        super().__init__(name)
+        super().__init__(name=name, prefer_partial_fit=prefer_partial_fit)
         self.tdigest_dict = None
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
         self.clip = clip
-        self.quantile_estimator = QuantileEstimator(
-            tdigest_size=100, subsample=subsample
-        )
+        self.subsample= subsample
         self.Q1 = None
         self.Q3 = None
+        self.quantile_estimator = None
 
     def partial_fit(self, X):
         if X.shape[0] == 1:
             return self
+        if self.quantile_estimator is None:
+            self.quantile_estimator = QuantileEstimator(
+               tdigest_size=100, subsample=self.subsample
+            )
 
         self.quantile_estimator.update(X.select_dtypes(include="number"))
+        return self
+
+    def fit(self, X):
+        if self.subsample < 1:
+
+            sampled_points = np.random.choice(
+                X.shape[0], int(X.shape[0] * self.subsample), replace=False
+            )
+            X = X.iloc[sampled_points, :]
+        self.Q1 = X.quantile(self.lower_quantile)
+        self.Q3 = X.quantile(self.upper_quantile)
+
         return self
 
     def transform(self, X):
@@ -174,16 +190,15 @@ class BeyondQuartileOutlierRemover(TransformerStep):
         if self.Q1 is None:
             self.Q1 = self.quantile_estimator.estimate_quantile(self.lower_quantile)
             self.Q3 = self.quantile_estimator.estimate_quantile(self.upper_quantile)
-        print(self.Q3)
+
         new_X = X.copy()
-        numeric = new_X.select_dtypes(include="number")
+        
 
         if self.clip:
-            numeric.clip(self.Q1, self.Q3, inplace=True, axis=0)
+            new_X.clip(lower=self.Q1, upper=self.Q3, inplace=True, axis=1)
         else:
-            numeric[numeric < self.Q1] = -np.inf
-            numeric[numeric > self.Q3] = np.inf
-            print(numeric)
+            new_X[new_X < self.Q1] = -np.inf
+            new_X[new_X > self.Q3] = np.inf            
         return new_X
 
     def description(self):
@@ -287,7 +302,7 @@ class RollingMeanOutlierRemover(TransformerStep):
         *,
         window: int = 15,
         lambda_: float = 3,
-        return_mask: bool = True,
+        return_mask: bool = False,
         name: Optional[str] = None,
     ):
         super().__init__(name=name)
@@ -297,14 +312,18 @@ class RollingMeanOutlierRemover(TransformerStep):
 
     def transform(self, X):
         r = X.rolling(self.window, min_periods=1)
-        upper = r.mean() + (self.lambda_ * r.std())
-        lower = r.mean() - (self.lambda_ * r.std())
+        std = r.quantile(0.75) -  r.quantile(0.25)
+        upper = r.median() + (self.lambda_ * std)
+        lower = r.median() - (self.lambda_ * std)
         mask = (X > upper) | (X < lower)
         if self.return_mask:
             return mask.astype("int")
         else:
             X = X.copy()
-            X[mask] = np.nan
+            X[(X > upper)] = np.minimum(upper.values, X) 
+            X[(X < upper)] = np.maximum(lower.values, X) 
+
+            #X[mask] = np.nan
             return X
 
 

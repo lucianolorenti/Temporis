@@ -40,7 +40,7 @@ class Batcher:
         horizon: int = 1,
         shuffler: AbstractShuffler = NotShuffled(),
         sample_weight:  SampleWeight= NotWeighted(),
-        add_last: bool = True,
+        right_closed: bool = True,
         padding: bool = False
     ):
         """Batcher constructor from a dataset
@@ -61,7 +61,7 @@ class Batcher:
             Size of the horizon to predict. By default 1
         shuffle: AbstractShuffler
         sample_weight: SampleWeight
-        add_last: bool
+        right_closed: bool
         padding: bool
 
         Returns
@@ -76,7 +76,7 @@ class Batcher:
             horizon=horizon,
             shuffler=shuffler,
             sample_weight=sample_weight,
-            add_last=add_last,
+            right_closed=right_closed,
             padding=padding
         )
         b = Batcher(iterator, batch_size)

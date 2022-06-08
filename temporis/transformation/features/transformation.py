@@ -238,6 +238,38 @@ class ExpandingCentering(TransformerStep):
         return X - X.expanding().mean()
 
 
+class  RollingCentering(TransformerStep):
+    """Center the life using an expanding window
+
+    .. highlight:: python
+    .. code-block:: python
+
+        X - X.rolling().mean()
+
+    """
+
+    def __init__(self, window:int, min_points:int, name:Optional[str]=None):
+        super().__init__(name=name)
+        self.window = window
+        self.min_points = min_points
+    
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Transform the live centering it using an expanding window
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            The input life
+
+        Returns
+        -------
+        pd.DataFrame
+            Return a new DataFrame with the same index as the input with the
+            data centered
+        """
+        return X - X.rolling(window=self.window, min_periods=self.min_points).mean()
+
+
 class ExpandingNormalization(TransformerStep):
     """Normalize the life features using an expanding window
 

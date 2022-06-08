@@ -30,17 +30,39 @@ SampleWeight = Union[AbstractSampleWeights, Callable[[np.ndarray, int, Any], flo
 
 
 def seq_to_seq_signal_generator(
-    signal_X,
-    signal_y,
+    signal_X:np.ndarray,
+    signal_Y:np.ndarray,
     i: int,
     window_size: int,
     output_size: int = 1,
-    add_last: bool = True,
-):
+    right_closed: bool = True,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Generator for sequence to sequence models
+
+    Parameters
+    ----------
+    signal_X : np.ndarray
+        The input signal
+    signal_Y : np.ndarray
+        The output signal
+    i : int
+        Current index
+    window_size : int
+        Window size
+    output_size : int, optional
+        Output sequence length, by default 1
+    right_closed : bool, optional
+        Wether the lsat input of the windwo is included or not, by default True
+
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        Input and ouput sequences
+    """
     initial = max(i - window_size + 1, 0)
 
-    signal_X_1 = signal_X[initial : i + (1 if add_last else 0), :]
-    signal_y_1 = signal_y[initial : i + (1 if add_last else 0), :]
+    signal_X_1 = signal_X[initial : i + (1 if right_closed else 0), :]
+    signal_y_1 = signal_Y[initial : i + (1 if right_closed else 0), :]
 
     return (signal_X_1, signal_y_1)
 
@@ -51,7 +73,7 @@ def windowed_signal_generator(
     i: int,
     window_size: int,
     output_size: int = 1,
-    add_last: bool = True,
+    right_closed: bool = True,
 ):
     """
     Return a lookback window and the value to predict.
@@ -71,7 +93,7 @@ def windowed_signal_generator(
     output_size: int
                  Number of points of the target
 
-    add_last: bool
+    right_closed: bool
 
 
     Returns
@@ -81,9 +103,9 @@ def windowed_signal_generator(
     initial = max(i - window_size + 1, 0)
     is_df = isinstance(data, pd.DataFrame)
     if is_df:
-        signal_X_1 = data.iloc[initial : i + (1 if add_last else 0), :].values
+        signal_X_1 = data.iloc[initial : i + (1 if right_closed else 0), :].values
     else:
-        signal_X_1 = data[initial : i + (1 if add_last else 0), :]
+        signal_X_1 = data[initial : i + (1 if right_closed else 0), :]
 
     if len(target.shape) == 1:
         if is_df:
@@ -168,12 +190,14 @@ class WindowedDatasetIterator:
         output_dimension: int = 1,
         shuffler: AbstractShuffler = NotShuffled(),
         sample_weight: SampleWeight = NotWeighted(),
-        add_last: bool = True,
+        right_closed: bool = True,
         padding: bool = False,
         iteration_type: IterationType = IterationType.FORECAST,
         start_index: Union[int, RelativePosition] = 0,
         end_index: Optional[Union[int, RelativePosition]] = None,
         valid_sample: Callable[[int, int, int, int, int], bool] = valid_sample,
+        last_point: bool = True
+        
     ):
 
         if isinstance(start_index, int):
@@ -183,6 +207,7 @@ class WindowedDatasetIterator:
             end_index = RelativeToEnd(0)
         elif isinstance(end_index, int):
             end_index = RelativeToStart(end_index)
+        self.last_point = last_point
         self.end_index = end_index
         self.dataset = dataset
         self.shuffler = shuffler
@@ -190,6 +215,7 @@ class WindowedDatasetIterator:
         self.step = step
         self.shuffler.initialize(self)
         self.iteration_type = iteration_type
+        
 
 
         if self.iteration_type == IterationType.FORECAST:
@@ -209,7 +235,7 @@ class WindowedDatasetIterator:
         self.i = 0
         self.horizon = horizon
         self.output_dimension = output_dimension
-        self.add_last = add_last
+        self.right_closed = right_closed
         self.length = None
         self.padding = padding
         self.valid_sample = functools.partial(
@@ -252,7 +278,7 @@ class WindowedDatasetIterator:
                 valid = self.valid_sample(timestamp, y[timestamp])
 
         curr_X, curr_y = self.slicing_function(
-            X, y, timestamp, self.window_size, self.horizon, self.add_last
+            X, y, timestamp, self.window_size, self.horizon, self.right_closed
         )
         return curr_X, curr_y, [self.sample_weight(y, timestamp, metadata)]
 
