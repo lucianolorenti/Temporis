@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -344,6 +345,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -352,10 +354,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -367,12 +373,15 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
@@ -400,7 +409,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Getting-Started">
-<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this headline"></a></h1>
+<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this heading"></a></h1>
 <p>This guide will make use of the dataset generated with the Commercial Modular Aero-Propulsion System Simulation (C-MAPSS) dynamical model. The dataset consists of multiple multivariate time series. Each data set is further divided into training and test subsets. Each time series is from a different engine - i.e., the data can be considered to be from a fleet of engines of the same type. Each engine starts with different degrees of initial wear and manufacturing variation which is unknown to the
 user. This wear and variation are considered normal, i.e., it is not considered a fault condition. There are three operational settings that have a substantial effect on engine performance. These settings are also included in the data. The data are contaminated with sensor noise.</p>
 <p>The engine is operating normally at the start of each time series and starts to degrade at some point during the series. In the training set, the degradation grows in magnitude until a predefined threshold is reached beyond which it is not preferable to operate the engine. In the test set, the time series ends some time prior to complete degradation. The objective of the competition is to predict the number of operational cycles after the last cycle that the engine will continue to operate
@@ -420,7 +429,7 @@ properly.</p>
 <p>In the first set of data, there are 100 train trajectories and 100 test trajectories.</p>
 <p>[1] A. Saxena, M. Ieee, K. Goebel, D. Simon, and N. Eklund, “Damage Propagation Modeling for Aircraft Engine Prognostics,” Response, 2008.</p>
 <section id="Import">
-<h2>Import<a class="headerlink" href="#Import" title="Permalink to this headline"></a></h2>
+<h2>Import<a class="headerlink" href="#Import" title="Permalink to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -482,7 +491,7 @@ properly.</p>
 </div>
 </section>
 <section id="Dataset">
-<h2>Dataset<a class="headerlink" href="#Dataset" title="Permalink to this headline"></a></h2>
+<h2>Dataset<a class="headerlink" href="#Dataset" title="Permalink to this heading"></a></h2>
 <p>The Dataset comes in a space separated tabular file. The functions <code class="docutils literal notranslate"><span class="pre">process_file_train</span></code> and <code class="docutils literal notranslate"><span class="pre">process_file_test</span></code> receive the filename of the dataset file and return a <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> with the pre-processed data. The <code class="docutils literal notranslate"><span class="pre">UnitNumber</span></code> column is a life identifier.</p>
 <p>In order to define a dataset you should subclass <code class="docutils literal notranslate"><span class="pre">AbstractLivesDataset</span></code> and define three methods:</p>
 <ul class="simple">
@@ -534,7 +543,7 @@ properly.</p>
 </div>
 </div>
 <section id="Number-of-lives-in-the-training-set">
-<h3>Number of lives in the training set<a class="headerlink" href="#Number-of-lives-in-the-training-set" title="Permalink to this headline"></a></h3>
+<h3>Number of lives in the training set<a class="headerlink" href="#Number-of-lives-in-the-training-set" title="Permalink to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -554,7 +563,7 @@ properly.</p>
 </div>
 </section>
 <section id="Number-of-lives-in-the-validation-set">
-<h3>Number of lives in the validation set<a class="headerlink" href="#Number-of-lives-in-the-validation-set" title="Permalink to this headline"></a></h3>
+<h3>Number of lives in the validation set<a class="headerlink" href="#Number-of-lives-in-the-validation-set" title="Permalink to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -575,9 +584,9 @@ properly.</p>
 </section>
 </section>
 <section id="Dataset-analysis">
-<h2>Dataset analysis<a class="headerlink" href="#Dataset-analysis" title="Permalink to this headline"></a></h2>
+<h2>Dataset analysis<a class="headerlink" href="#Dataset-analysis" title="Permalink to this heading"></a></h2>
 <section id="Missing-values">
-<h3>Missing values<a class="headerlink" href="#Missing-values" title="Permalink to this headline"></a></h3>
+<h3>Missing values<a class="headerlink" href="#Missing-values" title="Permalink to this heading"></a></h3>
 <p>Usually, the information of sensors is incomplete and this causes numerous missing values in the features. This library provides some useful functions to analyse the proportion of the missing values for each feature for each life. In some cases, if the feature values are missing in multiple lives, that feature can be discarded.</p>
 <p>Luckily in the NASA dataset, we don’t have any missing values:</p>
 <div class="nbinput docutils container">
@@ -958,7 +967,7 @@ properly.</p>
 </div>
 </section>
 <section id="Variance">
-<h3>Variance<a class="headerlink" href="#Variance" title="Permalink to this headline"></a></h3>
+<h3>Variance<a class="headerlink" href="#Variance" title="Permalink to this heading"></a></h3>
 <p>Another possibility is that sensors do not vary equally in a diverse set of lives. Another function obtains information about the variance of each feature per each life. If a feature variance is zero in many lives, maybe it is a good idea to remove it.</p>
 <p>In the NASA dataset, we can see that some of the features have a zero variance in some of the lives.</p>
 <div class="nbinput docutils container">
@@ -1196,11 +1205,11 @@ properly.</p>
 </section>
 </section>
 <section id="Transformers">
-<h2>Transformers<a class="headerlink" href="#Transformers" title="Permalink to this headline"></a></h2>
+<h2>Transformers<a class="headerlink" href="#Transformers" title="Permalink to this heading"></a></h2>
 <p>Transformers are defined using an API similar to the keras functional API.</p>
 <p>Two tarnsformer pipelines have to be defined: * How the data is going to be transformed * This transformer invovles selecting and transforming and generating features * How the target is going to be transformed * This transformer involves selecting and transforming the target</p>
 <section id="Functional-API">
-<h3>Functional API<a class="headerlink" href="#Functional-API" title="Permalink to this headline"></a></h3>
+<h3>Functional API<a class="headerlink" href="#Functional-API" title="Permalink to this heading"></a></h3>
 <p>Following the literature, the future that addresses this dataset, only a subset of the feature are going to be used to fit our model.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -1267,7 +1276,7 @@ properly.</p>
 </div>
 </section>
 <section id="Fitting-the-transformer">
-<h3>Fitting the transformer<a class="headerlink" href="#Fitting-the-transformer" title="Permalink to this headline"></a></h3>
+<h3>Fitting the transformer<a class="headerlink" href="#Fitting-the-transformer" title="Permalink to this heading"></a></h3>
 <p>The transformer must be fitted on the dataset.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
@@ -1288,7 +1297,7 @@ properly.</p>
 </div>
 </section>
 <section id="Transforming-a-life">
-<h3>Transforming a life<a class="headerlink" href="#Transforming-a-life" title="Permalink to this headline"></a></h3>
+<h3>Transforming a life<a class="headerlink" href="#Transforming-a-life" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -1332,7 +1341,7 @@ properly.</p>
 </div>
 </section>
 <section id="More-complex-transformers">
-<h3>More complex transformers<a class="headerlink" href="#More-complex-transformers" title="Permalink to this headline"></a></h3>
+<h3>More complex transformers<a class="headerlink" href="#More-complex-transformers" title="Permalink to this heading"></a></h3>
 <p>More complex transformers can also be constructed. For example, we may want to use the raw features but also extract some statistics from a subset of features. In this case, we are going to obtain the kurtosis and the peak coefficient using a rolling window for 3 features. There are a lot of different feature extraction and transformation steps that can be applied. I encourage you to check the documentation to discover more.</p>
 <p>The number of features we are going to obtain at the end will be the 14 coming from the raw features and 6=2*3 coming for the two statistics computed from the selected subset of size 3.</p>
 <div class="nbinput docutils container">
@@ -1374,7 +1383,7 @@ properly.</p>
 </section>
 </section>
 <section id="It-is-possible-to-visualize-the-transformation-pipeline">
-<h1>It is possible to visualize the transformation pipeline<a class="headerlink" href="#It-is-possible-to-visualize-the-transformation-pipeline" title="Permalink to this headline"></a></h1>
+<h1>It is possible to visualize the transformation pipeline<a class="headerlink" href="#It-is-possible-to-visualize-the-transformation-pipeline" title="Permalink to this heading"></a></h1>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
@@ -1464,9 +1473,9 @@ Index([&#39;raw_scaled_0_SensorMeasure2&#39;, &#39;raw_scaled_0_SensorMeasure3&#
 </pre></div></div>
 </div>
 <section id="Iterators">
-<h2>Iterators<a class="headerlink" href="#Iterators" title="Permalink to this headline"></a></h2>
+<h2>Iterators<a class="headerlink" href="#Iterators" title="Permalink to this heading"></a></h2>
 <section id="Lives-iterator">
-<h3>Lives iterator<a class="headerlink" href="#Lives-iterator" title="Permalink to this headline"></a></h3>
+<h3>Lives iterator<a class="headerlink" href="#Lives-iterator" title="Permalink to this heading"></a></h3>
 <p>The dataset can be iterated. Each element of the iteration is life in stored in <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> which contains all the features</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
@@ -1512,7 +1521,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 </section>
 <section id="Transformed-dataset">
-<h3>Transformed dataset<a class="headerlink" href="#Transformed-dataset" title="Permalink to this headline"></a></h3>
+<h3>Transformed dataset<a class="headerlink" href="#Transformed-dataset" title="Permalink to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
@@ -1524,7 +1533,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </div>
 </section>
 <section id="WindowedDatasetIterator">
-<h3>WindowedDatasetIterator<a class="headerlink" href="#WindowedDatasetIterator" title="Permalink to this headline"></a></h3>
+<h3>WindowedDatasetIterator<a class="headerlink" href="#WindowedDatasetIterator" title="Permalink to this heading"></a></h3>
 <p>The windowed dataset iterator provides a way of iterating the transformed dataset trough an sliding window. The sample for the i-th element, provides the (window-1) elements of the window. It also provides capabilities to shuffle in diverse ways the how the samples are delivered by the iterator.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
@@ -1563,7 +1572,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </section>
 </section>
 <section id="Batcher">
-<h2>Batcher<a class="headerlink" href="#Batcher" title="Permalink to this headline"></a></h2>
+<h2>Batcher<a class="headerlink" href="#Batcher" title="Permalink to this heading"></a></h2>
 <p>The batcher class make use of the <code class="docutils literal notranslate"><span class="pre">WindowedDatasetIterator</span></code> to generate batches of samples.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
@@ -1617,7 +1626,7 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </pre></div></div>
 </div>
 <section id="How-dos-a-sample-looks-like?">
-<h3>How dos a sample looks like?<a class="headerlink" href="#How-dos-a-sample-looks-like?" title="Permalink to this headline"></a></h3>
+<h3>How dos a sample looks like?<a class="headerlink" href="#How-dos-a-sample-looks-like?" title="Permalink to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
@@ -1651,10 +1660,10 @@ Index([&#39;Cycle&#39;, &#39;OpSet1&#39;, &#39;OpSet2&#39;, &#39;OpSet3&#39;, &#
 </section>
 </section>
 <section id="Model">
-<h2>Model<a class="headerlink" href="#Model" title="Permalink to this headline"></a></h2>
+<h2>Model<a class="headerlink" href="#Model" title="Permalink to this heading"></a></h2>
 <p>There are utilities available to fit models with common machine learning frameworks</p>
 <section id="Keras-models">
-<h3>Keras models<a class="headerlink" href="#Keras-models" title="Permalink to this headline"></a></h3>
+<h3>Keras models<a class="headerlink" href="#Keras-models" title="Permalink to this heading"></a></h3>
 <p>Let’s create a simple model in keras with some FC layers.</p>
 <p>First of all we need to create two batchers for feeding the model.</p>
 <div class="nbinput nblast docutils container">
@@ -1777,7 +1786,7 @@ Epoch 12/12
 </pre></div></div>
 </div>
 <section id="Learning-curves">
-<h4>Learning curves<a class="headerlink" href="#Learning-curves" title="Permalink to this headline"></a></h4>
+<h4>Learning curves<a class="headerlink" href="#Learning-curves" title="Permalink to this heading"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
@@ -1809,7 +1818,7 @@ Epoch 12/12
 </div>
 </section>
 <section id="Prediction-on-the-validation-set">
-<h4>Prediction on the validation set<a class="headerlink" href="#Prediction-on-the-validation-set" title="Permalink to this headline"></a></h4>
+<h4>Prediction on the validation set<a class="headerlink" href="#Prediction-on-the-validation-set" title="Permalink to this heading"></a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
@@ -1841,7 +1850,7 @@ Epoch 12/12
 </section>
 </section>
 <section id="Scikit-learn-and-gradient-boosting-models">
-<h3>Scikit-learn and gradient boosting models<a class="headerlink" href="#Scikit-learn-and-gradient-boosting-models" title="Permalink to this headline"></a></h3>
+<h3>Scikit-learn and gradient boosting models<a class="headerlink" href="#Scikit-learn-and-gradient-boosting-models" title="Permalink to this heading"></a></h3>
 <p>Following the same API we can create scikit-learn and XGBoost models for regressing our data.</p>
 <p>In the following example we are going to create a RandomForestRegressor to predict the RUL of the same dataset</p>
 <div class="nbinput nblast docutils container">
