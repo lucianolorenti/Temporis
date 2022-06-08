@@ -138,7 +138,7 @@ class Transformer:
         if self.transformerMetadata is not None:
             self.transformerMetadata.fit(dataset)
 
-        if isinstance(dataset, list):
+        if not isinstance(dataset, pd.DataFrame):
             self.minimal_df = dataset[0].head(n=20)
         else:
             self.minimal_df = dataset.head(n=20)
